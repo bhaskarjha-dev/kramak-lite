@@ -1,4 +1,4 @@
-﻿{
+{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kramak-lite-state",
   "title": "Kramak Lite State",
@@ -107,6 +107,21 @@
         "failedItems": { "type": "array", "items": { "type": "string" } },
         "timestamp": { "type": "string", "format": "date-time" }
       }
+    },
+    "productPhase": {
+      "type": "string",
+      "enum": ["build", "ship", "iterate"],
+      "description": "Current product lifecycle phase. Determines planning priorities."
+    },
+    "projectStructure": {
+      "type": ["object", "null"],
+      "properties": {
+        "readme": { "type": "string" },
+        "roadmap": { "type": "string" },
+        "architecture": { "type": "string" },
+        "discovered": { "type": "boolean" }
+      },
+      "description": "Discovered project documentation paths. Cached to skip re-scanning."
     }
   }
 }
