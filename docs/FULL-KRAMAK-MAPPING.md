@@ -10,11 +10,13 @@
 
 | Status | Count | Percentage |
 |---|---|---|
-| ✅ Included in Lite | 157 | 89% |
-| ⚡ Included (condensed form) | 10 | 6% |
+| ✅ Included in Lite | 134 | 76% |
+| ⚡ Included (condensed form) | 28 | 16% |
 | 🔧 CLI-Only (needs programmatic enforcement) | 6 | 3% |
-| ⏭️ Excluded (too heavyweight for marginal gain) | 3 | 2% |
-| **Total** | **176** | **~95% effective coverage** |
+| ⏭️ Excluded (too heavyweight for marginal gain) | 8 | 5% |
+| **Total** | **176** | |
+
+**Effective coverage:** 162 of 176 rules (92%) are included fully or in condensed form. Excluding CLI-only rules that cannot be enforced via markdown, coverage is 162 of 170 enforceable rules (~95%).
 
 ---
 
@@ -303,7 +305,7 @@
 
 ## Summary by Status
 
-**✅ Fully Included:** 157 rules — the complete operational core
-**⚡ Condensed:** 10 rules — essence captured with less verbosity
+**✅ Fully Included:** 134 rules — the complete operational core
+**⚡ Condensed:** 28 rules — essence captured with less verbosity
 **🔧 CLI-Only:** 6 rules — require programmatic enforcement (Canary Gate, WAL, Anti-Bias G3-G6, state transition guards)
-**⏭️ Excluded:** 3 rules — 5 Strategic Lenses and Perspective Rotation are too heavyweight for Lite's token budget
+**⏭️ Excluded:** 8 rules — 5 Strategic Lenses, Perspective Rotation, and Vision Assessment tracking are too heavyweight for Lite's token budget

@@ -48,6 +48,17 @@ Store in `state.json`:
 ```json
 {
   "phase": "planning",
+  "batchNumber": 0,
+  "active": null,
+  "queue": [],
+  "completed": [],
+  "failed": [],
+  "metrics": {
+    "totalCompleted": 0,
+    "totalFailed": 0,
+    "consecutiveFailures": 0,
+    "circuitBreakerTripped": false
+  },
   "toolchain": {
     "checkCommands": ["npm test", "npx tsc --noEmit"],
     "detected": true
@@ -181,6 +192,7 @@ Match specification detail to risk. Over-specifying degrades model performance. 
 - **Build sequence:** Schema/data model (Guided) -> backend logic (Directed) -> frontend UI (Directed/Outcome) -> integration wiring (Directed) -> polish (Outcome)
 - **Consider alternatives:** For medium/high-risk work, evaluate at least 2 approaches and document the chosen one with rationale in the WI Intent. For architectural decisions, consider 3.
 - **Quality over volume:** 5 excellent WIs beats 15 vague ones
+- **One concern per WI:** Each WI should address a single coherent concern. Multiple files (3-8) are fine if they all serve one purpose.
 - **Confidence calibration:** Rate your confidence per WI: High (proceed), Medium (verify assumptions first), Low (research and flag risk explicitly)
 - **Decision audit trail:** Document why you chose this approach over alternatives in the WI Intent. Future planners need this context.
 
@@ -214,7 +226,7 @@ Before transitioning to execution, verify:
 1. Update `state.json`:
    - Set `phase: "executing"`, populate `queue` with WI IDs, set `batchNumber`
 2. Commit planning artifacts:
-   `git add .kramak/` then `git commit -m "plan(batch-NN): [theme]"`
+   Stage all planning artifacts: `git add .kramak/` (and any docs/roadmaps edited directly), then `git commit -m "plan(batch-NN): [theme]"`
 3. **Model-type consideration:** If you are an expensive reasoning model, recommend a fast/precise model for execution. Reasoning tokens are valuable for planning, not for mechanical code editing.
 4. **Spend up to half your session on analysis and research.** A well-reasoned plan is more valuable than 10 WIs built in the wrong direction. But you MUST produce actionable WIs before the session ends.
 
@@ -228,7 +240,7 @@ Before transitioning to execution, verify:
 2. **Stay in scope.** Only modify files listed in the Work Item's `files_targeted`. If you must touch another file, note it for the next planning batch instead.
 3. **Run verification after changes.** Execute the project's `toolchain.checkCommands`. Code that "looks right" but has not been tested does not count.
 4. **Do not add unplanned features.** If you discover something needed, write a new WI for the next batch.
-5. **Resolve from spec, not from the user.** The WI specification contains everything you need. Make decisions from the spec and codebase patterns.
+5. **Do not ask the user questions.** The WI specification contains everything you need. Resolve decisions from the spec and codebase patterns. If the WI is unclear, fail it with category `ambiguous-spec` and route back to the planner.
 6. **Research when uncertain.** If unsure about an API, library version, or approach, search the web or read documentation. Uncertainty is a signal to research, not to guess. Account for training data cutoff - verify current versions.
 7. **Never write secrets.** Reference environment variables (`process.env.API_KEY`). Update `.env.example` with placeholder keys. If credentials are needed, note it for the user - never hardcode.
 8. **Do not suppress reasoning.** Thinking happens through tokens. Never tell yourself to "be concise" or skip analysis - depth prevents costly bugs.
@@ -252,13 +264,18 @@ Before transitioning to execution, verify:
    Directed -> Follow intent and constraints, you own the HOW
    Outcome  -> Follow acceptance criteria, you own the design
 5. Run verification (checkCommands + WI-specific tests)
-6. Scope check: git diff --name-only must match files_targeted
+6. Scope check (detective backup for the intercept above — both are required):
+   git diff --name-only must match files_targeted
    -> If unlisted file touched: revert it with git checkout
 7. Commit with conventional prefix: fix(scope) or feat(scope)
 8. Update WI status to done, set completed_at timestamp
 9. Update state.json: move WI from queue to completed, clear active
 10. Pick next WI from queue, or transition to auditing when empty
 ```
+
+**On success (step 9),** update `state.json`: set `active: null`, append the WI to `completed` with `{id, completedAt}`, reset `metrics.consecutiveFailures` to `0`. On failure, see Section 4.3.
+
+> **Periodic re-grounding:** After every 3rd file edit, or immediately after any tool error, re-read the active WI specification. Compare current changes against `files_targeted` and `acceptance_criteria`. If drift is detected, stop and re-align before continuing.
 
 > **Neighborhood Cleanup:** When editing a file in `files_targeted`, also fix obvious syntax bugs, missing null checks, or stale comments in the lines you touch. Do NOT open unlisted files for cleanup - cleanup is confined to files you are already modifying.
 
@@ -287,7 +304,7 @@ If a WI fails verification after genuine effort:
 
 3. **Revert** uncommitted changes: `git checkout -- .` and `git clean -fd`
 
-4. **Update state:** Mark WI as `failed`, increment `metrics.consecutiveFailures`
+4. **Update state:** Mark WI as `failed` in the WI file. In `state.json`: set `active: null`, append to `failed` array with `{id, category, failedAt}`, increment `metrics.consecutiveFailures` and `metrics.totalFailed`.
 
 5. **Retry budget:** 3 attempts per WI. If errors decrease each retry (12 then 4 then 1), extend to 5. If errors increase or oscillate, fail immediately.
 
@@ -305,7 +322,7 @@ If a WI fails verification after genuine effort:
 - Record what is failing and why in `state.escalation`
 - **STOP.** Do not retry. The approach needs rethinking.
 
-**Also trigger if:** The same error hash appears on 2 non-adjacent retry attempts (oscillation = wrong approach).
+**Also trigger if:** The same error message repeats on 2 non-adjacent retry attempts (oscillation = the fix is being undone and reapplied).
 
 > **Breaker reset rule:** Only reset `consecutiveFailures` and `circuitBreakerTripped` after designing a fundamentally different strategy. Do not just retry the same approach with the breaker cleared — that defeats the purpose.
 
@@ -361,7 +378,7 @@ When returning to a project after interruption:
 | `waiting` | Check if blockers are resolved. If yes, go to `executing` or `planning`. If no, show blockers, STOP. |
 | `escalated` | Review `state.escalation`. Design a fundamentally new strategy (not the same approach). Only then clear breaker (`consecutiveFailures: 0`, `circuitBreakerTripped: false`). Go to `planning`. |
 | `complete` | Check `inbox/` for new goals. If found, go to `planning`. If empty, confirm completion, STOP. |
-| `executing` (with active WI) | Check git status. If clean, resume WI. If dirty/corrupted, reset and restart WI. |
+| `executing` (with active WI) | Check git status. If clean, resume the active WI from where it left off. If dirty/corrupted, run `git checkout -- . && git clean -fd`, then re-execute the active WI from step 1 of Section 4.2 (it remains active — do not re-queue). |
 
 **Resume drift check:** When resuming from `waiting` or after a long pause, compare current project state (test results, git log) against what was expected. If drift is detected, re-run the full Orient step before proceeding.
 

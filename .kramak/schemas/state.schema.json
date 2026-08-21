@@ -8,7 +8,7 @@
   "properties": {
     "phase": {
       "type": "string",
-      "enum": ["bootstrap", "planning", "executing", "auditing", "waiting", "escalated", "complete"],
+      "enum": ["planning", "executing", "auditing", "waiting", "escalated", "complete"],
       "description": "Current lifecycle phase."
     },
     "batchNumber": {
@@ -110,7 +110,7 @@
     },
     "productPhase": {
       "type": "string",
-      "enum": ["build", "ship", "iterate"],
+      "enum": ["BUILD", "SHIP", "ITERATE"],
       "description": "Current product lifecycle phase. Determines planning priorities."
     },
     "projectStructure": {

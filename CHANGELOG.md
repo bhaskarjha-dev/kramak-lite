@@ -21,7 +21,7 @@ All notable changes to Kramak Lite are documented here.
 - **INBOX template** — `.kramak/inbox/INBOX.md` with format examples for user onboarding
 
 ### Coverage
-- Rule coverage: ~87% → ~95% (of 176 total rules)
+- Rule coverage: ~87% → ~92% (162 of 176 total rules; ~95% of enforceable non-CLI rules)
 - Spec size: 17.6 KB → 20.5 KB (386 lines, ~5,252 tokens)
 
 ---

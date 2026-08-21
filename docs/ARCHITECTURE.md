@@ -90,7 +90,7 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 
 ## 3. Relationship to Full Kramak
 
-### What Kramak Lite Keeps (~95% of value)
+### What Kramak Lite Keeps (~92% of all rules, ~95% of enforceable rules)
 - The complete plan/execute/audit lifecycle
 - All 6 phases (planning, executing, auditing, waiting, escalated, complete)
 - Goldilocks Rule with 3 detail tiers

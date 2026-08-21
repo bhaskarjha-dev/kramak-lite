@@ -17,3 +17,4 @@ When `.kramak/state.json` exists:
 - Run `toolchain.checkCommands` after making changes
 - Update `state.json` after Work Item state transitions
 - Never hardcode API keys or credentials - use environment variables
+- After each WI, check hard stop gates (≥6 WIs, ≥20 files, ≥4 errors, ≥1 failure = fresh session)

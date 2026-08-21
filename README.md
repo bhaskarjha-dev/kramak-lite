@@ -106,7 +106,7 @@ CHANGELOG.md                     <- Version history with rationale
 | Aspect | Kramak Lite | Kramak Full |
 |---|---|---|
 | **Spec size** | ~21KB (1 file) | ~191KB (20 files) |
-| **Rule coverage** | ~95% of core value | 176 comprehensive rules |
+| **Rule coverage** | ~92% of all rules (~95% of non-CLI rules) | 176 comprehensive rules |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
 | **Product lifecycle** | BUILD/SHIP/ITERATE priorities | Full 5-lens strategic vision |
