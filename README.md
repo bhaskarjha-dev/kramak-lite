@@ -12,7 +12,7 @@ Kramak Lite helps you produce higher-quality autonomous code by preventing the 5
 |---|---|
 | **Scope drift** | `files_targeted` boundary on every Work Item + pre-execution scope intercept |
 | **Hallucinated references** | 5-step Grounded Verification: LOCATE, QUOTE, VERIFY, DESIGN, CROSS-CHECK |
-| **Context fatigue** | Hard stop gates (6 WIs, 20 files, 4 errors = fresh session) |
+| **Context fatigue** | Hard stop gates (6 WIs, 20 files, 4 errors = fresh session) + session weight matrix |
 | **Infinite fix loops** | Circuit breaker: 3 consecutive failures or oscillation detection = escalate |
 | **Under/over-specification** | Goldilocks Rule: Guided / Directed / Outcome tiers with distribution guidance |
 
@@ -77,7 +77,7 @@ State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items
 
 ```
 .kramak/
-+-- KRAMAK-LITE.md              <- The spec (single file, ~18KB)
++-- KRAMAK-LITE.md              <- The spec (single file, ~21KB)
 +-- state.json                  <- Current state (auto-created)
 +-- schemas/
 |   +-- state.schema.json       <- State validation schema
@@ -92,13 +92,13 @@ State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items
 
 | Aspect | Kramak Lite | Kramak Full |
 |---|---|---|
-| **Spec size** | ~18KB (1 file) | ~191KB (20 files) |
-| **Rule coverage** | ~87% of core value | 176 comprehensive rules |
+| **Spec size** | ~21KB (1 file) | ~191KB (20 files) |
+| **Rule coverage** | ~95% of core value | 176 comprehensive rules |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
 | **Product lifecycle** | BUILD/SHIP/ITERATE priorities | Full 5-lens strategic vision |
-| **Failure recovery** | 6-category taxonomy + tier elevation | Full decision tree + ODC/MAST crosswalk |
-| **Session management** | Hard stop gates (quantitative) | Behavioral + quantitative signals |
+| **Failure recovery** | 6-category taxonomy + tier elevation + recovery shortcuts | Full decision tree + ODC/MAST crosswalk |
+| **Session management** | Hard stop gates + session weight matrix | Behavioral + quantitative signals |
 | **Canary Gate** | Dropped (requires CLI enforcement) | Full 5-challenge battery |
 | **WAL writes** | Dropped (requires CLI enforcement) | Two-phase atomic write protocol |
 | **IDE compatibility** | Any IDE, any model tier | Best with frontier models |
