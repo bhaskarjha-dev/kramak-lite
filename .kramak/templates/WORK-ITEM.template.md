@@ -1,4 +1,4 @@
-﻿---
+---
 id: WI-NNN
 title: ""
 batch: 1
@@ -22,9 +22,9 @@ completed_at: null
 ## Specification
 
 [What to change, scaled by detail_tier:]
-- 🔴 Guided: Exact BEFORE/AFTER code blocks with grep-verified line references
-- 🟡 Directed: Intent + target files + interfaces + constraints (executor owns HOW)
-- 🟢 Outcome: Acceptance criteria only (executor owns design)
+- Guided: Exact BEFORE/AFTER code blocks with grep-verified line references
+- Directed: Intent + target files + interfaces + constraints (executor owns HOW)
+- Outcome: Acceptance criteria only (executor owns design)
 
 ## Constraints
 
@@ -38,3 +38,15 @@ completed_at: null
 npm test
 npx tsc --noEmit
 ```
+
+<!-- The section below is auto-populated by the executor on failure. Do not fill manually. -->
+<!--
+## Failure Diagnosis
+
+- **Category:** [code-drift | verification-fail | scope-exceeded | dependency-missing | ambiguous-spec | tool-error]
+- **What happened:** [root cause explanation]
+- **Error Trajectory:**
+  - Attempt 1: [N] errors - [description]
+  - Attempt 2: [N] errors - [description]
+- **Suggested fix:** [recommend tier elevation if spec was ambiguous]
+-->

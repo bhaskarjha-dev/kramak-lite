@@ -1,12 +1,12 @@
 # Kramak Lite - Autonomous Development Process
 
-> **Version:** 1.1.0
-> **What this is:** A lightweight, structured workflow for autonomous software development.
+> **Version:** 1.2.0
+> **What this is:** A structured workflow that helps you produce higher-quality autonomous code.
 > **Activate:** When the user says **"Start"** (or "begin", "continue", "go", "kramak").
 
-## Why This Workflow Exists
+## How This Helps You
 
-This process prevents the 5 most documented autonomous coding failures:
+This workflow prevents the 5 most common autonomous coding failures, so you can focus on building great software:
 
 1. **Scope drift** - editing files outside the task boundary
 2. **Hallucinated references** - coding against imagined file contents instead of real ones
@@ -14,7 +14,7 @@ This process prevents the 5 most documented autonomous coding failures:
 4. **Infinite fix loops** - retrying the same failing approach endlessly
 5. **Under/over-specification** - either too vague (70-95% failure) or too detailed (model degradation)
 
-Following this workflow produces higher-quality, more reliable autonomous code.
+Following this workflow produces higher-quality, more reliable results.
 
 ---
 
@@ -35,6 +35,9 @@ Scan the workspace root to populate `state.toolchain`:
 - `pyproject.toml` / `requirements.txt` -> Python (`pytest`, `mypy .`, `ruff check .`)
 - `go.mod` -> Go (`go build ./...`, `go test ./...`, `go vet ./...`)
 - Other ecosystems: detect and populate `checkCommands` accordingly.
+
+### Git Initialization
+If `.git` directory is missing: run `git init`, create `.gitignore` tailored to the detected stack, and make an initial commit (`chore: initial commit`) before proceeding.
 
 ### Project Discovery
 Scan for project docs: README, ROADMAP.md, ARCHITECTURE.md, `docs/`, `.github/`.
@@ -225,6 +228,8 @@ Before transitioning to execution, verify:
 
 ### 4.2 Per Work Item
 
+> **Pre-execution scope intercept:** Before modifying ANY file, verify its path appears in `files_targeted`. If not listed, do not modify it. This is the primary control - the post-commit git diff check is the backup.
+
 ```
 1. Read the WI specification completely
 2. Read ALL files in files_targeted (establish ground truth)
@@ -242,6 +247,8 @@ Before transitioning to execution, verify:
 10. Pick next WI from queue, or transition to auditing when empty
 ```
 
+> **Neighborhood Cleanup:** When editing a file in `files_targeted`, also fix obvious syntax bugs, missing null checks, or stale comments in the lines you touch. Do NOT open unlisted files for cleanup - cleanup is confined to files you are already modifying.
+
 ### 4.3 Failure Handling
 
 If a WI fails verification after genuine effort:
@@ -252,14 +259,26 @@ If a WI fails verification after genuine effort:
    - `scope-exceeded` - fix requires touching files outside `files_targeted`
    - `dependency-missing` - needs work from another WI first
    - `ambiguous-spec` - WI specification is unclear or contradictory
+   - `tool-error` - toolchain, git lock, environment, or network failure
 
-2. **Document** the diagnosis in the WI file (what failed, why, what should change)
+2. **Document** the diagnosis in the WI file with error trajectory:
+   ```markdown
+   ## Failure Diagnosis
+   - **Category:** verification-fail
+   - **What happened:** [root cause explanation]
+   - **Error Trajectory:**
+     - Attempt 1: [N] errors - [description]
+     - Attempt 2: [N] errors - [description]
+   - **Suggested fix:** [recommend tier elevation if spec was ambiguous]
+   ```
 
 3. **Revert** uncommitted changes: `git checkout -- .` and `git clean -fd`
 
 4. **Update state:** Mark WI as `failed`, increment `metrics.consecutiveFailures`
 
 5. **Retry budget:** 3 attempts per WI. If errors decrease each retry (12 then 4 then 1), extend to 5. If errors increase or oscillate, fail immediately.
+
+> **Spec failure pattern:** If a WI fails with `ambiguous-spec` or the same area keeps failing, elevate the detail tier (Outcome -> Directed, or Directed -> Guided) and add more specific grounding in the retry plan.
 
 ### 4.4 Circuit Breaker
 
@@ -270,23 +289,28 @@ If a WI fails verification after genuine effort:
 
 **Also trigger if:** The same error hash appears on 2 non-adjacent retry attempts (oscillation = wrong approach).
 
-### 4.5 Session Health - Objective Degradation Signals
+### 4.5 Session Health - Hard Stop Gates
 
-After completing 5+ WIs in one session, check these behavioral metrics:
+Any ONE of these triggers an immediate session end:
 
-| Signal | Healthy | Degraded |
+| Gate | Threshold | Why |
 |---|---|---|
-| Verification retries per WI | Same or fewer than earlier WIs | More retries needed |
-| Files touched vs `files_targeted` | Exact match | Touching unlisted files |
-| Error trajectory across WIs | Flat or zero | Increasing per WI |
+| Failed WIs this session | >= 1 | Context is contaminated by the failure |
+| Errors corrected this session | >= 4 | High friction = quality declining |
+| Files modified this session | >= 20 | Scope sprawl risks ungrounded side-effects |
+| WIs completed this session | >= 6 | Session ceiling - context fatigue is real |
 
-If degradation signals are present, **update state.json and start a fresh session.** Context fatigue causes silent quality decline that models cannot self-detect.
+If any gate triggers, **update state.json and start a fresh session.** Context fatigue causes silent quality decline that models cannot self-detect.
+
+Additional behavioral signals to watch: verification retries increasing across WIs, touching files not in `files_targeted`, or error counts growing instead of shrinking.
 
 ---
 
 ## 5. Audit (`phase: "auditing"`)
 
-Best done in a fresh session for unbiased review:
+Best done in a fresh session for unbiased review.
+
+> **Audit quality gate:** The auditing session should use a model at least as capable as the execution model. Auditing is execution-grounded: run tests, verify diffs, check acceptance criteria against live code. Do NOT perform subjective "looks good" reviews.
 
 1. **Run full verification:** All `toolchain.checkCommands` must pass
 2. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?

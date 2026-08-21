@@ -1,20 +1,20 @@
-﻿# Kramak Lite
+# Kramak Lite
 
 **Structured autonomous development in a single file.**
 
-Kramak Lite is a lightweight process control framework for AI coding agents. It turns unstructured "vibe coding" into a disciplined planning → executing → auditing lifecycle — in ~7KB of Markdown, with zero runtime dependencies.
+Kramak Lite is a lightweight process control framework for AI coding agents. It turns unstructured "vibe coding" into a disciplined planning, executing, auditing lifecycle -- in a single Markdown file, with zero runtime dependencies.
 
 ## What It Does
 
-Kramak Lite prevents the 5 most common autonomous coding failures:
+Kramak Lite helps you produce higher-quality autonomous code by preventing the 5 most common failures:
 
 | Failure Mode | How Kramak Prevents It |
 |---|---|
-| **Scope drift** | `files_targeted` boundary on every Work Item |
-| **Hallucinated references** | Grounded Verification: must read files before editing |
-| **Context fatigue** | Objective degradation signals + session handoff protocol |
-| **Infinite fix loops** | Circuit breaker: 3 consecutive failures → escalate |
-| **Under/over-specification** | Goldilocks Rule: 🔴 Guided / 🟡 Directed / 🟢 Outcome tiers |
+| **Scope drift** | `files_targeted` boundary on every Work Item + pre-execution scope intercept |
+| **Hallucinated references** | 5-step Grounded Verification: LOCATE, QUOTE, VERIFY, DESIGN, CROSS-CHECK |
+| **Context fatigue** | Hard stop gates (6 WIs, 20 files, 4 errors = fresh session) |
+| **Infinite fix loops** | Circuit breaker: 3 consecutive failures or oscillation detection = escalate |
+| **Under/over-specification** | Goldilocks Rule: Guided / Directed / Outcome tiers with distribution guidance |
 
 ## Quick Start (2 Minutes)
 
@@ -43,61 +43,64 @@ Tell your AI agent: **"Start"**
 
 The agent will:
 1. Read `KRAMAK-LITE.md` and `state.json`
-2. Bootstrap the project (detect toolchain, create state)
-3. Plan a batch of Work Items
-4. Execute them with scope enforcement and verification
-5. Audit the results
+2. Bootstrap the project (detect toolchain, init git if needed, create state)
+3. Plan a batch of Work Items with product phase awareness (BUILD/SHIP/ITERATE)
+4. Execute them with scope enforcement, verification, and neighborhood cleanup
+5. Audit the results with execution-grounded review
+6. Plan the next batch (or mark the project complete)
 
 ## How It Works
 
 ```
-              ┌──────────┐
-              │ PLANNING  │ ← Understand project, write Work Items
-              └─────┬─────┘
-                    │
-              ┌─────▼─────┐
-              │ EXECUTING  │ ← Implement WIs with scope check + testing
-              └─────┬─────┘
-                    │
-              ┌─────▼─────┐
-              │ AUDITING   │ ← Verify all changes, fix issues
-              └─────┬─────┘
-                    │
-              ┌─────▼─────┐
-         ┌────│  COMPLETE? │────┐
-         │ No └────────────┘ Yes│
-         ▼                      ▼
+              +----------+
+              | PLANNING  | <- Understand project, write Work Items
+              +-----+-----+
+                    |
+              +-----v-----+
+              | EXECUTING  | <- Implement WIs with scope check + testing
+              +-----+-----+
+                    |
+              +-----v-----+
+              | AUDITING   | <- Verify all changes, fix issues
+              +-----+-----+
+                    |
+              +-----v-----+
+         +----| COMPLETE?  |----+
+         | No +------------+ Yes|
+         v                      v
     Back to PLANNING         Done!
 ```
 
-State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items/`. User goals go in `.kramak/inbox/`. Everything is plain Markdown and JSON — no runtime, no CLI required.
+State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items/`. User goals go in `.kramak/inbox/`. Everything is plain Markdown and JSON -- no runtime, no CLI required.
 
 ## Project Structure
 
 ```
 .kramak/
-├── KRAMAK-LITE.md              ← The spec (single file, ~7KB)
-├── state.json                  ← Current state (auto-created)
-├── schemas/
-│   ├── state.schema.json       ← State validation schema
-│   └── work-item.schema.json   ← Work Item validation schema
-├── work-items/                 ← Work Items (auto-populated by planner)
-├── inbox/                      ← User goals and direction (you write here)
-└── templates/
-    └── WORK-ITEM.template.md   ← WI template reference
++-- KRAMAK-LITE.md              <- The spec (single file, ~18KB)
++-- state.json                  <- Current state (auto-created)
++-- schemas/
+|   +-- state.schema.json       <- State validation schema
+|   +-- work-item.schema.json   <- Work Item validation schema
++-- work-items/                 <- Work Items (auto-populated by planner)
++-- inbox/                      <- User goals and direction (you write here)
++-- templates/
+    +-- WORK-ITEM.template.md   <- WI template reference
 ```
 
 ## Kramak Lite vs Kramak (Full)
 
 | Aspect | Kramak Lite | Kramak Full |
 |---|---|---|
-| **Spec size** | ~7KB (1 file) | ~191KB (20 files) |
+| **Spec size** | ~18KB (1 file) | ~191KB (20 files) |
+| **Rule coverage** | ~87% of core value | 176 comprehensive rules |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
-| **Rules** | ~30 essential | 176 comprehensive |
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
+| **Product lifecycle** | BUILD/SHIP/ITERATE priorities | Full 5-lens strategic vision |
+| **Failure recovery** | 6-category taxonomy + tier elevation | Full decision tree + ODC/MAST crosswalk |
+| **Session management** | Hard stop gates (quantitative) | Behavioral + quantitative signals |
 | **Canary Gate** | Dropped (requires CLI enforcement) | Full 5-challenge battery |
 | **WAL writes** | Dropped (requires CLI enforcement) | Two-phase atomic write protocol |
-| **Formal ledger** | Dropped (requires CLI enforcement) | Append-only JSONL audit trail |
 | **IDE compatibility** | Any IDE, any model tier | Best with frontier models |
 | **Runtime deps** | Zero | Zero (but kramak-cli recommended) |
 
@@ -109,21 +112,26 @@ State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items
 The atomic unit of work. Each WI specifies what to change, which files to touch, and how to verify. See `.kramak/templates/WORK-ITEM.template.md` for the format.
 
 ### Goldilocks Rule (Detail Scaling)
-- 🔴 **Guided** — high-risk changes get exact BEFORE/AFTER recipes
-- 🟡 **Directed** — standard changes get intent + constraints
-- 🟢 **Outcome** — low-risk changes get acceptance criteria only
+- **Guided** -- high-risk changes get exact BEFORE/AFTER recipes with 5-step verification
+- **Directed** -- standard changes get intent + constraints (most WIs should be this)
+- **Outcome** -- low-risk changes get acceptance criteria only
+
+### Product Phase (BUILD / SHIP / ITERATE)
+Determines what kind of work to prioritize. BUILD focuses on architecture and features. SHIP focuses on deployment and security. ITERATE focuses on production issues and improvements.
 
 ### Circuit Breaker
-3 consecutive failures → stop and escalate. Prevents infinite retry loops.
+3 consecutive failures or oscillation detection = stop and escalate. Prevents infinite retry loops.
+
+### Hard Stop Gates
+Quantitative session limits: 6+ WIs, 20+ files, 4+ errors corrected, or 1+ failed WI triggers a fresh session. Prevents context fatigue.
 
 ### Session Health Monitoring
-After 5+ WIs, objective signals (retry count, scope creep, error trajectory) determine whether to continue or start fresh.
+After hitting any hard stop gate, objective signals determine whether to continue or start fresh. Models cannot self-detect quality degradation -- the gates enforce it.
 
 ## Requirements
 
-- Git initialized in your project
 - An AI coding agent with file read/write and terminal access
-- That's it. No Node.js, no Python, no package manager.
+- That's it. No Node.js, no Python, no package manager. Git will be initialized automatically if missing.
 
 ## License
 
@@ -131,5 +139,5 @@ Apache 2.0
 
 ## Links
 
-- [Kramak (Full)](https://github.com/bhaskarjha-dev/kramak) — The comprehensive specification
-- [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli) — Programmatic enforcement layer
+- [Kramak (Full)](https://github.com/bhaskarjha-dev/kramak) -- The comprehensive specification
+- [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli) -- Programmatic enforcement layer

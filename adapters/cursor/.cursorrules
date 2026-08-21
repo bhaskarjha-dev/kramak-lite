@@ -1,12 +1,12 @@
-﻿---
-description: Kramak autonomous development workflow
+---
+description: Structured development workflow for higher-quality autonomous code
 globs: 
 alwaysApply: true
 ---
 
 # Kramak Workflow
 
-This project uses the Kramak development workflow. When the user says "Start":
+This project uses a structured development workflow that helps you produce higher-quality autonomous code. When the user says "Start":
 
 1. Read `.kramak/KRAMAK-LITE.md` for the full process specification
 2. Read `.kramak/state.json` for current project state
@@ -16,6 +16,7 @@ This project uses the Kramak development workflow. When the user says "Start":
 
 When `.kramak/state.json` exists:
 - Only modify files in the active Work Item's `files_targeted`
-- Read actual files before editing — never code from memory
+- Read actual files before editing - never code from memory
 - Run `toolchain.checkCommands` after changes
 - Update `state.json` after Work Item state transitions
+- Never hardcode API keys or credentials - use environment variables
