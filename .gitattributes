@@ -1,0 +1,10 @@
+# Kramak Lite - Git Attributes
+# Normalize line endings across platforms
+* text=auto
+
+# Force LF for spec and config files
+*.md text eol=lf
+*.json text eol=lf
+
+# Binary assets
+*.png binary

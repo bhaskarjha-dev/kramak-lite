@@ -45,6 +45,17 @@ If KRAMAK-LITE.md grows past ~40KB (~10,000 tokens), splitting becomes necessary
 
 These are **data files**, not **instruction files**. Instructions go in one place. Data is naturally distributed.
 
+### Why `.kramak` and Not `.kramak-lite`
+
+The directory is named `.kramak` (not `.kramak-lite`) because it's an **ecosystem namespace**, not a version indicator:
+
+1. **Convention alignment.** `.git` doesn't change name between Git versions. `.vscode` doesn't change name between VS Code versions. The directory name identifies the tool, not the edition.
+2. **Seamless upgrade path.** Upgrading from Lite to full Kramak means replacing the directory contents — not renaming the directory. Adapter paths (`.kramak/KRAMAK-LITE.md`) and state files (`.kramak/state.json`) stay in the same location.
+3. **Adapter compatibility.** All adapters reference `.kramak/` as the base path. Both Lite and Full editions live here, so adapters work with either.
+4. **CLI interoperability.** When kramak-cli ships, it will look for `.kramak/` regardless of which edition is inside.
+
+The file inside (`KRAMAK-LITE.md` vs `ROUTER.md`) tells you which edition is installed.
+
 ---
 
 ## 2. IDE System Prompt Compatibility

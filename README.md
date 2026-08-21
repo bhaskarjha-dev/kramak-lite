@@ -1,159 +1,309 @@
+<div align="center">
+
+<img src="docs/assets/logo.png" alt="Kramak Lite" width="140" />
+
 # Kramak Lite
 
-**Structured autonomous development in a single file.**
+**Turn vibe coding into verified engineering.**
 
-Kramak Lite is a lightweight process control framework for AI coding agents. It turns unstructured "vibe coding" into a disciplined planning, executing, auditing lifecycle -- in a single Markdown file, with zero runtime dependencies.
+A single-file process control framework for AI coding agents.
+Zero dependencies. Any IDE. Any model.
 
-## What It Does
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![Spec Version](https://img.shields.io/badge/Spec-v1.3.0-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
+[![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
+[![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
 
-Kramak Lite helps you produce higher-quality autonomous code by preventing the 5 most common failures:
+</div>
 
-| Failure Mode | How Kramak Prevents It |
-|---|---|
-| **Scope drift** | `files_targeted` boundary on every Work Item + pre-execution scope intercept |
-| **Hallucinated references** | 5-step Grounded Verification: LOCATE, QUOTE, VERIFY, DESIGN, CROSS-CHECK |
-| **Context fatigue** | Hard stop gates (6 WIs, 20 files, 4 errors = fresh session) + session weight matrix |
-| **Infinite fix loops** | Circuit breaker: 3 consecutive failures or oscillation detection = escalate |
-| **Under/over-specification** | Goldilocks Rule: Guided / Directed / Outcome tiers with distribution guidance |
+---
+
+## The Problem
+
+AI coding agents are powerful but unreliable. Without guardrails, they:
+
+| Failure | What Happens | How Kramak Prevents It |
+|---|---|---|
+| **Scope drift** | Agent touches 30 files when the task needed 3 | `files_targeted` boundary per Work Item + pre-edit intercept |
+| **Hallucinated code** | Agent writes code based on APIs that don't exist | 5-step Grounded Verification: LOCATE → QUOTE → VERIFY → DESIGN → CROSS-CHECK |
+| **Silent degradation** | Quality drops after Work Item #5 but the agent can't tell | Hard stop gates: ≥6 WIs, ≥20 files, ≥4 errors = mandatory fresh session |
+| **Infinite retry loops** | Agent retries the same broken fix 20 times | Circuit breaker: 3 consecutive failures or oscillation = stop and escalate |
+| **Untested output** | "Looks right" but was never actually run | Mandatory verification: `checkCommands` run after every change |
+
+Kramak Lite prevents all five. In one Markdown file (~21KB). With zero runtime dependencies.
+
+---
 
 ## Quick Start (2 Minutes)
 
-### 1. Copy the `.kramak/` directory into your project
+### 1. Copy `.kramak/` into your project
 
 ```bash
-# Clone this repo
 git clone https://github.com/bhaskarjha-dev/kramak-lite.git
-
-# Copy .kramak/ into your project
-cp -r kramak-lite/.kramak/ /path/to/your/project/.kramak/
+cp -r kramak-lite/.kramak/ your-project/.kramak/
 ```
 
-### 2. Install the adapter for your IDE
+> **Why `.kramak` and not `.kramak-lite`?** The `.kramak` directory is the ecosystem namespace — like `.git` or `.vscode`. The file inside (`KRAMAK-LITE.md`) identifies which version you're running. This means upgrading to full Kramak later is seamless: just replace the directory contents. [More in FAQ →](#faq)
 
-| IDE | Copy This File | To This Location |
-|---|---|---|
-| **Antigravity** | `adapters/antigravity/SKILL.md` | `.agents/skills/kramak/SKILL.md` |
-| **Claude Code** | `adapters/claude-code/CLAUDE.md` | `CLAUDE.md` (project root) |
-| **Cursor** | `adapters/cursor/.cursorrules` | `.cursor/rules/kramak.mdc` |
-| **Generic** | `adapters/generic/AGENTS.md` | `AGENTS.md` or `GEMINI.md` (project root) |
+### 2. Add your IDE adapter
 
-### 3. Say "Start"
+Pick your IDE and follow the instructions:
 
-Tell your AI agent: **"Start"**
+<details>
+<summary><strong>🟣 Antigravity IDE</strong></summary>
 
-The agent will:
-1. Read `KRAMAK-LITE.md` and `state.json`
-2. Bootstrap the project (detect toolchain, init git if needed, create state)
-3. Plan a batch of Work Items with product phase awareness (BUILD/SHIP/ITERATE)
-4. Execute them with scope enforcement, verification, and neighborhood cleanup
-5. Audit the results with execution-grounded review
-6. Plan the next batch (or mark the project complete)
+```bash
+mkdir -p .agents/skills/kramak/
+cp kramak-lite/adapters/antigravity/SKILL.md .agents/skills/kramak/SKILL.md
+```
+
+This installs Kramak as an Antigravity skill. No conflicts with existing skills.
+
+</details>
+
+<details>
+<summary><strong>🟠 Claude Code</strong></summary>
+
+**If you don't have a CLAUDE.md yet:**
+```bash
+cp kramak-lite/adapters/claude-code/CLAUDE.md ./CLAUDE.md
+```
+
+**If you already have a CLAUDE.md** (don't overwrite it!):
+```bash
+echo "" >> ./CLAUDE.md
+cat kramak-lite/adapters/claude-code/CLAUDE.md >> ./CLAUDE.md
+```
+
+This appends the Kramak section to your existing rules.
+
+</details>
+
+<details>
+<summary><strong>🔵 Cursor</strong></summary>
+
+```bash
+mkdir -p .cursor/rules/
+cp kramak-lite/adapters/cursor/.cursorrules .cursor/rules/kramak.mdc
+```
+
+Cursor loads all `.mdc` files from `.cursor/rules/`. No conflicts with existing rules.
+
+</details>
+
+<details>
+<summary><strong>⚪ Other IDEs</strong> (Windsurf, Cline, Gemini CLI, etc.)</summary>
+
+**If you don't have an AGENTS.md / GEMINI.md yet:**
+```bash
+cp kramak-lite/adapters/generic/AGENTS.md ./AGENTS.md
+```
+
+**If you already have one** (don't overwrite it!):
+```bash
+echo "" >> ./AGENTS.md
+cat kramak-lite/adapters/generic/AGENTS.md >> ./AGENTS.md
+```
+
+Rename to `GEMINI.md`, `.clinerules`, or whatever your IDE reads.
+
+</details>
+
+### 3. Say **"Start"**
+
+Open your AI agent and type: **Start**
+
+That's it. The agent will read the spec, bootstrap your project, plan Work Items, execute them with scope enforcement, audit the results, and plan the next batch.
+
+---
 
 ## How It Works
 
 ```
-              +----------+
-              | PLANNING  | <- Understand project, write Work Items
-              +-----+-----+
-                    |
-              +-----v-----+
-              | EXECUTING  | <- Implement WIs with scope check + testing
-              +-----+-----+
-                    |
-              +-----v-----+
-              | AUDITING   | <- Verify all changes, fix issues
-              +-----+-----+
-                    |
-              +-----v-----+
-         +----| COMPLETE?  |----+
-         | No +------------+ Yes|
-         v                      v
-    Back to PLANNING         Done!
+         ┌──────────┐
+         │ PLANNING  │ ← Understand project, write Work Items
+         └─────┬─────┘
+               │
+         ┌─────▼─────┐
+         │ EXECUTING  │ ← Implement WIs with scope check + testing
+         └─────┬─────┘
+               │
+         ┌─────▼─────┐
+         │ AUDITING   │ ← Review all changes with fresh eyes
+         └─────┬─────┘
+               │
+         ┌─────▼─────┐
+    ┌────│ COMPLETE?  │────┐
+    │ No └────────────┘ Yes│
+    ▼                      ▼
+  Back to PLANNING       Done!
 ```
 
-State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items/`. User goals go in `.kramak/inbox/`. Everything is plain Markdown and JSON -- no runtime, no CLI required.
+**State** is tracked in `.kramak/state.json`.
+**Work Items** live in `.kramak/work-items/`.
+**User goals** go in `.kramak/inbox/`.
+Everything is plain Markdown and JSON — no runtime, no CLI, no magic.
 
-## Project Structure
+---
+
+## Key Concepts
+
+### Work Items
+The atomic unit of work. Each WI specifies what to change, which files to touch, and how to verify. The agent creates these during planning and executes them one by one.
+
+### Goldilocks Rule (Detail Scaling)
+Not all changes need the same level of specification:
+
+| Tier | When to Use | What the Agent Gets |
+|---|---|---|
+| **Guided** | High-risk (auth, payments, schemas) | Exact BEFORE/AFTER code blocks + 5-step verification |
+| **Directed** | Standard changes (most WIs) | Intent + target files + constraints — agent owns the HOW |
+| **Outcome** | Low-risk (docs, config, styling) | Acceptance criteria only — agent owns the design |
+
+### Circuit Breaker
+3 consecutive failures or oscillation detected → agent stops and escalates. No more infinite retry loops.
+
+### Hard Stop Gates
+Quantitative session limits that prevent context fatigue:
+- **≥6 WIs completed** → fresh session
+- **≥20 files modified** → fresh session
+- **≥4 errors corrected** → fresh session
+- **≥1 WI failed** → fresh session
+
+Models cannot self-detect quality degradation — these gates enforce the pause.
+
+### Product Phase (BUILD / SHIP / ITERATE)
+Determines what kind of work to prioritize. BUILD focuses on architecture and features. SHIP focuses on deployment and security. ITERATE focuses on production issues and improvements.
+
+---
+
+## What's Inside
 
 ```
-.kramak/
-+-- KRAMAK-LITE.md              <- The spec (single file, ~21KB)
-+-- state.json                  <- Current state (auto-created)
-+-- schemas/
-|   +-- state.schema.json       <- State validation schema
-|   +-- work-item.schema.json   <- Work Item validation schema
-+-- work-items/                 <- Work Items (auto-populated by planner)
-+-- inbox/                      <- User goals and direction (you write here)
-+-- templates/
-    +-- WORK-ITEM.template.md   <- WI template reference
-
-docs/
-+-- GETTING-STARTED.md          <- Setup guide and quickstart
-+-- ARCHITECTURE.md             <- Design decisions, token analysis, IDE compatibility
-+-- FULL-KRAMAK-MAPPING.md      <- 176-rule coverage map (Lite vs Full Kramak)
-
-adapters/                        <- IDE-specific adapters
-+-- antigravity/SKILL.md
-+-- claude-code/CLAUDE.md
-+-- cursor/.cursorrules
-+-- generic/AGENTS.md
-
-CHANGELOG.md                     <- Version history with rationale
+your-project/
+├── .kramak/
+│   ├── KRAMAK-LITE.md              ← The spec (single file, ~21KB)
+│   ├── state.json                  ← Current state (auto-created)
+│   ├── schemas/
+│   │   ├── state.schema.json       ← State validation schema
+│   │   └── work-item.schema.json   ← Work Item validation schema
+│   ├── work-items/                 ← Work Items (auto-populated by planner)
+│   ├── inbox/                      ← User goals and direction (you write here)
+│   └── templates/
+│       └── WORK-ITEM.template.md   ← WI format reference
+└── ...your code...
 ```
 
-## Kramak Lite vs Kramak (Full)
+---
 
-| Aspect | Kramak Lite | Kramak Full |
+## Kramak Lite vs Full Kramak
+
+| Aspect | Kramak Lite | Kramak (Full) |
 |---|---|---|
 | **Spec size** | ~21KB (1 file) | ~191KB (20 files) |
 | **Rule coverage** | ~92% of all rules (~95% of non-CLI rules) | 176 comprehensive rules |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
 | **Product lifecycle** | BUILD/SHIP/ITERATE priorities | Full 5-lens strategic vision |
-| **Failure recovery** | 6-category taxonomy + tier elevation + recovery shortcuts | Full decision tree + ODC/MAST crosswalk |
+| **Failure recovery** | 6-category taxonomy + circuit breaker + recovery shortcuts | Full decision tree + ODC/MAST crosswalk |
 | **Session management** | Hard stop gates + session weight matrix | Behavioral + quantitative signals |
-| **Canary Gate** | Dropped (requires CLI enforcement) | Full 5-challenge battery |
-| **WAL writes** | Dropped (requires CLI enforcement) | Two-phase atomic write protocol |
+| **Canary Gate** | Deferred to kramak-cli | Full 5-challenge battery |
 | **IDE compatibility** | Any IDE, any model tier | Best with frontier models |
-| **Runtime deps** | Zero | Zero (but kramak-cli recommended) |
+| **Runtime deps** | Zero | Zero (kramak-cli recommended) |
 
-**Kramak Lite keeps the value, drops the ceremony.** Features that require programmatic enforcement (WAL, Canary Gate, formal ledger) are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
+**Kramak Lite keeps the value, drops the ceremony.** Features requiring programmatic enforcement (WAL, Canary Gate, formal ledger) are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
 
-## Key Concepts
-
-### Work Items
-The atomic unit of work. Each WI specifies what to change, which files to touch, and how to verify. See `.kramak/templates/WORK-ITEM.template.md` for the format.
-
-### Goldilocks Rule (Detail Scaling)
-- **Guided** -- high-risk changes get exact BEFORE/AFTER recipes with 5-step verification
-- **Directed** -- standard changes get intent + constraints (most WIs should be this)
-- **Outcome** -- low-risk changes get acceptance criteria only
-
-### Product Phase (BUILD / SHIP / ITERATE)
-Determines what kind of work to prioritize. BUILD focuses on architecture and features. SHIP focuses on deployment and security. ITERATE focuses on production issues and improvements.
-
-### Circuit Breaker
-3 consecutive failures or oscillation detection = stop and escalate. Prevents infinite retry loops.
-
-### Hard Stop Gates
-Quantitative session limits: 6+ WIs, 20+ files, 4+ errors corrected, or 1+ failed WI triggers a fresh session. Prevents context fatigue.
-
-### Session Health Monitoring
-After hitting any hard stop gate, objective signals determine whether to continue or start fresh. Models cannot self-detect quality degradation -- the gates enforce it.
+---
 
 ## Documentation
 
-| Document | Purpose |
+| Document | What You'll Learn |
 |---|---|
-| [Getting Started](docs/GETTING-STARTED.md) | Setup guide and quickstart |
-| [Architecture](docs/ARCHITECTURE.md) | Design decisions, single-file rationale, IDE compatibility strategy, token analysis |
-| [Full Kramak Mapping](docs/FULL-KRAMAK-MAPPING.md) | Complete rule-by-rule coverage map (176 rules) |
-| [Changelog](CHANGELOG.md) | Version history with rationale for every change |
+| **[Getting Started](docs/GETTING-STARTED.md)** | Step-by-step setup for every scenario (new project, existing project, existing AI config) |
+| **[Architecture](docs/ARCHITECTURE.md)** | Why single-file, IDE compatibility strategy, token analysis, naming decisions |
+| **[Full Kramak Mapping](docs/FULL-KRAMAK-MAPPING.md)** | Rule-by-rule coverage map of all 176 rules |
+| **[Changelog](CHANGELOG.md)** | Version history with rationale for every change |
+
+---
+
+## FAQ
+
+<details>
+<summary><strong>Why is the directory called <code>.kramak</code> and not <code>.kramak-lite</code>?</strong></summary>
+
+The `.kramak` directory is the **ecosystem namespace** for Kramak — like `.git` is for Git regardless of version, or `.vscode` is for VS Code. The file inside (`KRAMAK-LITE.md` vs `ROUTER.md`) identifies which edition you're running.
+
+This design means:
+- **Upgrading to full Kramak** later doesn't require renaming directories or updating adapter paths
+- **All adapters** work with both Lite and Full because they reference `.kramak/`
+- **kramak-cli** (when available) will look for `.kramak/` regardless of which edition is inside
+
+</details>
+
+<details>
+<summary><strong>I already have a CLAUDE.md / AGENTS.md / GEMINI.md. Will this overwrite it?</strong></summary>
+
+**No, if you follow the instructions.** The Quick Start includes explicit "append" commands for each IDE. Never `cp` over an existing config file — always `cat >> ` to append.
+
+The Kramak adapter is a small section (~20 lines) that tells your agent how to find and follow `KRAMAK-LITE.md`. It cooperates with your existing rules — it doesn't replace them.
+
+</details>
+
+<details>
+<summary><strong>Can I use Kramak Lite with multiple IDEs simultaneously?</strong></summary>
+
+Yes. Install adapters for all IDEs you use. They're independent files in different locations (`.agents/skills/` for Antigravity, `CLAUDE.md` for Claude Code, `.cursor/rules/` for Cursor). They all point to the same `.kramak/KRAMAK-LITE.md`.
+
+</details>
+
+<details>
+<summary><strong>I'm using full Kramak and want to switch to Lite. How?</strong></summary>
+
+1. Back up your current `.kramak/state.json`
+2. Replace your `.kramak/` contents with Kramak Lite's `.kramak/`
+3. Copy your `state.json` back (the core fields are compatible)
+4. Update your adapter if needed (they should work as-is)
+
+Note: Full Kramak's extra phases (`dispatch`, `merge_queue`, `bootstrap`) and `GROWTH` product phase don't exist in Lite. If your `state.json` references these, update `phase` to the nearest Lite equivalent.
+
+</details>
+
+<details>
+<summary><strong>Which AI models work best with Kramak Lite?</strong></summary>
+
+Kramak Lite works with any model, but compliance varies:
+
+| Model | Planning | Execution | Audit | Overall |
+|---|---|---|---|---|
+| Gemini 2.5 Pro | Excellent | Good | Good | **Strong** |
+| Claude Opus 4.6 | Excellent | Excellent | Excellent | **Excellent** |
+| Claude Sonnet 4.0 | Good | Good | Adequate | **Strong** |
+| GPT-4o | Good | Adequate | Adequate | **Moderate** |
+| Flash/Mini models | Adequate | May skip steps | May rubber-stamp | **Basic** |
+
+All models benefit from the framework. Stronger models follow it more completely.
+
+</details>
+
+<details>
+<summary><strong>What if my agent ignores the Kramak rules?</strong></summary>
+
+This happens occasionally, especially with smaller models. Try:
+1. **Restart the session** — say "Start" in a fresh conversation
+2. **Check the adapter** — make sure it's in the right location for your IDE
+3. **Be explicit** — say "Follow the Kramak workflow in `.kramak/KRAMAK-LITE.md`"
+4. **Use a more capable model** — frontier models comply more consistently
+
+For programmatic enforcement (not just advisory), see [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
+
+</details>
+
+---
 
 ## Requirements
 
 - An AI coding agent with file read/write and terminal access
-- That's it. No Node.js, no Python, no package manager. Git will be initialized automatically if missing.
+- That's it. No Node.js, no Python, no package manager.
 
 ## License
 
@@ -161,5 +311,5 @@ Apache 2.0
 
 ## Links
 
-- [Kramak (Full)](https://github.com/bhaskarjha-dev/kramak) -- The comprehensive specification
-- [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli) -- Programmatic enforcement layer
+- [Kramak (Full)](https://github.com/bhaskarjha-dev/kramak) — The comprehensive 176-rule specification
+- [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli) — Programmatic enforcement layer
