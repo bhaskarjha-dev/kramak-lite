@@ -1,0 +1,16 @@
+﻿# Kramak runtime state
+.kramak/state.json
+.kramak/work-items/*.md
+!.kramak/work-items/.gitkeep
+.kramak/inbox/*.md
+!.kramak/inbox/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

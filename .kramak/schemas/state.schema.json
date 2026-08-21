@@ -1,0 +1,112 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kramak-lite-state",
+  "title": "Kramak Lite State",
+  "description": "State tracking for the Kramak Lite autonomous development process.",
+  "type": "object",
+  "required": ["phase"],
+  "properties": {
+    "phase": {
+      "type": "string",
+      "enum": ["bootstrap", "planning", "executing", "auditing", "waiting", "escalated", "complete"],
+      "description": "Current lifecycle phase."
+    },
+    "batchNumber": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Current batch number."
+    },
+    "active": {
+      "type": ["string", "null"],
+      "description": "Currently active Work Item ID, or null if none."
+    },
+    "queue": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of Work Item IDs to execute."
+    },
+    "completed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "completedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id"]
+      },
+      "description": "Completed Work Items."
+    },
+    "failed": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "category": { "type": "string" },
+          "failedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "category"]
+      },
+      "description": "Failed Work Items with diagnosis category."
+    },
+    "nextAction": {
+      "type": "string",
+      "description": "Human-readable next action recommendation."
+    },
+    "toolchain": {
+      "type": "object",
+      "properties": {
+        "checkCommands": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Commands to run for verification (build, test, lint)."
+        },
+        "buildCommand": { "type": "string" },
+        "devCommand": { "type": "string" },
+        "detected": { "type": "boolean" }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "totalCompleted": { "type": "integer", "minimum": 0 },
+        "totalFailed": { "type": "integer", "minimum": 0 },
+        "consecutiveFailures": { "type": "integer", "minimum": 0 },
+        "circuitBreakerTripped": { "type": "boolean" }
+      }
+    },
+    "concurrency": {
+      "type": "object",
+      "properties": {
+        "budget": { "type": "integer", "minimum": 1, "default": 1 }
+      },
+      "description": "Multi-agent dispatch settings. budget=1 means sequential."
+    },
+    "lastAudit": {
+      "type": ["object", "null"],
+      "properties": {
+        "batchNumber": { "type": "integer" },
+        "verdict": { "type": "string", "enum": ["pass", "pass-with-fixes", "fail"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "fixesApplied": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "lastSession": {
+      "type": ["object", "null"],
+      "properties": {
+        "model": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "summary": { "type": "string" }
+      }
+    },
+    "escalation": {
+      "type": ["object", "null"],
+      "properties": {
+        "reason": { "type": "string" },
+        "failedItems": { "type": "array", "items": { "type": "string" } },
+        "timestamp": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

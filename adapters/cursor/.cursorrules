@@ -1,0 +1,21 @@
+﻿---
+description: Kramak autonomous development workflow
+globs: 
+alwaysApply: true
+---
+
+# Kramak Workflow
+
+This project uses the Kramak development workflow. When the user says "Start":
+
+1. Read `.kramak/KRAMAK-LITE.md` for the full process specification
+2. Read `.kramak/state.json` for current project state
+3. Follow the workflow from the section matching `state.phase`
+
+## Always-Active Rules
+
+When `.kramak/state.json` exists:
+- Only modify files in the active Work Item's `files_targeted`
+- Read actual files before editing — never code from memory
+- Run `toolchain.checkCommands` after changes
+- Update `state.json` after Work Item state transitions

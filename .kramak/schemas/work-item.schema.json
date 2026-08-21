@@ -1,0 +1,57 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "kramak-lite-work-item",
+  "title": "Kramak Lite Work Item",
+  "description": "Schema for Work Item YAML frontmatter.",
+  "type": "object",
+  "required": ["id", "title", "status", "detail_tier", "files_targeted", "acceptance_criteria"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^WI-[0-9]{3}$",
+      "description": "Batch-scoped ID. Batch 1: WI-101..., Batch 2: WI-201..."
+    },
+    "title": {
+      "type": "string",
+      "maxLength": 120
+    },
+    "batch": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": ["queued", "active", "done", "failed", "blocked"]
+    },
+    "detail_tier": {
+      "type": "string",
+      "enum": ["guided", "directed", "outcome"],
+      "description": "Goldilocks scaling tier: guided (exact recipe), directed (intent+constraints), outcome (goal only)."
+    },
+    "files_targeted": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Exhaustive list of files this WI may modify. Scope enforcement boundary."
+    },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "WI IDs that must complete before this one."
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "Observable, verifiable outcomes."
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "completed_at": {
+      "type": ["string", "null"],
+      "format": "date-time"
+    }
+  }
+}
