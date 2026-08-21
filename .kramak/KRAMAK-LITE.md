@@ -1,6 +1,6 @@
 # Kramak Lite - Autonomous Development Process
 
-> **Version:** 1.2.0
+> **Version:** 1.3.0
 > **What this is:** A structured workflow that helps you produce higher-quality autonomous code.
 > **Activate:** When the user says **"Start"** (or "begin", "continue", "go", "kramak").
 
@@ -87,13 +87,18 @@ Store in `state.json`:
 
 If any answer changes the plan, adjust before proceeding.
 
+> **Strategic Override:** If evidence from live code contradicts the current `productPhase` or roadmap, you have full authority to change it. Document your evidence in the batch plan and update `state.productPhase`.
+
+> **Blocked Fallback:** If deployment is blocked by human tasks but non-blocked work exists, switch to BUILD phase and continue available work. Record `deploymentBlocked: true` in state. Don't let one blocker stall the entire pipeline.
+
 **Reading order** - Read in this order to prevent anchoring bias:
 
-1. **Project docs** - README, ROADMAP, architecture docs (big picture first)
+1. **Project docs** - README, ROADMAP, architecture docs (big picture first — read these BEFORE state.json to form an independent assessment)
 2. **Inbox** - `.kramak/inbox/` for user goals, bugs, or direction changes (highest priority input)
    - `bug` -> Create WI only if security or build-blocking; otherwise defer
    - `direction` -> Re-evaluate priorities and restructure roadmap if needed
    - `insight` / `data` -> Integrate into project documentation directly
+   - `credential` -> Mark the corresponding human task as resolved; unblock dependent WIs
    - Move processed items to a "Processed" section in inbox
 3. **Prior state** - `state.lastAudit`, `state.failed` (learn from past failures)
 4. **Live code** - Scan actual source files with grep/read (ground truth, never from memory)
@@ -145,6 +150,10 @@ acceptance_criteria:
 
 **Numbering:** Batch 1 -> WI-101, WI-102... Batch 2 -> WI-201, WI-202...
 
+> **Planner boundaries:** The planner may directly edit `.kramak/` files, docs, roadmaps, and project documentation. The planner must NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those instead.
+
+> **Collapse ambiguity:** Your job as planner is to collapse ambiguity, not write code. Once ambiguity is collapsed into a clear spec, even a less capable model can execute it. Spend your tokens on WHAT and WHY.
+
 ### 3.3 Detail Scaling - The Goldilocks Rule
 
 Match specification detail to risk. Over-specifying degrades model performance. Under-specifying causes 70-95% failure rates.
@@ -170,8 +179,10 @@ Match specification detail to risk. Over-specifying degrades model performance. 
 - **Batch size:** 3-8 WIs (scale with confidence in the codebase)
 - **Order by dependency:** Independent WIs first, dependent WIs after their prerequisites
 - **Build sequence:** Schema/data model (Guided) -> backend logic (Directed) -> frontend UI (Directed/Outcome) -> integration wiring (Directed) -> polish (Outcome)
-- **Consider alternatives:** For medium/high-risk work, evaluate at least 2 approaches and document the chosen one with rationale in the WI Intent
+- **Consider alternatives:** For medium/high-risk work, evaluate at least 2 approaches and document the chosen one with rationale in the WI Intent. For architectural decisions, consider 3.
 - **Quality over volume:** 5 excellent WIs beats 15 vague ones
+- **Confidence calibration:** Rate your confidence per WI: High (proceed), Medium (verify assumptions first), Low (research and flag risk explicitly)
+- **Decision audit trail:** Document why you chose this approach over alternatives in the WI Intent. Future planners need this context.
 
 ### 3.5 Multi-Agent Dispatch (Optional)
 
@@ -225,6 +236,8 @@ Before transitioning to execution, verify:
 > **When documentation and code disagree, code is truth** - docs are stale. Always trust what you read in the actual source files over what any document claims.
 
 > Do not use lorem ipsum, fake PII, synthetic API payloads, or unmarked placeholder data in production code. Use realistic empty states and graceful degradation instead.
+
+> **Progressive enhancement:** When data might be missing or an API might be unavailable, implement graceful degradation - helpful empty states, partial renders, and clear error messages rather than crashes or blank screens.
 
 ### 4.2 Per Work Item
 
@@ -280,6 +293,11 @@ If a WI fails verification after genuine effort:
 
 > **Spec failure pattern:** If a WI fails with `ambiguous-spec` or the same area keeps failing, elevate the detail tier (Outcome -> Directed, or Directed -> Guided) and add more specific grounding in the retry plan.
 
+> **Recovery shortcuts by category:**
+> - `code-drift`: Re-read the target file. If the BEFORE pattern shifted lines, update references and apply at new offset. If logic changed, fail to planner.
+> - `scope-exceeded`: Revert unlisted files. If the change was necessary, create an ad-hoc follow-up WI with the required `files_targeted`. Continue within declared scope.
+> - `dependency-missing`: Check if a dependency WI exists in the queue. If yes, reorder queue to execute it first. If no, create a new dependency WI and insert it ahead of the blocked WI.
+
 ### 4.4 Circuit Breaker
 
 **If `consecutiveFailures >= 3`:**
@@ -288,6 +306,8 @@ If a WI fails verification after genuine effort:
 - **STOP.** Do not retry. The approach needs rethinking.
 
 **Also trigger if:** The same error hash appears on 2 non-adjacent retry attempts (oscillation = wrong approach).
+
+> **Breaker reset rule:** Only reset `consecutiveFailures` and `circuitBreakerTripped` after designing a fundamentally different strategy. Do not just retry the same approach with the breaker cleared — that defeats the purpose.
 
 ### 4.5 Session Health - Hard Stop Gates
 
@@ -301,6 +321,15 @@ Any ONE of these triggers an immediate session end:
 | WIs completed this session | >= 6 | Session ceiling - context fatigue is real |
 
 If any gate triggers, **update state.json and start a fresh session.** Context fatigue causes silent quality decline that models cannot self-detect.
+
+**Session weight assessment** - before deciding to continue or handoff:
+
+| Your Session Weight | Next Phase Cost | Decision |
+|---|---|---|
+| Light (2 or fewer WIs, 10 or fewer files read) | Light | Continue in same session |
+| Medium (3-4 WIs or 11-20 files read) | Light/Medium | Continue if confident |
+| Medium | Heavy | **New session** - context approaching saturation |
+| Heavy (5+ WIs, 20+ files, extensive research) | Any | **New session** - context saturated |
 
 Additional behavioral signals to watch: verification retries increasing across WIs, touching files not in `files_targeted`, or error counts growing instead of shrinking.
 
@@ -330,7 +359,7 @@ When returning to a project after interruption:
 | Current Phase | Resume Action |
 |---|---|
 | `waiting` | Check if blockers are resolved. If yes, go to `executing` or `planning`. If no, show blockers, STOP. |
-| `escalated` | Review `state.escalation`. Rethink approach. Clear breaker (`consecutiveFailures: 0`). Go to `planning`. |
+| `escalated` | Review `state.escalation`. Design a fundamentally new strategy (not the same approach). Only then clear breaker (`consecutiveFailures: 0`, `circuitBreakerTripped: false`). Go to `planning`. |
 | `complete` | Check `inbox/` for new goals. If found, go to `planning`. If empty, confirm completion, STOP. |
 | `executing` (with active WI) | Check git status. If clean, resume WI. If dirty/corrupted, reset and restart WI. |
 
