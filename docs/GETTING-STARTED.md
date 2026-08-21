@@ -123,3 +123,9 @@ Drop a `.md` file in `.kramak/inbox/` at any time. The planner will pick it up i
 4. **Respect session limits.** After 5+ WIs, start a new session. Quality degrades silently.
 5. **Check the Work Items.** Read `.kramak/work-items/` to see what the agent planned -- they're your review checkpoint.
 6. **Use the product phase.** The agent prioritizes differently in BUILD (features) vs SHIP (deployment) vs ITERATE (bugs). Check `state.productPhase` if priorities seem off.
+
+## Further Reading
+
+- [Architecture & Design Decisions](ARCHITECTURE.md) -- Why single-file, IDE compatibility, token analysis, relationship to full Kramak
+- [Full Kramak Mapping](FULL-KRAMAK-MAPPING.md) -- Rule-by-rule coverage map of all 176 rules
+- [Changelog](../CHANGELOG.md) -- Version history with rationale for every change

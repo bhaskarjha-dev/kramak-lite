@@ -86,6 +86,19 @@ State is tracked in `.kramak/state.json`. Work Items live in `.kramak/work-items
 +-- inbox/                      <- User goals and direction (you write here)
 +-- templates/
     +-- WORK-ITEM.template.md   <- WI template reference
+
+docs/
++-- GETTING-STARTED.md          <- Setup guide and quickstart
++-- ARCHITECTURE.md             <- Design decisions, token analysis, IDE compatibility
++-- FULL-KRAMAK-MAPPING.md      <- 176-rule coverage map (Lite vs Full Kramak)
+
+adapters/                        <- IDE-specific adapters
++-- antigravity/SKILL.md
++-- claude-code/CLAUDE.md
++-- cursor/.cursorrules
++-- generic/AGENTS.md
+
+CHANGELOG.md                     <- Version history with rationale
 ```
 
 ## Kramak Lite vs Kramak (Full)
@@ -127,6 +140,15 @@ Quantitative session limits: 6+ WIs, 20+ files, 4+ errors corrected, or 1+ faile
 
 ### Session Health Monitoring
 After hitting any hard stop gate, objective signals determine whether to continue or start fresh. Models cannot self-detect quality degradation -- the gates enforce it.
+
+## Documentation
+
+| Document | Purpose |
+|---|---|
+| [Getting Started](docs/GETTING-STARTED.md) | Setup guide and quickstart |
+| [Architecture](docs/ARCHITECTURE.md) | Design decisions, single-file rationale, IDE compatibility strategy, token analysis |
+| [Full Kramak Mapping](docs/FULL-KRAMAK-MAPPING.md) | Complete rule-by-rule coverage map (176 rules) |
+| [Changelog](CHANGELOG.md) | Version history with rationale for every change |
 
 ## Requirements
 
