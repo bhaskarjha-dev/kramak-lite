@@ -8,7 +8,7 @@
 ## 1. Why Single-File Architecture
 
 ### The Decision
-Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~21KB, ~5,252 tokens). Data files (schemas, templates, state, work items) are separate.
+Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~32KB, ~7,500 tokens). Data files (schemas, templates, state, work items, batch plans) are separate.
 
 ### The Reasoning
 
@@ -21,20 +21,20 @@ Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~2
 Per-session token loading:
 - **Planning session:** ~54 KB (~13,500 tokens) loaded — PRINCIPLES.md + PLANNER.md
 - **Executing session:** ~31 KB (~7,750 tokens) loaded — PRINCIPLES.md + EXECUTOR.md
-- **Kramak Lite (any session):** ~21 KB (~5,252 tokens) loaded — just KRAMAK-LITE.md
+- **Kramak Lite (any session):** ~32 KB (~7,500 tokens) loaded — just KRAMAK-LITE.md
 
 **Post-research Kramak (current full spec) uses 20 files / 191 KB** with progressive loading via ROUTER.md. This is necessary at 191KB to avoid lost-in-middle attention degradation.
 
-**At 21 KB, single-file is strictly superior because:**
+**At 32 KB, single-file is strictly superior because:**
 
 1. **Fewer failure points.** Multi-file = 3+ `view_file` calls per session. Each can fail, truncate, or be skipped. Single file = 1 call = everything loaded.
 2. **No routing overhead.** Pre-research adapter had a routing table (phase → file). That table itself consumed attention and could be followed incorrectly.
-3. **5,252 tokens is in the sweet spot.** "Lost in the middle" kicks in at ~40-50% context utilization. At 5,252 tokens in a 128K context, we're at ~4% — deep in the high-attention primacy zone.
+3. **7,500 tokens is in the sweet spot.** "Lost in the middle" kicks in at ~40-50% context utilization. At 7,500 tokens in a 128K context, we're at ~5.8% — deep in the high-attention primacy zone. And smaller than what the pre-research version loaded per-session (31-56KB).
 4. **Section headers ARE routing.** When the model reads `## 4. Execute` and knows `state.phase === "executing"`, it naturally follows that section. No explicit routing needed.
-5. **The "waste" is negligible.** During execution, the model reads ~8KB of planning instructions it doesn't need. That's ~2,000 extra tokens — 1.5% of a 128K context window.
+5. **The "waste" is acceptable.** During execution, the model reads ~12KB of planning instructions it doesn't need. That's ~3,000 extra tokens — 2.3% of a 128K context window. The benefit (everything loaded, no missed instructions) far outweighs the cost.
 
 ### The Threshold
-If KRAMAK-LITE.md grows past ~40KB (~10,000 tokens), splitting becomes necessary. But at 21KB, we're well below this.
+If KRAMAK-LITE.md grows past ~45KB (~11,000 tokens), splitting becomes necessary. At 32KB, we're well below this and still smaller than what models successfully ran with in the pre-research era.
 
 ### What's Correctly Separate
 - **Schemas** (`state.schema.json`, `work-item.schema.json`) — machine-readable validation, not instruction text
@@ -101,16 +101,23 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 
 ## 3. Relationship to Full Kramak
 
-### What Kramak Lite Keeps (~92% of all rules, ~95% of enforceable rules)
+### What Kramak Lite Keeps (~95% of all enforceable rules + strategic intelligence)
 - The complete plan/execute/audit lifecycle
 - All 6 phases (planning, executing, auditing, waiting, escalated, complete)
+- **Strategic Vision System** — 5-lens assessment (Quality, User Journey, Competitive, Innovation, Architecture) with conditional triggers
+- **PERCEIVE → REASON → DECIDE** meta-cognitive planning loop
+- **Perspective Archetype System** — 25+ perspectives across 5 categories with diversity tracking
+- **Product Phase Priority Ladders** — ordered stacks for BUILD/SHIP/ITERATE with transition criteria
+- **CTO Empowerment Framing** — bounded freedoms + hard limits (constitutional, no identity conflict)
 - Goldilocks Rule with 3 detail tiers
+- Dynamic batch sizing (quality-driven, not fixed)
+- Batch plan documents with strategic intent and perspective rationale
 - 6-category failure taxonomy with recovery shortcuts
 - Circuit breaker with oscillation detection
 - Hard stop gates (quantitative session limits)
-- Session weight assessment
-- Product lifecycle (BUILD/SHIP/ITERATE)
-- Strategic reorientation + strategic override
+- Session weight assessment with objective degradation signals
+- Capability self-assessment (model evaluates fit for phase)
+- Branch management strategy
 - Pre-dispatch self-audit
 - Grounded Verification Protocol (5-step)
 - Scope enforcement (pre-execution intercept + post-commit git diff)
@@ -133,13 +140,12 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 
 These features are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
 
-**Not Needed in Lite (too heavyweight for marginal gain):**
+**Not Needed in Lite (beyond scope or too heavyweight):**
 | Feature | Why Excluded |
 |---|---|
-| 5 Strategic Lenses | ~500 bytes for marginal gain. Replaced by Strategic Reorientation Check (covers 80% of the value) |
-| Perspective Rotation | Archetype cycling (Solution Architect, UX Designer, etc.) adds ceremony without proportional value at Lite scale |
-| Detailed branch naming | Lite covers basic git. `pipeline/batch-XX` naming is optional convention |
 | Domain conventions module | Ecosystem-specific playbooks (React, Python, Go, Rust patterns) — too large, model already knows these |
+| RIPER-5 per-commit checklist | Models skip checklists when they conflict with harness commit flow |
+| Re-grounding cadence (every 3 tool calls) | Prescriptive cadence doesn't work in practice. "Re-read when needed" is better |
 
 ---
 
@@ -163,15 +169,20 @@ Typical execution session:         ~11,500 tokens of instructions
 
 ### Kramak Lite Token Cost Per Session
 ```
-KRAMAK-LITE.md:          ~5,252 tokens (everything, every session)
+KRAMAK-LITE.md:          ~7,500 tokens (everything, every session)
 ```
 
-**Reduction: 55-72% fewer instruction tokens per session.**
+**Reduction: 35-60% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version.
+
+### Size Context
+- Pre-research planning session: ~13,500 tokens (PLANNER.md + PRINCIPLES.md)
+- Pre-research execution session: ~7,750 tokens (EXECUTOR.md + PRINCIPLES.md)
+- Kramak Lite (any session): ~7,500 tokens — **comparable to the pre-research executor session**
 
 ### Safe Threshold
 - Modern context windows: 128K-1M tokens
 - "Lost in the middle" threshold: ~40-50% utilization
-- Kramak Lite at 5,252 tokens: 4.1% of 128K, 0.5% of 1M
+- Kramak Lite at 7,500 tokens: 5.8% of 128K, 0.75% of 1M
 - **Verdict:** Well within the high-attention zone for any model
 
 ---
@@ -208,6 +219,7 @@ A terminal-based enforcement layer that can programmatically enforce the rules K
 - Consider "always-active rule" elevation for IDEs that support it
 
 ### Spec Maintenance
-- If the spec grows past 40KB, consider splitting into PLANNER-LITE.md and EXECUTOR-LITE.md
+- If the spec grows past 45KB (~11,000 tokens), consider splitting into PLANNER-LITE.md and EXECUTOR-LITE.md
 - Keep the single-file architecture as long as it stays under the attention threshold
 - Audit spec size quarterly against model context window advances
+- Current allocation: ~60% autonomy engine / ~40% guardrails — maintain this ratio

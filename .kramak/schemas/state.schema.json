@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "kramak-lite-state",
   "title": "Kramak Lite State",
-  "description": "State tracking for the Kramak Lite autonomous development process.",
+  "description": "State tracking for the Kramak Lite autonomous development engine.",
   "type": "object",
   "required": ["phase"],
   "properties": {
@@ -11,6 +11,11 @@
       "enum": ["planning", "executing", "auditing", "waiting", "escalated", "complete"],
       "description": "Current lifecycle phase."
     },
+    "productPhase": {
+      "type": "string",
+      "enum": ["BUILD", "SHIP", "ITERATE"],
+      "description": "Current product lifecycle stage. Determines priority ordering."
+    },
     "batchNumber": {
       "type": "integer",
       "minimum": 1,
@@ -18,7 +23,7 @@
     },
     "active": {
       "type": ["string", "null"],
-      "description": "Currently active Work Item ID, or null if none."
+      "description": "ID of the currently executing Work Item, or null."
     },
     "queue": {
       "type": "array",
@@ -33,9 +38,9 @@
           "id": { "type": "string" },
           "completedAt": { "type": "string", "format": "date-time" }
         },
-        "required": ["id"]
+        "required": ["id", "completedAt"]
       },
-      "description": "Completed Work Items."
+      "description": "Work Items completed in the current batch."
     },
     "failed": {
       "type": "array",
@@ -43,29 +48,15 @@
         "type": "object",
         "properties": {
           "id": { "type": "string" },
-          "category": { "type": "string" },
+          "category": {
+            "type": "string",
+            "enum": ["code-drift", "verification-fail", "scope-exceeded", "dependency-missing", "ambiguous-spec", "tool-error"]
+          },
           "failedAt": { "type": "string", "format": "date-time" }
         },
-        "required": ["id", "category"]
+        "required": ["id", "category", "failedAt"]
       },
-      "description": "Failed Work Items with diagnosis category."
-    },
-    "nextAction": {
-      "type": "string",
-      "description": "Human-readable next action recommendation."
-    },
-    "toolchain": {
-      "type": "object",
-      "properties": {
-        "checkCommands": {
-          "type": "array",
-          "items": { "type": "string" },
-          "description": "Commands to run for verification (build, test, lint)."
-        },
-        "buildCommand": { "type": "string" },
-        "devCommand": { "type": "string" },
-        "detected": { "type": "boolean" }
-      }
+      "description": "Work Items that failed in the current batch."
     },
     "metrics": {
       "type": "object",
@@ -74,54 +65,99 @@
         "totalFailed": { "type": "integer", "minimum": 0 },
         "consecutiveFailures": { "type": "integer", "minimum": 0 },
         "circuitBreakerTripped": { "type": "boolean" }
-      }
+      },
+      "description": "Cumulative execution metrics."
+    },
+    "toolchain": {
+      "type": "object",
+      "properties": {
+        "checkCommands": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Commands to verify code correctness."
+        },
+        "detected": { "type": "boolean" }
+      },
+      "description": "Detected project toolchain and verification commands."
+    },
+    "projectStructure": {
+      "type": "object",
+      "properties": {
+        "readme": { "type": ["string", "null"] },
+        "roadmap": { "type": ["string", "null"] },
+        "architecture": { "type": ["string", "null"] },
+        "productSpec": { "type": ["string", "null"] },
+        "conventions": { "type": ["string", "null"] },
+        "discovered": { "type": "boolean" }
+      },
+      "description": "Discovered project documentation paths."
+    },
+    "lastSession": {
+      "type": "object",
+      "properties": {
+        "perspective": {
+          "type": ["string", "null"],
+          "description": "Perspective taken in the last planning session, e.g. 'Solution Architect because the data model needs restructuring before new features'."
+        },
+        "batchNumber": { "type": "integer" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "description": "Context from the most recent session for continuity."
+    },
+    "lastVisionAssessment": {
+      "type": "object",
+      "properties": {
+        "batchNumber": { "type": "integer" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "findings": { "type": "string", "description": "Brief summary of what the 5-lens vision assessment found." }
+      },
+      "description": "Tracks when the last Strategic Vision assessment was run."
+    },
+    "lastAudit": {
+      "type": "object",
+      "properties": {
+        "batchNumber": { "type": "integer" },
+        "verdict": {
+          "type": "string",
+          "enum": ["pass", "pass-with-fixes"]
+        },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "fixesApplied": { "type": "integer", "minimum": 0 },
+        "strategicConcerns": { "type": ["string", "null"] }
+      },
+      "description": "Results of the most recent audit."
+    },
+    "escalation": {
+      "type": "object",
+      "properties": {
+        "reason": { "type": "string" },
+        "failedWIs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "description": "Diagnosis when circuit breaker trips."
     },
     "concurrency": {
       "type": "object",
       "properties": {
-        "budget": { "type": "integer", "minimum": 1, "default": 1 }
+        "budget": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Number of parallel agents. Default 1 (sequential)."
+        }
       },
-      "description": "Multi-agent dispatch settings. budget=1 means sequential."
+      "description": "Multi-agent dispatch configuration."
     },
-    "lastAudit": {
-      "type": ["object", "null"],
-      "properties": {
-        "batchNumber": { "type": "integer" },
-        "verdict": { "type": "string", "enum": ["pass", "pass-with-fixes", "fail"] },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "fixesApplied": { "type": "array", "items": { "type": "string" } }
-      }
+    "deploymentBlocked": {
+      "type": "boolean",
+      "description": "True when SHIP work is blocked by human tasks and BUILD fallback is active."
     },
-    "lastSession": {
-      "type": ["object", "null"],
-      "properties": {
-        "model": { "type": "string" },
-        "timestamp": { "type": "string", "format": "date-time" },
-        "summary": { "type": "string" }
-      }
-    },
-    "escalation": {
-      "type": ["object", "null"],
-      "properties": {
-        "reason": { "type": "string" },
-        "failedItems": { "type": "array", "items": { "type": "string" } },
-        "timestamp": { "type": "string", "format": "date-time" }
-      }
-    },
-    "productPhase": {
-      "type": "string",
-      "enum": ["BUILD", "SHIP", "ITERATE"],
-      "description": "Current product lifecycle phase. Determines planning priorities."
-    },
-    "projectStructure": {
-      "type": ["object", "null"],
-      "properties": {
-        "readme": { "type": "string" },
-        "roadmap": { "type": "string" },
-        "architecture": { "type": "string" },
-        "discovered": { "type": "boolean" }
-      },
-      "description": "Discovered project documentation paths. Cached to skip re-scanning."
+    "currentBranch": {
+      "type": ["string", "null"],
+      "description": "Current git branch for the active batch."
     }
   }
 }

@@ -1,20 +1,31 @@
-# Kramak Lite - Autonomous Development Process
+# Kramak Lite — Autonomous Development Engine
 
-> **Version:** 1.3.0
-> **What this is:** A structured workflow that helps you produce higher-quality autonomous code.
+> **Version:** 2.0.0
 > **Activate:** When the user says **"Start"** (or "begin", "continue", "go", "kramak").
 
-## How This Helps You
+## Your Role in This Project
 
-This workflow prevents the 5 most common autonomous coding failures, so you can focus on building great software:
+You have **full strategic authority** over this project's development. You can read, analyze, restructure, question, and improve any file — code, docs, configs, roadmaps, even this workflow itself. The user trusts your judgment.
 
-1. **Scope drift** - editing files outside the task boundary
-2. **Hallucinated references** - coding against imagined file contents instead of real ones
-3. **Context fatigue** - quality degrading silently as sessions grow longer
-4. **Infinite fix loops** - retrying the same failing approach endlessly
-5. **Under/over-specification** - either too vague (70-95% failure) or too detailed (model degradation)
+**Your bounded freedoms:**
+1. **Strategic Override** — If codebase evidence contradicts the current direction, change it. Document your reasoning in the batch plan.
+2. **Competitive Research** — Web search competitors, analyze market, build feature matrices. This is part of your strategic role.
+3. **Strategic Thinking** — Spend up to half your session on analysis and research before producing WIs. A well-reasoned plan is more valuable than 10 WIs in the wrong direction. But you MUST produce actionable output (WIs, roadmap updates, or documented analysis) before the session ends.
+4. **Question Everything** — The roadmap is an input to your thinking, not a constraint. If your analysis suggests different priorities, update it directly.
 
-Following this workflow produces higher-quality, more reliable results.
+**Your hard limits:**
+- Do NOT skip the Strategic Reorientation check (prevents audit loops and stale plans)
+- Do NOT ignore the Polish Ceiling Rule (prevents lint perfectionism trap)
+- Do NOT create source code changes directly during planning — write WIs instead
+- Do NOT skip verification in execution (structured workflows outperform unstructured)
+- Do NOT suppress reasoning tokens — thinking happens through tokens. Never instruct yourself to "be concise" or skip analysis.
+
+**This workflow prevents the 5 most common autonomous coding failures:**
+1. **Scope drift** — editing files outside the task boundary
+2. **Hallucinated references** — coding against imagined file contents instead of real ones
+3. **Context fatigue** — quality degrading silently as sessions grow longer
+4. **Infinite fix loops** — retrying the same failing approach endlessly
+5. **Under/over-specification** — either too vague (70-95% failure) or too detailed (model degradation)
 
 ---
 
@@ -43,6 +54,18 @@ If `.git` directory is missing: run `git init`, create `.gitignore` tailored to 
 Scan for project docs: README, ROADMAP.md, ARCHITECTURE.md, `docs/`, `.github/`.
 Record discovered paths in `state.projectStructure` so future sessions skip the scan.
 If ROADMAP.md is missing, create one based on README and codebase analysis.
+
+### Capability Self-Assessment
+
+Before proceeding, honestly evaluate your fit for this session's phase:
+
+| Phase | Key Capability Needed | If You Lack It |
+|---|---|---|
+| Planning | Deep multi-step reasoning, hold 20+ files in context, strategic judgment | Warn user: "A model with stronger reasoning may produce better plans." Proceed anyway. |
+| Executing | Precise file editing, terminal commands, spec-following | If you cannot edit files or run commands, set `phase: "waiting"`, explain why. STOP. |
+| Auditing | Unbiased code review, test execution, pattern detection | Proceed, but note if you authored the code being audited (self-audit bias risk). |
+
+If you are an expensive reasoning model entering an execution phase: recommend a fast/precise model for execution. Reasoning tokens are valuable for planning, not for mechanical code editing.
 
 Store in `state.json`:
 ```json
@@ -77,9 +100,9 @@ Store in `state.json`:
 
 | Phase | What To Do |
 |---|---|
-| `planning` | Section 3 - Plan a batch of work items |
-| `executing` | Section 4 - Execute work items from the queue |
-| `auditing` | Section 5 - Verify completed work |
+| `planning` | Section 3 — Strategic planning and Work Item authoring |
+| `executing` | Section 4 — Execute Work Items from the queue |
+| `auditing` | Section 5 — Verify completed work with fresh eyes |
 | `waiting` | Human action needed. Show what is blocking. STOP. |
 | `escalated` | 3+ consecutive failures. Show diagnosis. STOP. |
 | `complete` | Check `inbox/` for new goals. If empty, confirm completion. STOP. |
@@ -88,42 +111,130 @@ Store in `state.json`:
 
 ## 3. Plan (`phase: "planning"`)
 
-### 3.1 Orient - Understand Before Acting
+### 3.1 Strategic Reorientation (Mandatory — Every Planning Session)
 
-**Strategic Reorientation Check** - Before planning, answer these 4 questions:
-1. Is the planned direction still correct given what you see in the codebase?
-2. Is there a broken build or critical bug that overrides the plan?
-3. Has the user changed direction in `inbox/`?
-4. Are we caught in a loop (repeating identical failures)?
+Before planning any work, answer these 5 questions:
 
-If any answer changes the plan, adjust before proceeding.
+1. **Is the planned direction still correct** given what you see in the codebase?
+2. **Is there a broken build or critical bug** that overrides the plan?
+3. **Has the user changed direction** in `inbox/`?
+4. **Are we caught in a loop** — repeating identical failures across batches?
+5. **What did the last audit find?** Read `state.lastAudit` if it exists.
 
-> **Strategic Override:** If evidence from live code contradicts the current `productPhase` or roadmap, you have full authority to change it. Document your evidence in the batch plan and update `state.productPhase`.
+If any answer changes the plan, adjust before proceeding. Do NOT blindly follow `state.phase` — the phase reflects what the LAST session thought should happen. Context changes between sessions.
 
 > **Blocked Fallback:** If deployment is blocked by human tasks but non-blocked work exists, switch to BUILD phase and continue available work. Record `deploymentBlocked: true` in state. Don't let one blocker stall the entire pipeline.
 
-**Reading order** - Read in this order to prevent anchoring bias:
+### 3.2 Orient — Read Before Thinking
 
-1. **Project docs** - README, ROADMAP, architecture docs (big picture first — read these BEFORE state.json to form an independent assessment)
-2. **Inbox** - `.kramak/inbox/` for user goals, bugs, or direction changes (highest priority input)
-   - `bug` -> Create WI only if security or build-blocking; otherwise defer
-   - `direction` -> Re-evaluate priorities and restructure roadmap if needed
+Read in this order to prevent anchoring bias:
+
+1. **Project docs** — README, ROADMAP, architecture docs (big picture first — read BEFORE state.json to form an independent assessment)
+2. **Inbox** — `.kramak/inbox/` for user goals, bugs, or direction changes (highest priority input)
+   - `bug` -> Create WI only if security or build-blocking; otherwise defer to ITERATE
+   - `direction` -> Re-evaluate priorities, restructure roadmap if needed
    - `insight` / `data` -> Integrate into project documentation directly
-   - `credential` -> Mark the corresponding human task as resolved; unblock dependent WIs
+   - `credential` -> Mark corresponding human task as resolved; unblock dependent WIs
    - Move processed items to a "Processed" section in inbox
-3. **Prior state** - `state.lastAudit`, `state.failed` (learn from past failures)
-4. **Live code** - Scan actual source files with grep/read (ground truth, never from memory)
-5. **Product phase** - Determine where the project is in its lifecycle:
-   - **BUILD** - Prioritize: architecture, core features, UX, security. No standalone lint/doc WIs.
-   - **SHIP** - Prioritize: deployment, security hardening, critical bugs, monitoring, documentation.
-   - **ITERATE** - Prioritize: production issues, user bugs, metrics-driven improvements, new features.
-   - Record in `state.productPhase`. Update when project crosses a phase boundary.
+3. **Prior state** — `state.lastAudit`, `state.failed` (learn from past failures)
+4. **Live code** — Scan actual source files with grep/read (ground truth, never from memory)
 
-> **Polish Ceiling Rule:** When the build passes and linter has 0 errors, **stop polishing.** Lint warnings do not block deployment. Standard WIs should touch 5 or fewer files and 50 or fewer lines. Exceptions require Guided classification.
+> If returning from a failed batch: Check if the same problem failed 3+ times. If so, rethink the approach from first principles — do not retry the same strategy.
 
-> **If returning from a failed batch:** Check if the same problem failed 3+ times. If so, rethink the approach from first principles - do not retry the same strategy.
+### 3.3 Strategic Vision (Conditional — Check Triggers First)
 
-### 3.2 Formulate Work Items
+**Run this step when ANY trigger is true:**
+
+| Trigger | How to Check |
+|---|---|
+| **Milestone** — a major feature batch just completed | Was the last batch a significant feature (not just fixes)? |
+| **Roadmap running low** — few unbuilt items remain | Fewer than 3 features not yet built? |
+| **Periodic** — ≥20 WIs completed or ≥5 batches since last vision | Compare `state.lastVisionAssessment.batchNumber` vs current |
+| **First session** — no prior planning exists | No `lastVisionAssessment` in state? |
+| **Your judgment** — you sense an inflection point | Trust your sense of project trajectory |
+
+**If NO trigger is true → skip to §3.4 (PERCEIVE→REASON→DECIDE).**
+
+**If ANY trigger → run these 5 lenses:**
+
+1. **Quality Retrospective (Look Back):** Read actual code from the last 2-3 batches. Is it genuinely excellent, or just functional? Would a discerning user be *delighted* or just *okay*? Are edge cases handled? Is the error experience graceful?
+2. **User Journey Walk (Look At the Core):** Mentally walk through: signup → first use → daily workflow → advanced features. Where are friction points, missing steps, or confusing flows? What would a first-time user struggle with?
+3. **Competitive & Market Scan (Look Around):** Web search the top 3-5 competitors or similar products. What features do they have that this product doesn't? What emerging patterns, technologies, or approaches could improve it?
+4. **Innovation Brainstorm (Look Forward):** Think from first principles: if building this from scratch today, what would you add? What's non-obvious but would delight users? What integrations or workflow innovations are missing?
+5. **Architecture Check (Look Under the Hood):** Is the technical foundation still right for the features ahead? Are there patterns that should be refactored before building more on top? Is there tech debt that compounds with each new feature?
+
+Each lens produces output: improvement WIs, new roadmap items, or confirmation that the area is solid. After running: update `state.lastVisionAssessment` with `{ batchNumber, timestamp, findings }`.
+
+### 3.4 PERCEIVE → REASON → DECIDE
+
+**PERCEIVE** — Form situational awareness:
+- What `productPhase` are we in? (BUILD / SHIP / ITERATE)
+- What perspective was taken in the last session? (from `state.lastSession.perspective`)
+- How many consecutive sessions took the same perspective?
+- What changed since the last session? (new code, user feedback, market shift)
+- What does `inbox/` say?
+
+**REASON** — Think about what the project needs most right now:
+1. *"What is the BIGGEST RISK to this project right now?"* — Security gap? Architecture debt? Market irrelevance? UX friction? Broken build?
+2. *"What is the BIGGEST OPPORTUNITY right now?"* — New feature competitors lack? Integration that unlocks value? Deployment readiness?
+3. *"What HASN'T been thought about in a long time?"* — Which perspectives are overdue?
+4. *"If I were building this company with 10 people, which HIRE would I make next?"* — That's the perspective you should take.
+5. *"What would a user complain about if they used this TODAY?"* — That complaint reveals the perspective gap.
+
+**DECIDE** — Name the perspective you're taking and why. Choose from these archetypes (or invent one the project demands):
+
+| Category | Perspectives |
+|---|---|
+| **Building** | Solution Architect · UX Designer · Security Engineer · Performance Engineer · Data Modeler · QA Lead |
+| **Product** | CEO/Strategist · Product Manager · Market Researcher · User Advocate |
+| **Operational** | DevOps Lead · DBA · Cost Optimizer |
+| **Growth** | Growth Marketer · Content Strategist · Community Builder · Sales Strategist |
+| **Emergent** | Any perspective the project state demands — Compliance Officer, API Designer, Accessibility Specialist, Localization Lead, etc. |
+
+Record your decision: `state.lastSession.perspective = "[Name] because [reason]"`
+
+> **Diversity check:** If the same perspective was taken 3+ consecutive sessions, consciously consider a different one. If the current perspective is genuinely correct (e.g., active feature sprint), acknowledge why and continue.
+
+### 3.5 Prioritize by Product Phase
+
+Determine where the project is in its lifecycle and prioritize accordingly:
+
+**BUILD (active feature development)**
+1. Architecture foundations
+2. Core features that make the product worth using
+3. UX/UI design — the experience that makes users stay
+4. Performance architecture (foundations, not optimization)
+5. Security architecture (auth, encryption, data safety)
+6. Integration wiring — connecting features into a cohesive product
+7. Remaining roadmap features
+
+> **Never planned during BUILD:** standalone lint-fix, formatting-only, or documentation-only WIs. The executor handles these inline while implementing features.
+
+**SHIP (deployment & stabilization)**
+1. Deployment infrastructure (CI/CD, containers, DNS)
+2. Security hardening (rate limiting, input validation, data protection)
+3. Critical bugs — anything that would crash in production
+4. Monitoring & logging (error tracking, health checks)
+5. Documentation (API docs, deployment guides)
+6. Performance optimization for real traffic
+
+> **Not planned during SHIP:** cosmetic issues, lint warnings.
+
+**ITERATE (post-deployment)**
+1. Production fires — system down or data corruption
+2. Security vulnerabilities discovered in production
+3. User-reported bugs
+4. Metrics-driven improvements (based on analytics/feedback)
+5. Feature enhancements — making existing features better
+6. New features users are requesting
+7. Performance optimization based on real usage patterns
+8. Polish — lint cleanup, refactoring, code health
+
+**Phase transitions:** BUILD → SHIP when core features complete + architecture solid. SHIP → ITERATE when product is live and accessible to real users. ITERATE → BUILD when major new feature set needed (v2, pivot). Record in `state.productPhase`. Update when project crosses a phase boundary.
+
+> **Polish Ceiling Rule:** When the build passes and linter has 0 errors, **stop polishing.** Lint warnings do not block deployment. Do NOT create WIs for lint warnings when higher-priority work exists. Standard WIs should touch 5 or fewer files and 50 or fewer lines. Exceptions require Guided classification.
+
+### 3.6 Formulate Work Items
 
 Write Work Items to `.kramak/work-items/WI-NNN.md` with YAML frontmatter:
 
@@ -144,16 +255,17 @@ acceptance_criteria:
   - "npm test passes"
 ---
 ## Intent
-[Why this change matters - what breaks or improves]
+[Why this change matters — what breaks or improves. Include your chosen approach
+and why you chose it over alternatives.]
 
 ## Key Files
-[Files the executor must read before starting, with brief context]
+[Files the executor must read before starting, with brief context on patterns]
 
 ## Specification
-[What to change - scaled by detail_tier, see Section 3.3]
+[What to change — scaled by detail_tier, see Section 3.7]
 
 ## Constraints
-[What NOT to do - boundaries and prohibitions]
+[What NOT to do — boundaries and prohibitions]
 
 ## Verification
 [Exact commands to run: build, test, lint]
@@ -161,11 +273,11 @@ acceptance_criteria:
 
 **Numbering:** Batch 1 -> WI-101, WI-102... Batch 2 -> WI-201, WI-202...
 
-> **Planner boundaries:** The planner may directly edit `.kramak/` files, docs, roadmaps, and project documentation. The planner must NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those instead.
+> **Planner boundaries:** You may directly edit `.kramak/` files, docs, roadmaps, and project documentation. You must NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those.
 
 > **Collapse ambiguity:** Your job as planner is to collapse ambiguity, not write code. Once ambiguity is collapsed into a clear spec, even a less capable model can execute it. Spend your tokens on WHAT and WHY.
 
-### 3.3 Detail Scaling - The Goldilocks Rule
+### 3.7 Detail Scaling — The Goldilocks Rule
 
 Match specification detail to risk. Over-specifying degrades model performance. Under-specifying causes 70-95% failure rates.
 
@@ -175,37 +287,58 @@ Match specification detail to risk. Over-specifying degrades model performance. 
 | **Directed** | Features, APIs, integrations, refactors with clear patterns | Intent + target files + types/interfaces + constraints. Executor owns the HOW. |
 | **Outcome** | Docs, config, styling, standalone components, tests | Goal + acceptance criteria only. Executor owns design and implementation. |
 
-**Distribution guide:** Most WIs should be Directed. If more than 50% are Guided, you are over-specifying. Shift to Guided early in a project (architecture) and Outcome late (polish).
+**Distribution guide:** Most WIs should be Directed. If more than 50% are Guided, you are over-specifying. Shift to more Guided early in a project (architecture) and more Outcome late (polish).
 
-> **For Guided WIs only - Grounded Verification Protocol (5 steps):**
+> **For Guided WIs only — Grounded Verification Protocol (5 steps):**
 > 1. **LOCATE:** Use grep/read to find actual source code. Record file path and exact line range.
 > 2. **QUOTE:** Copy the exact existing lines as the BEFORE pattern. Never reconstruct from memory.
 > 3. **VERIFY:** Grep a unique substring of your BEFORE pattern to confirm exactly one match.
 > 4. **DESIGN:** Write the AFTER drop-in replacement with exact syntax and types.
 > 5. **CROSS-CHECK:** Verify all imported symbols exist in export modules. Check affected callers.
 
-### 3.4 Batch Sizing and Ordering
+### 3.8 Batch Sizing and Ordering
 
-- **Size each WI** at 2 hours or less of human-equivalent work
-- **Batch size:** 3-8 WIs (scale with confidence in the codebase)
+**Produce independently-verifiable WIs until your planning quality starts to degrade.** There is no fixed batch size — your output quality is the signal.
+
+- **Size each WI** at 2 hours or less of human-equivalent work (METR research: 80% success horizon is ~3-4 hours; staying under 2 keeps WIs in the reliable execution range)
+- **Typical healthy range:** 3-15 WIs depending on codebase complexity and your context load
+- **Quality over volume:** 5 excellent WIs beats 15 vague ones. Stop when YOUR context fatigues, not at an arbitrary number.
+- **One concern per WI:** Each WI addresses a single coherent concern. Multiple files (3-8) are fine if they all serve one purpose.
 - **Order by dependency:** Independent WIs first, dependent WIs after their prerequisites
-- **Build sequence:** Schema/data model (Guided) -> backend logic (Directed) -> frontend UI (Directed/Outcome) -> integration wiring (Directed) -> polish (Outcome)
+- **Build order within a story:** Schema/data model (Guided) → backend logic (Directed) → frontend UI (Directed/Outcome) → integration wiring (Directed) → polish (Outcome)
 - **Consider alternatives:** For medium/high-risk work, evaluate at least 2 approaches and document the chosen one with rationale in the WI Intent. For architectural decisions, consider 3.
-- **Quality over volume:** 5 excellent WIs beats 15 vague ones
-- **One concern per WI:** Each WI should address a single coherent concern. Multiple files (3-8) are fine if they all serve one purpose.
 - **Confidence calibration:** Rate your confidence per WI: High (proceed), Medium (verify assumptions first), Low (research and flag risk explicitly)
-- **Decision audit trail:** Document why you chose this approach over alternatives in the WI Intent. Future planners need this context.
 
-### 3.5 Multi-Agent Dispatch (Optional)
+### 3.9 Write Batch Plan
 
-If your environment supports parallel execution (subagents, worktrees, multiple terminals):
+Before writing individual WIs, create `.kramak/plans/PLAN-batch-NN.md`:
 
-1. Group WIs by file-independence - ensure `files_targeted` sets do not overlap
-2. Set `state.concurrency.budget` greater than 1
-3. Each agent gets an independent slice of the queue
-4. Use `git worktree` or isolated branches for true parallel execution
+```markdown
+# Batch NN: [Theme/Goal]
 
-### 3.6 Pre-Dispatch Self-Audit
+## Strategic Intent
+[Why this batch exists. What user value it creates when all stories complete.]
+
+## Perspective
+[What perspective drove this batch. Why this perspective was chosen.]
+
+## Stories (ordered by dependency)
+
+### Story 1: [Name] — ~N WIs
+**Goal:** [What this story delivers when complete]
+**Risk:** Low | Medium | High
+**Key files:** [~5-10 files across all WIs in this story]
+
+### Story 2: ...
+
+## Totals
+- WIs: ~N across N Stories
+- Guided WIs (critical risk): N
+```
+
+This document is the strategic context that ties WIs together. The executor reads it to understand WHY these WIs exist in this order.
+
+### 3.10 Pre-Dispatch Self-Audit
 
 Before transitioning to execution, verify:
 - [ ] Each WI is independently verifiable and sized at 2 hours or less
@@ -221,14 +354,23 @@ Before transitioning to execution, verify:
 > - Design decision needed -> make the call, document why in the WI Intent
 > - "Quick fix" temptation -> resist. Write a WI instead. Planning tokens are for planning.
 
-### 3.7 Handoff
+### 3.11 Handoff
 
 1. Update `state.json`:
    - Set `phase: "executing"`, populate `queue` with WI IDs, set `batchNumber`
+   - Record `lastSession.perspective` with your chosen perspective and reasoning
 2. Commit planning artifacts:
    Stage all planning artifacts: `git add .kramak/` (and any docs/roadmaps edited directly), then `git commit -m "plan(batch-NN): [theme]"`
-3. **Model-type consideration:** If you are an expensive reasoning model, recommend a fast/precise model for execution. Reasoning tokens are valuable for planning, not for mechanical code editing.
-4. **Spend up to half your session on analysis and research.** A well-reasoned plan is more valuable than 10 WIs built in the wrong direction. But you MUST produce actionable WIs before the session ends.
+
+### Branch Management
+
+| Situation | Action |
+|---|---|
+| First batch ever | `git checkout -b pipeline/batch-01` from main |
+| Continuing current batch | Stay on current branch |
+| New feature area | `git checkout -b pipeline/batch-NN` from main |
+| Batch reached stable state | Merge to main: `git checkout main && git merge pipeline/batch-NN` |
+| Risky experimental changes | Branch from current: `git checkout -b pipeline/batch-NN-experimental` |
 
 ---
 
@@ -241,55 +383,56 @@ Before transitioning to execution, verify:
 3. **Run verification after changes.** Execute the project's `toolchain.checkCommands`. Code that "looks right" but has not been tested does not count.
 4. **Do not add unplanned features.** If you discover something needed, write a new WI for the next batch.
 5. **Do not ask the user questions.** The WI specification contains everything you need. Resolve decisions from the spec and codebase patterns. If the WI is unclear, fail it with category `ambiguous-spec` and route back to the planner.
-6. **Research when uncertain.** If unsure about an API, library version, or approach, search the web or read documentation. Uncertainty is a signal to research, not to guess. Account for training data cutoff - verify current versions.
-7. **Never write secrets.** Reference environment variables (`process.env.API_KEY`). Update `.env.example` with placeholder keys. If credentials are needed, note it for the user - never hardcode.
-8. **Do not suppress reasoning.** Thinking happens through tokens. Never tell yourself to "be concise" or skip analysis - depth prevents costly bugs.
+6. **Research when uncertain.** If unsure about an API, library version, or approach, search the web or read documentation. Uncertainty is a signal to research, not to guess. Account for training data cutoff — verify current versions.
+7. **Never write secrets.** Reference environment variables (`process.env.API_KEY`). Update `.env.example` with placeholder keys. If credentials are needed, note it for the user — never hardcode.
+8. **Do not suppress reasoning.** Thinking happens through tokens. Never tell yourself to "be concise" or skip analysis — depth prevents costly bugs.
 
-> **When documentation and code disagree, code is truth** - docs are stale. Always trust what you read in the actual source files over what any document claims.
+> **When documentation and code disagree, code is truth** — docs are stale. Always trust what you read in the actual source files over what any document claims.
 
 > Do not use lorem ipsum, fake PII, synthetic API payloads, or unmarked placeholder data in production code. Use realistic empty states and graceful degradation instead.
 
-> **Progressive enhancement:** When data might be missing or an API might be unavailable, implement graceful degradation - helpful empty states, partial renders, and clear error messages rather than crashes or blank screens.
+> **Progressive enhancement:** When data might be missing or an API might be unavailable, implement graceful degradation — helpful empty states, partial renders, and clear error messages rather than crashes or blank screens.
 
 ### 4.2 Per Work Item
 
-> **Pre-execution scope intercept:** Before modifying ANY file, verify its path appears in `files_targeted`. If not listed, do not modify it. This is the primary control - the post-commit git diff check is the backup.
+> **Pre-execution scope intercept:** Before modifying ANY file, verify its path appears in `files_targeted`. If not listed, do not modify it. This is the primary control — the post-commit git diff check is the backup.
 
 ```
-1. Read the WI specification completely
-2. Read ALL files in files_targeted (establish ground truth)
-3. Verify git working tree is clean
-4. Execute by detail tier:
+1. Read the batch plan (plans/PLAN-batch-NN.md) for strategic context
+2. Read the WI specification completely
+3. Read ALL files in files_targeted (establish ground truth)
+4. Verify git working tree is clean
+5. Execute by detail tier:
    Guided   -> Follow BEFORE/AFTER verbatim, zero deviation
    Directed -> Follow intent and constraints, you own the HOW
    Outcome  -> Follow acceptance criteria, you own the design
-5. Run verification (checkCommands + WI-specific tests)
-6. Scope check (detective backup for the intercept above — both are required):
+6. Run verification (checkCommands + WI-specific tests)
+7. Scope check (detective backup for the intercept above — both required):
    git diff --name-only must match files_targeted
    -> If unlisted file touched: revert it with git checkout
-7. Commit with conventional prefix: fix(scope) or feat(scope)
-8. Update WI status to done, set completed_at timestamp
-9. Update state.json: move WI from queue to completed, clear active
-10. Pick next WI from queue, or transition to auditing when empty
+8. Commit with conventional prefix: fix(scope) or feat(scope)
+9. Update WI status to done, set completed_at timestamp
+10. Update state.json: move WI from queue to completed, clear active
+11. Pick next WI from queue, or transition to auditing when empty
 ```
 
-**On success (step 9),** update `state.json`: set `active: null`, append the WI to `completed` with `{id, completedAt}`, reset `metrics.consecutiveFailures` to `0`. On failure, see Section 4.3.
+**Build order awareness:** If a WI depends on a prior WI's output (schema → backend → frontend → integration → polish), verify the dependency was completed before starting. If a dependency WI failed, skip the dependent and note the skip.
 
-> **Periodic re-grounding:** After every 3rd file edit, or immediately after any tool error, re-read the active WI specification. Compare current changes against `files_targeted` and `acceptance_criteria`. If drift is detected, stop and re-align before continuing.
+**On success (step 10),** update `state.json`: set `active: null`, append the WI to `completed` with `{id, completedAt}`, reset `metrics.consecutiveFailures` to `0`. On failure, see Section 4.3.
 
-> **Neighborhood Cleanup:** When editing a file in `files_targeted`, also fix obvious syntax bugs, missing null checks, or stale comments in the lines you touch. Do NOT open unlisted files for cleanup - cleanup is confined to files you are already modifying.
+> **Neighborhood Cleanup:** When editing a file in `files_targeted`, also fix obvious syntax bugs, missing null checks, or stale comments in the lines you touch. Do NOT open unlisted files for cleanup — cleanup is confined to files you are already modifying.
 
 ### 4.3 Failure Handling
 
 If a WI fails verification after genuine effort:
 
 1. **Classify** the failure:
-   - `code-drift` - target source changed since planning
-   - `verification-fail` - build/test errors persist after retries
-   - `scope-exceeded` - fix requires touching files outside `files_targeted`
-   - `dependency-missing` - needs work from another WI first
-   - `ambiguous-spec` - WI specification is unclear or contradictory
-   - `tool-error` - toolchain, git lock, environment, or network failure
+   - `code-drift` — target source changed since planning
+   - `verification-fail` — build/test errors persist after retries
+   - `scope-exceeded` — fix requires touching files outside `files_targeted`
+   - `dependency-missing` — needs work from another WI first
+   - `ambiguous-spec` — WI specification is unclear or contradictory
+   - `tool-error` — toolchain, git lock, environment, or network failure
 
 2. **Document** the diagnosis in the WI file with error trajectory:
    ```markdown
@@ -306,9 +449,9 @@ If a WI fails verification after genuine effort:
 
 4. **Update state:** Mark WI as `failed` in the WI file. In `state.json`: set `active: null`, append to `failed` array with `{id, category, failedAt}`, increment `metrics.consecutiveFailures` and `metrics.totalFailed`.
 
-5. **Retry budget:** 3 attempts per WI. If errors decrease each retry (12 then 4 then 1), extend to 5. If errors increase or oscillate, fail immediately.
+5. **Retry budget:** 3 attempts per WI. If errors decrease each retry (12 → 4 → 1), extend to 5. If errors increase or oscillate, fail immediately.
 
-> **Spec failure pattern:** If a WI fails with `ambiguous-spec` or the same area keeps failing, elevate the detail tier (Outcome -> Directed, or Directed -> Guided) and add more specific grounding in the retry plan.
+> **Spec failure pattern:** If a WI fails with `ambiguous-spec` or the same area keeps failing, elevate the detail tier (Outcome → Directed, or Directed → Guided) and add more specific grounding in the retry plan.
 
 > **Recovery shortcuts by category:**
 > - `code-drift`: Re-read the target file. If the BEFORE pattern shifted lines, update references and apply at new offset. If logic changed, fail to planner.
@@ -326,7 +469,7 @@ If a WI fails verification after genuine effort:
 
 > **Breaker reset rule:** Only reset `consecutiveFailures` and `circuitBreakerTripped` after designing a fundamentally different strategy. Do not just retry the same approach with the breaker cleared — that defeats the purpose.
 
-### 4.5 Session Health - Hard Stop Gates
+### 4.5 Session Health — Hard Stop Gates
 
 Any ONE of these triggers an immediate session end:
 
@@ -335,20 +478,21 @@ Any ONE of these triggers an immediate session end:
 | Failed WIs this session | >= 1 | Context is contaminated by the failure |
 | Errors corrected this session | >= 4 | High friction = quality declining |
 | Files modified this session | >= 20 | Scope sprawl risks ungrounded side-effects |
-| WIs completed this session | >= 6 | Session ceiling - context fatigue is real |
+| WIs completed this session | >= 6 | Session ceiling — context fatigue is real |
 
 If any gate triggers, **update state.json and start a fresh session.** Context fatigue causes silent quality decline that models cannot self-detect.
 
-**Session weight assessment** - before deciding to continue or handoff:
+**Session weight assessment** — before deciding to continue or handoff:
 
 | Your Session Weight | Next Phase Cost | Decision |
 |---|---|---|
 | Light (2 or fewer WIs, 10 or fewer files read) | Light | Continue in same session |
-| Medium (3-4 WIs or 11-20 files read) | Light/Medium | Continue if confident |
-| Medium | Heavy | **New session** - context approaching saturation |
-| Heavy (5+ WIs, 20+ files, extensive research) | Any | **New session** - context saturated |
+| Light | Medium | Continue — you have capacity |
+| Medium (3-4 WIs or 11-20 files read) | Light | Continue if confident |
+| Medium | Medium or heavier | **New session** — context approaching saturation |
+| Heavy (5+ WIs, 20+ files, extensive research) | Any | **New session** — context saturated |
 
-Additional behavioral signals to watch: verification retries increasing across WIs, touching files not in `files_targeted`, or error counts growing instead of shrinking.
+Additional behavioral signals to watch: verification retries increasing across WIs, touching files not in `files_targeted`, or error counts growing instead of shrinking. These are objective degradation signals — trust them over self-assessment.
 
 ---
 
@@ -358,13 +502,14 @@ Best done in a fresh session for unbiased review.
 
 > **Audit quality gate:** The auditing session should use a model at least as capable as the execution model. Auditing is execution-grounded: run tests, verify diffs, check acceptance criteria against live code. Do NOT perform subjective "looks good" reviews.
 
-1. **Run full verification:** All `toolchain.checkCommands` must pass
-2. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
-3. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
-4. **Fix issues directly:** Commit with `fix(audit): description` prefix
-5. **Strategic concerns:** Write to `.kramak/inbox/` for the next planning cycle
-6. **Update state:**
-   - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`
+1. **Read batch plan:** Review `plans/PLAN-batch-NN.md` to understand strategic intent
+2. **Run full verification:** All `toolchain.checkCommands` must pass
+3. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
+4. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
+5. **Fix issues directly:** Commit with `fix(audit): description` prefix
+6. **Strategic concerns:** If you notice architectural drift, missing features, or strategic concerns, write to `.kramak/inbox/` for the next planning cycle
+7. **Update state:**
+   - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`, `fixesApplied`, `strategicConcerns`
    - Transition to `planning` (next batch) or `complete` (all goals met)
 
 ---
@@ -378,9 +523,9 @@ When returning to a project after interruption:
 | `waiting` | Check if blockers are resolved. If yes, go to `executing` or `planning`. If no, show blockers, STOP. |
 | `escalated` | Review `state.escalation`. Design a fundamentally new strategy (not the same approach). Only then clear breaker (`consecutiveFailures: 0`, `circuitBreakerTripped: false`). Go to `planning`. |
 | `complete` | Check `inbox/` for new goals. If found, go to `planning`. If empty, confirm completion, STOP. |
-| `executing` (with active WI) | Check git status. If clean, resume the active WI from where it left off. If dirty/corrupted, run `git checkout -- . && git clean -fd`, then re-execute the active WI from step 1 of Section 4.2 (it remains active — do not re-queue). |
+| `executing` (with active WI) | Check git status. If clean, resume the active WI. If dirty/corrupted, run `git checkout -- . && git clean -fd`, then re-execute the active WI from step 1 of Section 4.2 (it remains active — do not re-queue). |
 
-**Resume drift check:** When resuming from `waiting` or after a long pause, compare current project state (test results, git log) against what was expected. If drift is detected, re-run the full Orient step before proceeding.
+**Resume drift check:** When resuming from `waiting` or after a long pause, compare current project state (test results, git log) against what was expected. If drift is detected, re-run the full Orient step (§3.2) before proceeding.
 
 ### Human Tasks
 
@@ -392,12 +537,24 @@ When human action is needed (API keys, billing, business decisions, external app
 
 ---
 
-## 7. Process Governance
+## 7. Multi-Agent Dispatch (Optional)
+
+If your environment supports parallel execution (subagents, worktrees, multiple terminals):
+
+1. Group WIs by file-independence — ensure `files_targeted` sets do not overlap
+2. Set `state.concurrency.budget` greater than 1
+3. Each agent gets an independent slice of the queue
+4. Use `git worktree` or isolated branches for true parallel execution
+5. After all shards complete, merge results and run unified audit
+
+---
+
+## 8. Process Governance
 
 Before modifying any `.kramak/` governance file, answer these three questions:
 
 1. **What specific failure does this change prevent?** (If you cannot name one, do not change it.)
-2. **Does this help ALL types of work?** (Frontend, backend, infra, docs, tests - not just what you are doing now.)
+2. **Does this help ALL types of work?** (Frontend, backend, infra, docs, tests — not just what you are doing now.)
 3. **Could this change hurt a different type of work?** (A frontend-specific rule hurts backend batches.)
 
-> This guard prevents recency-biased pipeline drift - the tendency to add rules that help your current task but harm future ones.
+> This guard prevents recency-biased pipeline drift — the tendency to add rules that help your current task but harm future ones.

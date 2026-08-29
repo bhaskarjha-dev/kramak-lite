@@ -6,11 +6,11 @@
 
 **Turn vibe coding into verified engineering.**
 
-A single-file process control framework for AI coding agents.
+An autonomous development engine for AI coding agents.
 Zero dependencies. Any IDE. Any model.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Spec Version](https://img.shields.io/badge/Spec-v1.3.0-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
+[![Spec Version](https://img.shields.io/badge/Spec-v2.0.0-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
 [![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
 [![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
 
@@ -30,7 +30,9 @@ AI coding agents are powerful but unreliable. Without guardrails, they:
 | **Infinite retry loops** | Agent retries the same broken fix 20 times | Circuit breaker: 3 consecutive failures or oscillation = stop and escalate |
 | **Untested output** | "Looks right" but was never actually run | Mandatory verification: `checkCommands` run after every change |
 
-Kramak Lite prevents all five. In one Markdown file (~21KB). With zero runtime dependencies.
+**But guardrails alone aren't enough.** An agent that follows rules mechanically is just a task executor. Kramak Lite gives the agent **strategic intelligence** — the ability to think like a CTO, assess the project from multiple perspectives, plan dynamically, and adapt.
+
+Kramak Lite does all this. In one Markdown file (~32KB). With zero runtime dependencies.
 
 ---
 
@@ -43,7 +45,7 @@ git clone https://github.com/bhaskarjha-dev/kramak-lite.git
 cp -r kramak-lite/.kramak/ your-project/.kramak/
 ```
 
-> **Why `.kramak` and not `.kramak-lite`?** The `.kramak` directory is the ecosystem namespace — like `.git` or `.vscode`. The file inside (`KRAMAK-LITE.md`) identifies which version you're running. This means upgrading to full Kramak later is seamless: just replace the directory contents. [More in FAQ →](#faq)
+> **Why `.kramak` and not `.kramak-lite`?** The `.kramak` directory is the ecosystem namespace — like `.git` or `.vscode`. The file inside (`KRAMAK-LITE.md`) identifies which version you're running. Upgrading to full Kramak later is seamless: just replace the directory contents. [More in FAQ →](#faq)
 
 ### 2. Add your IDE adapter
 
@@ -113,7 +115,7 @@ Rename to `GEMINI.md`, `.clinerules`, or whatever your IDE reads.
 
 Open your AI agent and type: **Start**
 
-That's it. The agent will read the spec, bootstrap your project, plan Work Items, execute them with scope enforcement, audit the results, and plan the next batch.
+That's it. The agent will assess the project strategically, plan Work Items from the right perspective, execute them with scope enforcement, audit the results, and plan the next batch — all autonomously.
 
 ---
 
@@ -121,7 +123,7 @@ That's it. The agent will read the spec, bootstrap your project, plan Work Items
 
 ```
          ┌──────────┐
-         │ PLANNING  │ ← Understand project, write Work Items
+         │ PLANNING  │ ← Strategic vision, perspective selection, batch plan
          └─────┬─────┘
                │
          ┌─────▼─────┐
@@ -140,6 +142,7 @@ That's it. The agent will read the spec, bootstrap your project, plan Work Items
 ```
 
 **State** is tracked in `.kramak/state.json`.
+**Batch plans** live in `.kramak/plans/`.
 **Work Items** live in `.kramak/work-items/`.
 **User goals** go in `.kramak/inbox/`.
 Everything is plain Markdown and JSON — no runtime, no CLI, no magic.
@@ -148,8 +151,18 @@ Everything is plain Markdown and JSON — no runtime, no CLI, no magic.
 
 ## Key Concepts
 
+### Strategic Intelligence (What Makes This an Engine, Not a Checklist)
+
+The planner doesn't just follow a roadmap mechanically. It:
+
+1. **Assesses strategically** — 5-lens vision system (Quality, User Journey, Competitive, Innovation, Architecture) triggers at milestones or periodic intervals
+2. **Thinks meta-cognitively** — PERCEIVE → REASON → DECIDE loop: "What's the biggest risk? Biggest opportunity? What's been neglected?"
+3. **Selects perspectives** — Reasons into the right viewpoint (Solution Architect, UX Designer, CEO, Security Engineer, etc.) rather than defaulting to "developer"
+4. **Prioritizes by product phase** — BUILD/SHIP/ITERATE priority ladders determine what work matters most right now
+5. **Sizes dynamically** — Batch size is driven by planning quality, not fixed numbers
+
 ### Work Items
-The atomic unit of work. Each WI specifies what to change, which files to touch, and how to verify. The agent creates these during planning and executes them one by one.
+The atomic unit of work. Each WI specifies what to change, which files to touch, and how to verify. Created during planning, executed one by one.
 
 ### Goldilocks Rule (Detail Scaling)
 Not all changes need the same level of specification:
@@ -173,7 +186,7 @@ Quantitative session limits that prevent context fatigue:
 Models cannot self-detect quality degradation — these gates enforce the pause.
 
 ### Product Phase (BUILD / SHIP / ITERATE)
-Determines what kind of work to prioritize. BUILD focuses on architecture and features. SHIP focuses on deployment and security. ITERATE focuses on production issues and improvements.
+Determines what kind of work to prioritize. BUILD focuses on architecture and features. SHIP focuses on deployment and security. ITERATE focuses on production issues and improvements. Each phase has an explicit priority ladder.
 
 ---
 
@@ -182,11 +195,12 @@ Determines what kind of work to prioritize. BUILD focuses on architecture and fe
 ```
 your-project/
 ├── .kramak/
-│   ├── KRAMAK-LITE.md              ← The spec (single file, ~21KB)
+│   ├── KRAMAK-LITE.md              ← The spec (single file, ~32KB)
 │   ├── state.json                  ← Current state (auto-created)
 │   ├── schemas/
 │   │   ├── state.schema.json       ← State validation schema
 │   │   └── work-item.schema.json   ← Work Item validation schema
+│   ├── plans/                      ← Batch plans (auto-populated by planner)
 │   ├── work-items/                 ← Work Items (auto-populated by planner)
 │   ├── inbox/                      ← User goals and direction (you write here)
 │   └── templates/
@@ -200,18 +214,18 @@ your-project/
 
 | Aspect | Kramak Lite | Kramak (Full) |
 |---|---|---|
-| **Spec size** | ~21KB (1 file) | ~191KB (20 files) |
-| **Rule coverage** | ~92% of all rules (~95% of non-CLI rules) | 176 comprehensive rules |
+| **Spec size** | ~32KB (1 file) | ~191KB (20 files) |
+| **Strategic intelligence** | 5-lens vision + PERCEIVE→REASON→DECIDE + perspectives | Full 5-lens + multi-cycle perspective tracking |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
-| **Product lifecycle** | BUILD/SHIP/ITERATE priorities | Full 5-lens strategic vision |
+| **Product lifecycle** | BUILD/SHIP/ITERATE with priority ladders | Full 5-lens strategic vision + GROWTH phase |
 | **Failure recovery** | 6-category taxonomy + circuit breaker + recovery shortcuts | Full decision tree + ODC/MAST crosswalk |
-| **Session management** | Hard stop gates + session weight matrix | Behavioral + quantitative signals |
+| **Session management** | Hard stop gates + session weight matrix + degradation signals | Behavioral + quantitative + WAL-based recovery |
 | **Canary Gate** | Deferred to kramak-cli | Full 5-challenge battery |
 | **IDE compatibility** | Any IDE, any model tier | Best with frontier models |
 | **Runtime deps** | Zero | Zero (kramak-cli recommended) |
 
-**Kramak Lite keeps the value, drops the ceremony.** Features requiring programmatic enforcement (WAL, Canary Gate, formal ledger) are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
+**Kramak Lite is the autonomous engine. Full Kramak adds enforcement.** Features requiring programmatic enforcement (WAL, Canary Gate, formal ledger) are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
 
 ---
 
@@ -245,7 +259,7 @@ This design means:
 
 **No, if you follow the instructions.** The Quick Start includes explicit "append" commands for each IDE. Never `cp` over an existing config file — always `cat >> ` to append.
 
-The Kramak adapter is a small section (~20 lines) that tells your agent how to find and follow `KRAMAK-LITE.md`. It cooperates with your existing rules — it doesn't replace them.
+The Kramak adapter is a small section (~25 lines) that tells your agent how to find and follow `KRAMAK-LITE.md`. It cooperates with your existing rules — it doesn't replace them.
 
 </details>
 

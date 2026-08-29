@@ -1,15 +1,19 @@
 ---
 name: kramak
-description: Structured autonomous development workflow that helps produce higher-quality code through batched Work Items with scope enforcement, verification, and failure recovery.
+description: Autonomous development engine — strategic planning, verified execution, and auditing through batched Work Items with scope enforcement and failure recovery.
 ---
 
-# Kramak - Structured Development Workflow
+# Kramak — Autonomous Development Engine
 
-This project uses a structured development workflow that helps you produce higher-quality autonomous code. When the user says **"Start"** (or "begin", "continue", "go", "kramak"):
+This project uses Kramak for structured autonomous development. When the user says **"Start"** (or "begin", "continue", "go", "kramak"):
 
-1. **Read** `.kramak/KRAMAK-LITE.md` - the complete process specification
-2. **Read** `.kramak/state.json` - the current project state
-3. **Follow** the workflow described in KRAMAK-LITE.md from the appropriate section based on `state.phase`
+1. **Read** `.kramak/KRAMAK-LITE.md` — the complete process specification
+2. **Read** `.kramak/state.json` — the current project state
+3. **Follow** the workflow from the section matching `state.phase`
+
+## Project Authority
+
+When activated, you have full strategic authority over this project's development direction. You can read, analyze, restructure, question, and improve any file. The Kramak workflow is your operating system for autonomous development — it helps you think strategically, plan intelligently, and execute reliably.
 
 ## Always-Active Rules (apply even before "Start")
 
@@ -26,9 +30,9 @@ When `.kramak/state.json` exists in this workspace:
 
 | Phase | What Happens |
 |---|---|
-| planning | Read project, write Work Items, transition to executing |
+| planning | Strategic assessment, write Work Items, batch plan, transition to executing |
 | executing | Pick WI, implement, verify, commit, next WI or audit |
-| auditing | Fresh review of all changes, fix issues, plan next batch |
-| waiting | Human action needed - show what's blocking |
-| escalated | 3+ failures - show diagnosis, stop |
-| complete | All goals met - check inbox for new work |
+| auditing | Fresh review of all changes against batch intent, fix issues, plan next batch |
+| waiting | Human action needed — show what's blocking |
+| escalated | 3+ failures — show diagnosis, stop |
+| complete | All goals met — check inbox for new work |

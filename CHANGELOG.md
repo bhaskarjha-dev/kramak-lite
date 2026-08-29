@@ -2,6 +2,45 @@
 
 All notable changes to Kramak Lite are documented here.
 
+## [2.0.0] - 2026-08-29
+
+### Changed — Autonomous Engine Overhaul
+
+v2.0.0 transforms Kramak Lite from a structured development checklist into a **complete autonomous development engine**. The v1.x series successfully solved IDE system prompt conflicts via constitutional framing but over-corrected — it preserved the skeleton (phases, WIs, state.json) while losing the soul (strategic intelligence, meta-cognition, autonomous decision-making).
+
+This release restores the full autonomous engine from the pre-research Kramak and the research-backed innovations, compressed into the single-file format.
+
+### Added — Strategic Intelligence Layer (~5KB)
+- **CTO Empowerment Framing** — opening mandate with bounded freedoms (strategic override, competitive research, strategic thinking budget, question everything) and hard limits (don't skip verification, don't skip reorientation). Constitutional framing preserved — no identity claims, no harness behavior prescriptions.
+- **Strategic Vision System (5-lens)** — conditional 5-lens strategic assessment triggered at milestones, roadmap depletion, periodic intervals, first session, or planner judgment. Lenses: Quality Retrospective, User Journey Walk, Competitive & Market Scan, Innovation Brainstorm, Architecture Check.
+- **PERCEIVE → REASON → DECIDE meta-cognition** — full meta-cognitive planning loop. PERCEIVE reads situational state. REASON asks 5 strategic questions (biggest risk, biggest opportunity, what's neglected, what hire to make, what users would complain about). DECIDE names the perspective and why.
+- **Perspective Archetype System** — 25+ named perspectives across 5 categories (Building, Product, Operational, Growth, Emergent) with diversity check (3+ consecutive same perspective = nudge to switch).
+- **Product Phase Priority Ladders** — explicit ordered priority stacks for BUILD (7 tiers), SHIP (6 tiers), ITERATE (8 tiers) with transition criteria and "never planned during BUILD" exclusions.
+- **Dynamic Batch Sizing** — replaced hard-coded "3-8 WIs" with "produce until your planning quality degrades." Typical healthy range 3-15, driven by context quality, not arbitrary caps.
+- **Batch Plan Document** — `.kramak/plans/PLAN-batch-NN.md` with strategic intent, chosen perspective, stories ordered by dependency, and risk assessment.
+- **Capability Self-Assessment** — model evaluates its fit for the current phase (planning/executing/auditing) with decision paths (proceed, warn and proceed, recommend model switch).
+- **Branch Management** — explicit branching strategy table (first batch, continuing, new feature, stable merge, experimental).
+- **Build Order Awareness** — schema → backend → frontend → integration → polish sequence guidance in executor.
+
+### Changed
+- **Preamble** — from "structured workflow" to "autonomous development engine" with full bounded autonomy framing
+- **§3 Plan** — expanded from 4-section checklist to 11-section strategic planning engine
+- **§5 Audit** — now includes batch plan review for strategic intent verification
+- **§4.2 Per Work Item** — executor reads batch plan first for strategic context
+- **Adapters** — all 4 adapters now include "Project Authority" section reinforcing strategic empowerment
+- **State schema** — added `productPhase`, `lastSession.perspective`, `lastVisionAssessment`, `currentBranch`, `deploymentBlocked`, expanded `lastAudit`
+
+### Added — Structural
+- `.kramak/plans/` directory for batch plan documents
+
+### Size
+- Spec size: 20.5 KB → ~32 KB (~7,500 tokens)
+- Still smaller than pre-research per-session context (31-56 KB)
+- Still under 6% of 128K context window — deep in the high-attention primacy zone
+- Ratio: 60% autonomy engine / 40% guardrails (v1.x was 10% autonomy / 90% guardrails)
+
+---
+
 ## [1.3.0] - 2026-08-21
 
 ### Added — 13 additions to reach ~95% rule coverage
