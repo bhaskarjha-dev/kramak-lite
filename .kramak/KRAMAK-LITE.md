@@ -39,9 +39,14 @@ Read `.kramak/state.json`. Handle each case:
 
 | Situation | Action |
 |---|---|
-| `state.json` exists | Read it. Route by `phase` (see Section 2). |
-| `state.json` missing, code exists | Detect toolchain, create `state.json` with `phase: "planning"`. |
-| `state.json` missing, workspace empty | Ask what to build. Create `state.json` with `phase: "waiting"`. STOP. |
+| `state.json` exists, `nextAction` present | Read `nextAction` — it tells you exactly what to do. Route by `phase`. |
+| `state.json` exists, no `nextAction` | Read `phase` and route (Section 2). Check `lastSession.summary` for context. |
+| `state.json` missing, code/docs exist | Detect toolchain, scan workspace, create `state.json` with `phase: "planning"`. |
+| `state.json` missing, workspace empty | Write to `.kramak/inbox/INBOX.md`: "Empty workspace. Please describe project." Create `state.json` with `phase: "waiting"`. STOP. |
+
+> **Empty Workspace Guard:** If `state.phase == "planning"` but the workspace has no source code, no design docs, and INBOX has no unprocessed items — do NOT proceed to planning. Set `phase: "waiting"`, set `nextAction: "Add project description to inbox and say Start."` STOP.
+
+> **Crash Recovery:** If `.kramak/state.json.tmp` exists, validate its JSON integrity and rename it over `state.json`. If git working tree has uncommitted changes from a previous session (`git status`), stash or reset them (`git stash` if valuable, `git checkout -- . && git clean -fd` if corrupted) before proceeding.
 
 ### Toolchain Detection
 Scan the workspace root to populate `state.toolchain`. Identify the ecosystem from manifest files (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), detect the correct package manager from lockfiles (e.g. `pnpm-lock.yaml` → pnpm, `bun.lock` → Bun), and populate `checkCommands` with the project's build, test, and lint commands. For monorepos, detect the orchestrator (`turbo.json`, `pnpm-workspace.yaml`, `nx.json`) and configure workspace-scoped commands. Use your knowledge of each ecosystem's conventions — the goal is accurate detection, not following a rigid checklist.
@@ -158,14 +163,16 @@ If any answer changes the plan, adjust before proceeding. Do NOT blindly follow 
 Read in this order to prevent anchoring bias:
 
 1. **Project docs** — README, ROADMAP, architecture docs (big picture first — read BEFORE state.json to form an independent assessment)
-2. **Inbox** — `.kramak/inbox/` for user goals, bugs, or direction changes (highest priority input)
+2. **Cross-session context** — `.kramak/PLANNING-LOG.md` (perspective history, past decisions) and latest `.kramak/plans/RETRO-batch-NN.md` (what the auditor learned from the last batch). These prevent repeating past mistakes and anchoring on a single perspective.
+3. **Inbox** — `.kramak/inbox/INBOX.md` for user goals, bugs, or direction changes (highest priority input)
    - `bug` -> Create WI only if security or build-blocking; otherwise defer to ITERATE
    - `direction` -> Re-evaluate priorities, restructure roadmap if needed
    - `insight` / `data` -> Integrate into project documentation directly
    - `credential` -> Mark corresponding human task as resolved; unblock dependent WIs
    - Move processed items to a "Processed" section in inbox
-3. **Prior state** — `state.lastAudit`, `state.failed` (learn from past failures)
-4. **Live code** — Scan actual source files with grep/read (ground truth, never from memory)
+4. **Human tasks** — `.kramak/HUMAN-TASKS.md` if `state.humanTasksPending` is true. Check if any have been resolved.
+5. **Prior state** — `state.lastAudit`, `state.failed` (learn from past failures)
+6. **Live code** — Scan actual source files with grep/read (ground truth, never from memory)
 
 > If returning from a failed batch: Check if the same problem failed 3+ times. If so, rethink the approach from first principles — do not retry the same strategy.
 
@@ -269,7 +276,15 @@ Determine where the project is in its lifecycle and prioritize accordingly:
 
 ### 3.6 Formulate Work Items
 
-Write Work Items to `.kramak/work-items/WI-NNN.md` using the template at `.kramak/templates/WORK-ITEM.template.md`. Each WI has YAML frontmatter (`id`, `title`, `batch`, `status`, `detail_tier`, `files_targeted`, `depends_on`, `acceptance_criteria`) followed by sections for Intent, Key Files, Specification, Constraints, and Verification.
+Write Work Items to `.kramak/work-items/WI-NNN.md` using the tier-specific template:
+
+| Tier | Template | When |
+|---|---|---|
+| 🔴 Guided | `.kramak/templates/work-item-guided.md` | Schema changes, auth, payments, security, 4+ interacting files, retried failures |
+| 🟡 Directed | `.kramak/templates/work-item-directed.md` | Features, APIs, integrations, refactors with clear patterns |
+| 🟢 Outcome | `.kramak/templates/work-item-outcome.md` | Docs, config, styling, standalone components, tests |
+
+The generic template at `.kramak/templates/WORK-ITEM.template.md` serves as a reference for the common YAML frontmatter fields.
 
 **Numbering:** Batch 1 → WI-101, WI-102... Batch 2 → WI-201, WI-202...
 
@@ -401,6 +416,8 @@ Before executing, reconcile state with filesystem:
 
 > **Pre-execution scope intercept:** Before modifying ANY file, verify its path appears in `files_targeted`. If not listed, do not modify it. This is the primary control — the post-commit git diff check is the backup.
 
+> **Periodic Re-Grounding:** After every 3rd tool call, OR immediately after any tool error, **RE-READ the active WI specification.** Compare your current working tree diff against `acceptance_criteria` and `files_targeted`. If drift is detected (working on code outside scope or deviating from intent), STOP and re-align immediately. Plan compliance decays across extended sessions — periodic re-grounding is the primary defense against autonomous scope creep.
+
 ```
 1. Read the batch plan (plans/PLAN-batch-NN.md) for strategic context
 2. Read the WI specification completely
@@ -410,14 +427,15 @@ Before executing, reconcile state with filesystem:
    Guided   -> Follow BEFORE/AFTER verbatim, zero deviation
    Directed -> Follow intent and constraints, you own the HOW
    Outcome  -> Follow acceptance criteria, you own the design
-6. Run verification (checkCommands + WI-specific tests)
-7. Scope check (detective backup for the intercept above — both required):
+6. Re-ground periodically (every 3 tool calls: re-read WI, check scope)
+7. Run verification (checkCommands + WI-specific tests)
+8. Scope check (detective backup for the intercept above — both required):
    git diff --name-only must match files_targeted
    -> If unlisted file touched: revert it with git checkout
-8. Commit with conventional prefix: fix(scope) or feat(scope)
-9. Update WI status to done, set completed_at timestamp
-10. Update state.json: move WI from queue to completed, clear active
-11. Pick next WI from queue, or go to §4.7 when queue is empty
+9. Commit with conventional prefix: fix(scope) or feat(scope)
+10. Update WI status to done, set completed_at timestamp
+11. Update state.json: move WI from queue to completed, clear active
+12. Pick next WI from queue, or go to §4.7 when queue is empty
 ```
 
 **Build order awareness:** If a WI depends on a prior WI's output (schema → backend → frontend → integration → polish), verify the dependency was completed before starting. If a dependency WI failed, skip the dependent and note the skip.
@@ -430,7 +448,11 @@ Before executing, reconcile state with filesystem:
 
 If a WI fails verification after genuine effort:
 
-1. **Classify** the failure:
+1. **Determine failure scope** — is the error caused by YOUR changes or pre-existing?
+   - **In-scope failure:** Error is in `files_targeted` and caused by your changes → fix it. Retry budget applies.
+   - **Out-of-scope / pre-existing failure:** Error is in an unrelated module you didn't touch → document in `.kramak/inbox/INBOX.md` for the next planner. Continue if it doesn't block your WI's acceptance criteria.
+
+2. **Classify** the failure:
    - `code-drift` — target source changed since planning
    - `verification-fail` — build/test errors persist after retries
    - `scope-exceeded` — fix requires touching files outside `files_targeted`
@@ -438,7 +460,7 @@ If a WI fails verification after genuine effort:
    - `ambiguous-spec` — WI specification is unclear or contradictory
    - `tool-error` — toolchain, git lock, environment, or network failure
 
-2. **Document** the diagnosis in the WI file with error trajectory:
+3. **Document** the diagnosis in the WI file with error trajectory:
    ```markdown
    ## Failure Diagnosis
    - **Category:** verification-fail
@@ -449,11 +471,14 @@ If a WI fails verification after genuine effort:
    - **Suggested fix:** [recommend tier elevation if spec was ambiguous]
    ```
 
-3. **Revert** uncommitted changes: `git checkout -- .` and `git clean -fd`
+4. **Revert** uncommitted changes: `git checkout -- .` and `git clean -fd`
 
-4. **Update state:** Mark WI as `failed` in the WI file. In `state.json`: set `active: null`, append to `failed` array with `{id, category, failedAt}`, increment `metrics.consecutiveFailures` and `metrics.totalFailed`.
+5. **Update state:** Mark WI as `failed` in the WI file. In `state.json`: set `active: null`, append to `failed` array with `{id, category, failedAt}`, increment `metrics.consecutiveFailures` and `metrics.totalFailed`.
 
-5. **Retry budget:** 3 attempts per WI. If errors decrease each retry (12 → 4 → 1), extend to 5. If errors increase or oscillate, fail immediately.
+6. **Retry budget — trajectory-aware:**
+   - Standard budget: **3 attempts** per WI.
+   - **Trajectory extension:** If each retry demonstrates measurable error reduction (e.g. 12 errors → 4 → 1), extend budget to **5 attempts** total. Decreasing errors = convergence.
+   - **Immediate fail:** If error count increases or the same error message repeats on non-adjacent tries (oscillation), fail immediately. Oscillation means the fix is being undone and reapplied.
 
 > **Spec failure pattern:** If a WI fails with `ambiguous-spec` or the same area keeps failing, elevate the detail tier (Outcome → Directed, or Directed → Guided) and add more specific grounding in the retry plan.
 
@@ -528,19 +553,21 @@ Best done in a fresh session for unbiased review.
 3. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
 4. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
 5. **Fix issues directly:** Commit with `fix(audit): description` prefix
+6. **Strategic concerns:** If you notice architectural drift, missing features, or strategic concerns, write them to `.kramak/inbox/INBOX.md` (Unprocessed section) for the next planning cycle.
 7. **Write audit report:** Create `.kramak/plans/AUDIT-batch-NN.md` using the template at `.kramak/templates/audit-report.md`.
-8. **Update state:**
+8. **Write retrospective:** Create `.kramak/plans/RETRO-batch-NN.md` using the template at `.kramak/templates/retrospective.md`. Focus on what the NEXT planner should learn from this batch.
+9. **Update state:**
    - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`, `fixesApplied`, `strategicConcerns`
    - Transition to `planning` (next batch) or `complete` (all goals met)
    - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
    - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
-9. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
-10. **End the session.** Tell the user:
+10. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
+11. **End the session.** Tell the user:
    - If next phase is `planning`:
      > "✅ Audit complete for Batch NN. Verdict: [pass/pass-with-fixes]. Start a new session for the next planning batch — a reasoning model (e.g. Claude Opus, o1, Gemini Pro) is ideal for strategic planning."
    - If next phase is `complete`:
      > "✅ All project goals are met. The project is complete. To continue development, add new goals to `.kramak/inbox/` and say Start."
-11. **STOP.**
+12. **STOP.**
 
 ---
 
