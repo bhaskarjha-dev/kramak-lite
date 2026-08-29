@@ -10,13 +10,13 @@
 
 | Status | Count | Percentage |
 |---|---|---|
-| ✅ Included in Lite | 134 | 76% |
-| ⚡ Included (condensed form) | 31 | 18% |
+| ✅ Included in Lite | 148 | 84% |
+| ⚡ Included (condensed form) | 25 | 14% |
 | 🔧 CLI-Only (needs programmatic enforcement) | 3 | 2% |
-| ⏭️ Excluded (too heavyweight for marginal gain) | 8 | 5% |
+| ⏭️ Excluded (too heavyweight for marginal gain) | 0 | 0% |
 | **Total** | **176** | |
 
-**Effective coverage:** 165 of 176 rules (94%) are included fully or in condensed form. Excluding CLI-only rules that cannot be enforced via markdown, coverage is 165 of 168 enforceable rules (~98%).
+**Effective coverage:** 173 of 176 rules (98%) are included fully or in condensed form. Excluding CLI-only rules that cannot be enforced via markdown, coverage is 173 of 173 enforceable rules (**100%**).
 
 ---
 
@@ -117,25 +117,25 @@
 
 | # | Rule | Status | Lite Location |
 |---|---|---|---|
-| 49 | Vision triggers (milestone, roadmap low, periodic, first session, inflection) | ⏭️ | Excluded: too heavyweight. Reorientation Check provides 80% of value. |
-| 50 | Skip if no trigger active | ⏭️ | Excluded: paired with rule 49 |
-| 51 | Lens 1: Quality Retrospective | ⚡ | Covered by audit phase (Section 5) |
-| 52 | Lens 2: User Journey Walk | ⏭️ | Excluded: too heavyweight for marginal gain |
-| 53 | Lens 3: Competitive & Market Scan | ⚡ | Section 3.7 "spend up to half session on analysis" |
-| 54 | Lens 4: Innovation Brainstorm | ⚡ | Covered by strategic override authority |
-| 55 | Lens 5: Architecture Check | ⚡ | Covered by reorientation question 1 |
-| 56 | Update lastVisionAssessment | ⏭️ | Excluded: formal tracking not needed in Lite |
+| 49 | Vision triggers (milestone, roadmap low, periodic, first session, inflection) | ✅ | §3.3 Strategic Vision — 5 triggers table |
+| 50 | Skip if no trigger active | ✅ | §3.3 "If NO trigger is true → skip to §3.4" |
+| 51 | Lens 1: Quality Retrospective | ✅ | §3.3 Lens 1 |
+| 52 | Lens 2: User Journey Walk | ✅ | §3.3 Lens 2 |
+| 53 | Lens 3: Competitive & Market Scan | ✅ | §3.3 Lens 3 |
+| 54 | Lens 4: Innovation Brainstorm | ✅ | §3.3 Lens 4 |
+| 55 | Lens 5: Architecture Check | ✅ | §3.3 Lens 5 |
+| 56 | Update lastVisionAssessment | ✅ | §3.3 "update state.lastVisionAssessment" |
 
 ### 9. Perspective Selection (Rules 57-62)
 
 | # | Rule | Status | Lite Location |
 |---|---|---|---|
-| 57 | Meta-cognition for perspective selection | ⏭️ | Excluded: archetype rotation adds ceremony without proportional gain |
-| 58 | PERCEIVE checklist | ⚡ | Covered by reorientation check |
-| 59 | REASON questions (risk, opportunity, neglected) | ⚡ | Covered by reorientation check |
-| 60 | DECIDE commitment (record in PROGRESS.md) | ⏭️ | Excluded: PROGRESS.md is full-Kramak artifact |
-| 61 | Perspective diversity check | ⏭️ | Excluded: too heavyweight |
-| 62 | Archetype flexibility | ⏭️ | Excluded: paired with rule 57 |
+| 57 | Meta-cognition for perspective selection | ✅ | §3.4 PERCEIVE→REASON→DECIDE with archetype table |
+| 58 | PERCEIVE checklist | ✅ | §3.4 PERCEIVE section |
+| 59 | REASON questions (risk, opportunity, neglected) | ✅ | §3.4 REASON section (5 questions) |
+| 60 | DECIDE commitment (record in state) | ✅ | §3.4 DECIDE — record in state.lastSession.perspective |
+| 61 | Perspective diversity check | ✅ | §3.4 Diversity check callout (3+ consecutive identical) |
+| 62 | Archetype flexibility | ✅ | §3.4 Emergent category in archetype table |
 
 ### 10. Prioritization by Phase & Boundaries (Rules 63-72)
 
@@ -305,7 +305,7 @@
 
 ## Summary by Status
 
-**✅ Fully Included:** 134 rules — the complete operational core
-**⚡ Condensed:** 31 rules — essence captured with less verbosity (including WAL, capability gate, governance ledger)
+**✅ Fully Included:** 148 rules — the complete operational core including Strategic Vision and Perspective Selection
+**⚡ Condensed:** 25 rules — essence captured with less verbosity (including WAL, capability gate, governance ledger)
 **🔧 CLI-Only:** 3 rules — require programmatic enforcement (Canary Battery CT-1..5 grading, state transition guards, dual-model critique)
-**⏭️ Excluded:** 8 rules — 5 Strategic Lenses triggers (covered by conditional Section 3.3), Perspective Rotation (covered by diversity check), and Vision Assessment tracking (covered by lastVisionAssessment)
+**⏭️ Excluded:** 0 rules — all enforceable rules are now included

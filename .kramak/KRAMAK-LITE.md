@@ -1,6 +1,6 @@
 # Kramak Lite — Autonomous Development Engine
 
-> **Version:** 2.2.0
+> **Version:** 2.3.0
 > **Activate:** When the user says **"Start"** (or "begin", "continue", "go", "kramak").
 
 ## Your Role in This Project
@@ -42,7 +42,7 @@ Read `.kramak/state.json`. Handle each case:
 | `state.json` exists, `nextAction` present | Read `nextAction` — it tells you exactly what to do. Route by `phase`. |
 | `state.json` exists, no `nextAction` | Read `phase` and route (Section 2). Check `lastSession.summary` for context. |
 | `state.json` missing, code/docs exist | Detect toolchain, scan workspace, create `state.json` with `phase: "planning"`. |
-| `state.json` missing, workspace empty | Write to `.kramak/inbox/INBOX.md`: "Empty workspace. Please describe project." Create `state.json` with `phase: "waiting"`. STOP. |
+| `state.json` missing, workspace empty | Create `.kramak/inbox/INBOX.md` from template (`.kramak/templates/inbox.md`). Add note: "Empty workspace. Please describe project." Create `state.json` with `phase: "waiting"`. STOP. |
 
 > **Empty Workspace Guard:** If `state.phase == "planning"` but the workspace has no source code, no design docs, and INBOX has no unprocessed items — do NOT proceed to planning. Set `phase: "waiting"`, set `nextAction: "Add project description to inbox and say Start."` STOP.
 
@@ -140,7 +140,7 @@ Regardless of urgency, time pressure, or project type, every planning session MU
 3. ✅ At least 1 Work Item file in `.kramak/work-items/`
 4. ✅ Batch plan in `.kramak/plans/PLAN-batch-NN.md`
 5. ✅ Inbox processed (items moved to "Processed")
-6. ✅ Planning Log entry appended to `.kramak/PLANNING-LOG.md`
+6. ✅ Session Log entry appended to `.kramak/SESSION-LOG.md`
 
 Skipping these steps is not permitted — not for hackathons, not for "quick fixes", not for urgency. Without these artifacts, the pipeline has no state, the executor has no spec, and the next session has no context.
 
@@ -163,7 +163,7 @@ If any answer changes the plan, adjust before proceeding. Do NOT blindly follow 
 Read in this order to prevent anchoring bias:
 
 1. **Project docs** — README, ROADMAP, architecture docs (big picture first — read BEFORE state.json to form an independent assessment)
-2. **Cross-session context** — `.kramak/PLANNING-LOG.md` (perspective history, past decisions) and latest `.kramak/plans/RETRO-batch-NN.md` (what the auditor learned from the last batch). These prevent repeating past mistakes and anchoring on a single perspective.
+2. **Cross-session context** — `.kramak/SESSION-LOG.md` (full pipeline history: planning decisions, execution results, audit findings) and latest `.kramak/plans/RETRO-batch-NN.md` (what the auditor learned from the last batch). These prevent repeating past mistakes and anchoring on a single perspective.
 3. **Inbox** — `.kramak/inbox/INBOX.md` for user goals, bugs, or direction changes (highest priority input)
    - `bug` -> Create WI only if security or build-blocking; otherwise defer to ITERATE
    - `direction` -> Re-evaluate priorities, restructure roadmap if needed
@@ -348,7 +348,7 @@ Before transitioning to execution, verify:
 
 1. **Process inbox:** Move all processed items from "Unprocessed" to "Processed" in `.kramak/inbox/INBOX.md` with notes on what action was taken.
 2. **Record human tasks:** If any work is blocked on human input (API keys, credentials, business decisions), write to `.kramak/HUMAN-TASKS.md` (template: `.kramak/templates/human-tasks.md`). Set `humanTasksPending: true` in state.
-3. **Append to Planning Log:** Add an entry to `.kramak/PLANNING-LOG.md` (create from template `.kramak/templates/planning-log.md` if missing) recording: batch number, perspective taken, reasoning, key decisions, and WIs created.
+3. **Append to Session Log:** Add a planning entry to `.kramak/SESSION-LOG.md` (create from template `.kramak/templates/session-log.md` if missing) recording: batch number, model, perspective taken, reasoning, key decisions, WIs created, and risks identified.
 4. **Update `state.json`:**
    - Set `phase: "executing"`, populate `queue` with WI IDs, set `batchNumber`
    - Set `nextAction: "Start new session with fast/precise model (Sonnet, Flash, GPT-4o) and say Start."`
@@ -535,10 +535,11 @@ When the queue is empty (all WIs completed or failed):
    - Set `lastSession.summary` to a brief description of what was accomplished
    - Set `lastSession.model` to your model name
    - Set `lastSession.timestamp`
-2. Commit: `git add .kramak/; git commit -m "exec(batch-NN): [N] completed, [N] failed"`
-3. Tell the user:
+2. **Append to Session Log:** Add an execution entry to `.kramak/SESSION-LOG.md` (create from template `.kramak/templates/session-log.md` if missing) recording: batch number, model, WIs completed, WIs failed (with categories and brief reasons), key issues encountered, and session gates triggered.
+3. Commit: `git add .kramak/; git commit -m "exec(batch-NN): [N] completed, [N] failed"`
+4. Tell the user:
    > "✅ Execution complete for Batch NN. [N] WIs completed, [N] failed. Start a new session for audit — use a model at least as capable as me. The auditor needs to run tests, verify diffs, and detect strategic concerns."
-4. **STOP.** Audit must happen in a fresh session for unbiased review. The executor cannot objectively audit its own work.
+5. **STOP.** Audit must happen in a fresh session for unbiased review. The executor cannot objectively audit its own work.
 
 ---
 
@@ -556,18 +557,19 @@ Best done in a fresh session for unbiased review.
 6. **Strategic concerns:** If you notice architectural drift, missing features, or strategic concerns, write them to `.kramak/inbox/INBOX.md` (Unprocessed section) for the next planning cycle.
 7. **Write audit report:** Create `.kramak/plans/AUDIT-batch-NN.md` using the template at `.kramak/templates/audit-report.md`.
 8. **Write retrospective:** Create `.kramak/plans/RETRO-batch-NN.md` using the template at `.kramak/templates/retrospective.md`. Focus on what the NEXT planner should learn from this batch.
-9. **Update state:**
-   - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`, `fixesApplied`, `strategicConcerns`
-   - Transition to `planning` (next batch) or `complete` (all goals met)
-   - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
-   - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
-10. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
-11. **End the session.** Tell the user:
-   - If next phase is `planning`:
-     > "✅ Audit complete for Batch NN. Verdict: [pass/pass-with-fixes]. Start a new session for the next planning batch — a reasoning model (e.g. Claude Opus, o1, Gemini Pro) is ideal for strategic planning."
-   - If next phase is `complete`:
-     > "✅ All project goals are met. The project is complete. To continue development, add new goals to `.kramak/inbox/` and say Start."
-12. **STOP.**
+9. **Append to Session Log:** Add an audit entry to `.kramak/SESSION-LOG.md` recording: batch number, model, verdict, fixes applied, strategic concerns, and recommendations for next planner.
+10. **Update state:**
+    - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`, `fixesApplied`, `strategicConcerns`
+    - Transition to `planning` (next batch) or `complete` (all goals met)
+    - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
+    - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
+11. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
+12. **End the session.** Tell the user:
+    - If next phase is `planning`:
+      > "✅ Audit complete for Batch NN. Verdict: [pass/pass-with-fixes]. Start a new session for the next planning batch — a reasoning model (e.g. Claude Opus, o1, Gemini Pro) is ideal for strategic planning."
+    - If next phase is `complete`:
+      > "✅ All project goals are met. The project is complete. To continue development, add new goals to `.kramak/inbox/` and say Start."
+13. **STOP.**
 
 ---
 

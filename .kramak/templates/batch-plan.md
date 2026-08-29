@@ -6,7 +6,7 @@
 ## Perspective
 - **Perspective:** [e.g. Solution Architect / UX Designer / Product Manager]
 - **Rationale:** [Why this perspective, based on current project risks and opportunities]
-- **Last 3 Perspectives:** [from PLANNING-LOG.md or state.perspectiveHistory]
+- **Last 3 Perspectives:** [from SESSION-LOG.md or state.perspectiveHistory]
 
 ## Stories & Work Items
 
