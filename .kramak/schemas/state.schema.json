@@ -92,6 +92,12 @@
       },
       "description": "Discovered project documentation paths."
     },
+    "perspectiveHistory": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 5,
+      "description": "Rolling window of last 5 perspective names taken during planning sessions. Used for diversity check (3+ consecutive identical = nudge to switch)."
+    },
     "lastSession": {
       "type": "object",
       "properties": {

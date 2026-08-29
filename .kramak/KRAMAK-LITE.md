@@ -169,31 +169,34 @@ Each lens produces output: improvement WIs, new roadmap items, or confirmation t
 
 **PERCEIVE** — Form situational awareness:
 - What `productPhase` are we in? (BUILD / SHIP / ITERATE)
-- What perspective was taken in the last session? (from `state.lastSession.perspective`)
-- How many consecutive sessions took the same perspective?
+- What perspectives were taken recently? Read `state.perspectiveHistory` (last 5 entries) AND scan recent batch plans in `.kramak/plans/` for perspective records.
 - What changed since the last session? (new code, user feedback, market shift)
 - What does `inbox/` say?
+- What is the deployment/human-tasks state?
 
 **REASON** — Think about what the project needs most right now:
 1. *"What is the BIGGEST RISK to this project right now?"* — Security gap? Architecture debt? Market irrelevance? UX friction? Broken build?
 2. *"What is the BIGGEST OPPORTUNITY right now?"* — New feature competitors lack? Integration that unlocks value? Deployment readiness?
-3. *"What HASN'T been thought about in a long time?"* — Which perspectives are overdue?
+3. *"What HASN'T been thought about in a long time?"* — Check `perspectiveHistory` — which perspectives are overdue?
 4. *"If I were building this company with 10 people, which HIRE would I make next?"* — That's the perspective you should take.
 5. *"What would a user complain about if they used this TODAY?"* — That complaint reveals the perspective gap.
 
 **DECIDE** — Name the perspective you're taking and why. Choose from these archetypes (or invent one the project demands):
 
-| Category | Perspectives |
-|---|---|
-| **Building** | Solution Architect · UX Designer · Security Engineer · Performance Engineer · Data Modeler · QA Lead |
-| **Product** | CEO/Strategist · Product Manager · Market Researcher · User Advocate |
-| **Operational** | DevOps Lead · DBA · Cost Optimizer |
-| **Growth** | Growth Marketer · Content Strategist · Community Builder · Sales Strategist |
-| **Emergent** | Any perspective the project state demands — Compliance Officer, API Designer, Accessibility Specialist, Localization Lead, etc. |
+| Category | Perspectives | When Most Relevant |
+|---|---|---|
+| **Building** | Solution Architect · UX Designer · Security Engineer · Performance Engineer · Data Modeler · QA Lead | BUILD phase primarily |
+| **Product** | CEO/Strategist · Product Manager · Market Researcher · User Advocate | All phases |
+| **Operational** | DevOps Lead · DBA · Cost Optimizer | SHIP and ITERATE |
+| **Growth** | Growth Marketer · Content Strategist · Community Builder · Sales Strategist | ITERATE phase (post-deployment) |
+| **Scaling** | Infrastructure Architect · Partnership Manager · Hiring Planner | ITERATE with traction |
+| **Emergent** | Any perspective the project state demands — Compliance Officer, API Designer, Accessibility Specialist, Localization Lead, etc. | Context-dependent |
 
-Record your decision: `state.lastSession.perspective = "[Name] because [reason]"`
+Record your decision:
+- `state.lastSession.perspective = "[Name] because [reason]"`
+- Append to `state.perspectiveHistory` (keep last 5 entries): `["Solution Architect", "UX Designer", ...]`
 
-> **Diversity check:** If the same perspective was taken 3+ consecutive sessions, consciously consider a different one. If the current perspective is genuinely correct (e.g., active feature sprint), acknowledge why and continue.
+> **Diversity check:** If `perspectiveHistory` shows 3+ consecutive identical entries, consciously consider a different perspective. If the current perspective is genuinely correct (e.g., active feature sprint), acknowledge why and continue.
 
 ### 3.5 Prioritize by Product Phase
 
@@ -359,6 +362,8 @@ Before transitioning to execution, verify:
 1. Update `state.json`:
    - Set `phase: "executing"`, populate `queue` with WI IDs, set `batchNumber`
    - Record `lastSession.perspective` with your chosen perspective and reasoning
+   - Append perspective name to `perspectiveHistory` (trim to last 5)
+   - Set `currentBranch` to the active git branch
 2. Commit planning artifacts:
    Stage all planning artifacts: `git add .kramak/` (and any docs/roadmaps edited directly), then `git commit -m "plan(batch-NN): [theme]"`
 
@@ -376,7 +381,23 @@ Before transitioning to execution, verify:
 
 ## 4. Execute (`phase: "executing"`)
 
-### 4.1 Core Rules
+> **Executor focus:** This section is your primary reference during execution. The planning sections above (§3) are for the planner role — you do not need to follow them. Focus on §4 rules, the active WI spec, and the batch plan for context.
+
+> **Token efficiency:** During execution, minimize conversational output. Focus your tokens on reading code, writing code, and running verification commands. Brief status updates are acceptable; lengthy explanations are waste. Speak to the user only with a summary at the end of the session.
+
+### 4.1 State Reconciliation (Crash Recovery)
+
+Before executing, reconcile state with filesystem:
+
+| Situation | Action |
+|---|---|
+| `state.active` is set, WI file exists | Resume the in-flight WI (it was interrupted). |
+| `state.active` is set, WI file missing | Session crashed mid-write. Check if WI ID exists in `completed` or `failed`. Fix `state.active` to null. Pick next from queue. |
+| `state.queue` lists a WI, but WI file missing | Remove the phantom ID from the queue array. |
+| Current git branch ≠ `state.currentBranch` | `git checkout <state.currentBranch>` to restore correct branch. |
+| Git working tree is dirty with no active WI | Previous session crashed. Run `git checkout -- . && git clean -fd` to reset. |
+
+### 4.2 Core Rules
 
 1. **Verify before editing.** Read the actual file. Never code against memory or assumptions.
 2. **Stay in scope.** Only modify files listed in the Work Item's `files_targeted`. If you must touch another file, note it for the next planning batch instead.
@@ -393,7 +414,7 @@ Before transitioning to execution, verify:
 
 > **Progressive enhancement:** When data might be missing or an API might be unavailable, implement graceful degradation — helpful empty states, partial renders, and clear error messages rather than crashes or blank screens.
 
-### 4.2 Per Work Item
+### 4.3 Per Work Item
 
 > **Pre-execution scope intercept:** Before modifying ANY file, verify its path appears in `files_targeted`. If not listed, do not modify it. This is the primary control — the post-commit git diff check is the backup.
 
@@ -401,7 +422,7 @@ Before transitioning to execution, verify:
 1. Read the batch plan (plans/PLAN-batch-NN.md) for strategic context
 2. Read the WI specification completely
 3. Read ALL files in files_targeted (establish ground truth)
-4. Verify git working tree is clean
+4. Verify git working tree is clean and branch matches state.currentBranch
 5. Execute by detail tier:
    Guided   -> Follow BEFORE/AFTER verbatim, zero deviation
    Directed -> Follow intent and constraints, you own the HOW
@@ -422,7 +443,7 @@ Before transitioning to execution, verify:
 
 > **Neighborhood Cleanup:** When editing a file in `files_targeted`, also fix obvious syntax bugs, missing null checks, or stale comments in the lines you touch. Do NOT open unlisted files for cleanup — cleanup is confined to files you are already modifying.
 
-### 4.3 Failure Handling
+### 4.4 Failure Handling
 
 If a WI fails verification after genuine effort:
 
@@ -458,7 +479,7 @@ If a WI fails verification after genuine effort:
 > - `scope-exceeded`: Revert unlisted files. If the change was necessary, create an ad-hoc follow-up WI with the required `files_targeted`. Continue within declared scope.
 > - `dependency-missing`: Check if a dependency WI exists in the queue. If yes, reorder queue to execute it first. If no, create a new dependency WI and insert it ahead of the blocked WI.
 
-### 4.4 Circuit Breaker
+### 4.5 Circuit Breaker
 
 **If `consecutiveFailures >= 3`:**
 - Set `phase: "escalated"`, `metrics.circuitBreakerTripped: true`
@@ -469,7 +490,7 @@ If a WI fails verification after genuine effort:
 
 > **Breaker reset rule:** Only reset `consecutiveFailures` and `circuitBreakerTripped` after designing a fundamentally different strategy. Do not just retry the same approach with the breaker cleared — that defeats the purpose.
 
-### 4.5 Session Health — Hard Stop Gates
+### 4.6 Session Health — Hard Stop Gates
 
 Any ONE of these triggers an immediate session end:
 
@@ -523,9 +544,11 @@ When returning to a project after interruption:
 | `waiting` | Check if blockers are resolved. If yes, go to `executing` or `planning`. If no, show blockers, STOP. |
 | `escalated` | Review `state.escalation`. Design a fundamentally new strategy (not the same approach). Only then clear breaker (`consecutiveFailures: 0`, `circuitBreakerTripped: false`). Go to `planning`. |
 | `complete` | Check `inbox/` for new goals. If found, go to `planning`. If empty, confirm completion, STOP. |
-| `executing` (with active WI) | Check git status. If clean, resume the active WI. If dirty/corrupted, run `git checkout -- . && git clean -fd`, then re-execute the active WI from step 1 of Section 4.2 (it remains active — do not re-queue). |
+| `executing` (with active WI) | Run state reconciliation (§4.1) first. If `state.active` is set, check git status — if clean, resume the active WI; if dirty/corrupted, run `git checkout -- . && git clean -fd` and restart the active WI from §4.3 step 1. Verify branch matches `state.currentBranch`. |
+| `executing` (no active WI) | Pick first WI from `state.queue`. If queue is empty, transition to `auditing`. |
+| `planning` | Re-run Strategic Reorientation (§3.1) to catch drift, then continue planning. |
 
-**Resume drift check:** When resuming from `waiting` or after a long pause, compare current project state (test results, git log) against what was expected. If drift is detected, re-run the full Orient step (§3.2) before proceeding.
+**Resume drift check:** When resuming from `waiting` or after a long pause, compare current project state (test results, `git log`, `git status`) against what was expected. If external changes are detected (someone else committed, files modified outside kramak), re-run the full Orient step (§3.2) before proceeding.
 
 ### Human Tasks
 
