@@ -220,12 +220,12 @@ your-project/
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
 | **Product lifecycle** | BUILD/SHIP/ITERATE with priority ladders | Full 5-lens strategic vision + GROWTH phase |
 | **Failure recovery** | 6-category taxonomy + circuit breaker + recovery shortcuts | Full decision tree + ODC/MAST crosswalk |
-| **Session management** | Hard stop gates + session weight matrix + degradation signals | Behavioral + quantitative + WAL-based recovery |
-| **Canary Gate** | Deferred to kramak-cli | Full 5-challenge battery |
+| **Session management** | Hard stop gates + session weight + WAL atomic writes | Behavioral + quantitative + WAL-based recovery |
+| **Capability gate** | Project-grounded inline verification | Full 5-challenge Canary battery |
 | **IDE compatibility** | Any IDE, any model tier | Best with frontier models |
-| **Runtime deps** | Zero | Zero (kramak-cli recommended) |
+| **Runtime deps** | Zero | Zero |
 
-**Kramak Lite is the autonomous engine. Full Kramak adds enforcement.** Features requiring programmatic enforcement (WAL, Canary Gate, formal ledger) are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
+**Kramak Lite is the autonomous engine. Full Kramak adds depth.** The full version provides extended on-demand modules, formal ODC/MAST failure crosswalks, deep diagnostic trees, and the 5-challenge Canary Capability Battery for rigorous model qualification.
 
 ---
 
@@ -250,7 +250,6 @@ The `.kramak` directory is the **ecosystem namespace** for Kramak — like `.git
 This design means:
 - **Upgrading to full Kramak** later doesn't require renaming directories or updating adapter paths
 - **All adapters** work with both Lite and Full because they reference `.kramak/`
-- **kramak-cli** (when available) will look for `.kramak/` regardless of which edition is inside
 
 </details>
 
@@ -308,7 +307,7 @@ This happens occasionally, especially with smaller models. Try:
 3. **Be explicit** — say "Follow the Kramak workflow in `.kramak/KRAMAK-LITE.md`"
 4. **Use a more capable model** — frontier models comply more consistently
 
-For programmatic enforcement (not just advisory), see [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
+For stronger enforcement, use a more capable model or consider upgrading to [full Kramak](https://github.com/bhaskarjha-dev/kramak).
 
 </details>
 
@@ -326,4 +325,3 @@ Apache 2.0
 ## Links
 
 - [Kramak (Full)](https://github.com/bhaskarjha-dev/kramak) — The comprehensive 176-rule specification
-- [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli) — Programmatic enforcement layer

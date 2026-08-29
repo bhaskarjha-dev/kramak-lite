@@ -52,7 +52,6 @@ The directory is named `.kramak` (not `.kramak-lite`) because it's an **ecosyste
 1. **Convention alignment.** `.git` doesn't change name between Git versions. `.vscode` doesn't change name between VS Code versions. The directory name identifies the tool, not the edition.
 2. **Seamless upgrade path.** Upgrading from Lite to full Kramak means replacing the directory contents — not renaming the directory. Adapter paths (`.kramak/KRAMAK-LITE.md`) and state files (`.kramak/state.json`) stay in the same location.
 3. **Adapter compatibility.** All adapters reference `.kramak/` as the base path. Both Lite and Full editions live here, so adapters work with either.
-4. **CLI interoperability.** When kramak-cli ships, it will look for `.kramak/` regardless of which edition is inside.
 
 The file inside (`KRAMAK-LITE.md` vs `ROUTER.md`) tells you which edition is installed.
 
@@ -95,7 +94,7 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 ### Known Limitations
 - IDE system prompts are proprietary and change without notice
 - Some IDEs may override specific Kramak rules (e.g., "keep responses concise" overrides "do not suppress reasoning")
-- The adapter is advisory — there's no programmatic enforcement. That's what kramak-cli is for.
+- The adapter is advisory — enforcement comes from the spec's structural design (scope checks, circuit breaker, session gates), not from external tooling
 
 ---
 
@@ -128,17 +127,15 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 
 ### What's Deliberately Excluded
 
-**CLI-Only Features (need programmatic enforcement):**
-| Feature | Why CLI-Only |
+**Remaining Full-Kramak-Only Features (need extended modules or multi-file architecture):**
+| Feature | Why Full-Only |
 |---|---|
-| Canary Gate (CT-1 to CT-5) | Requires programmatic challenge generation + grading |
-| WAL Atomic Writes | Requires filesystem write-then-rename operations |
-| Anti-Bias Guard G3-G6 | G3 dual-model critique and G4 ledger require external tooling |
-| 3-Tier Scope Check | Tier 2 (glob) and Tier 3 (merge) need programmatic verification |
-| Error hash computation | SHA-256 hashing requires programmatic tooling |
-| Formal audit ledger | `.kramak/ledger/self-modifications.jsonl` requires append-only writes |
+| Canary Gate (CT-1 to CT-5) | Requires programmatic challenge generation + deterministic grading. Lite uses project-grounded inline verification instead. |
+| 3-Tier Scope Check | Tier 2 (glob intersection) and Tier 3 (merge re-verification) need parallel/worktree context. Lite has 2-tier (pre-execution intercept + post-commit diff). |
+| ODC/MAST Failure Crosswalk | Deep diagnostic decision trees that exceed single-file token budget. Lite has 6-category taxonomy + recovery shortcuts. |
+| Error hash computation | SHA-256 hashing for oscillation detection requires programmatic tooling. Lite detects oscillation via repeated error message matching. |
 
-These features are deferred to [kramak-cli](https://github.com/bhaskarjha-dev/kramak-cli).
+These features provide additional depth in the [full Kramak](https://github.com/bhaskarjha-dev/kramak) specification.
 
 **Not Needed in Lite (beyond scope or too heavyweight):**
 | Feature | Why Excluded |
@@ -205,13 +202,12 @@ Before the research-driven overhaul (commit `9c6b205`), Kramak worked as a simpl
 
 ## 6. Future Development Priorities
 
-### Phase 2: kramak-cli
-A terminal-based enforcement layer that can programmatically enforce the rules Kramak Lite can only advise:
-- WAL atomic writes for state.json
-- Canary Gate challenge battery
-- Anti-Bias Guard with formal ledger
-- 3-tier scope check (file-level, glob, merge)
-- Error hash computation and oscillation detection
+### Phase 2: Ecosystem Depth
+Expand the Kramak Lite specification with targeted enhancements:
+- MCP server integration for seamless IDE ↔ spec communication
+- Benchmark results against SWE-Bench/FeatBench with quantitative before/after data
+- Community-contributed perspective archetypes and domain-specific priority ladders
+- Visual status dashboard (single-file HTML reading `state.json`)
 
 ### Adapter Improvements
 - Monitor IDE system prompt changes and update adapters accordingly

@@ -11,12 +11,12 @@
 | Status | Count | Percentage |
 |---|---|---|
 | ✅ Included in Lite | 134 | 76% |
-| ⚡ Included (condensed form) | 28 | 16% |
-| 🔧 CLI-Only (needs programmatic enforcement) | 6 | 3% |
+| ⚡ Included (condensed form) | 31 | 18% |
+| 🔧 CLI-Only (needs programmatic enforcement) | 3 | 2% |
 | ⏭️ Excluded (too heavyweight for marginal gain) | 8 | 5% |
 | **Total** | **176** | |
 
-**Effective coverage:** 162 of 176 rules (92%) are included fully or in condensed form. Excluding CLI-only rules that cannot be enforced via markdown, coverage is 162 of 170 enforceable rules (~95%).
+**Effective coverage:** 165 of 176 rules (94%) are included fully or in condensed form. Excluding CLI-only rules that cannot be enforced via markdown, coverage is 165 of 168 enforceable rules (~98%).
 
 ---
 
@@ -52,9 +52,9 @@
 |---|---|---|---|
 | 12 | Derive requirements from workspace files | ✅ | Section 3.1 reading order |
 | 13 | Grounded Verification (never write from memory) | ✅ | Section 3.3 + Section 4.1 Rule 1 |
-| 14 | Capability Gate Stage 1 (self-assessment) | 🔧 | CLI-only: requires programmatic self-test |
-| 15 | Capability Gate Stage 2 (Canary Battery CT-1 to CT-5) | 🔧 | CLI-only: requires challenge generation + grading |
-| 16 | Gate routing by score (0.80/0.60 thresholds) | 🔧 | CLI-only: requires score computation |
+| 14 | Capability Gate Stage 1 (self-assessment) | ⚡ | Section 1 Capability Gate table + planning verification |
+| 15 | Capability Gate Stage 2 (Canary Battery CT-1 to CT-5) | ⚡ | Section 1 "Planning verification" — project-grounded inline challenge replaces abstract battery |
+| 16 | Gate routing by score (0.80/0.60 thresholds) | ⚡ | Section 1 "reduce batch scope and elevate risk tiers" — adaptive response replaces fixed thresholds |
 | 17 | Model agnosticism (route by capability, not name) | ✅ | Section 3.7 "model-type consideration" |
 
 ### 3. Empty Workspace Guard (Rules 18-21)
@@ -277,7 +277,7 @@
 | 156 | Depth Over Speed | ✅ | Section 4.1 Rule 8 |
 | 157 | Anti-Inflation (no fake data) | ✅ | Section 4.1 anti-inflation callout |
 | 158 | Progressive Enhancement | ✅ | Section 4.1 progressive enhancement callout |
-| 159 | Anti-Bias Guard (G1-G6) | 🔧 | CLI-only: G3 dual-model critique requires external tooling |
+| 159 | Anti-Bias Guard (G1-G6) | ⚡ | Section 8 governance ledger + cooldown rule — captures G4 (immutable ledger) and G5 (cooldown). G3 dual-model critique remains full-Kramak-only. |
 | 160 | Honesty Over Confidence | ✅ | Section 3.4 confidence calibration |
 | 161 | Decision Audit Trail | ✅ | Section 3.4 "Decision audit trail" |
 | 162 | Tokens Are Thinking | ✅ | Section 4.1 Rule 8 |
@@ -294,7 +294,7 @@
 | 168 | Toolchain detection (multi-ecosystem) | ✅ | Section 1 "auto-detect and record in state.toolchain" |
 | 169 | Monorepo orchestration | ⚡ | Section 3.5 mentions parallel dispatch |
 | 170 | Git initialization | ✅ | Section 1 "If no .git, run git init" |
-| 171 | Crash & WAL recovery | 🔧 | CLI-only: WAL replay needs programmatic tooling |
+| 171 | Crash & WAL recovery | ⚡ | Section 4.1 State Reconciliation + Atomic state writes callout — .tmp write-then-rename protocol |
 | 172 | Dispatch budget = 1 (sequential) | ✅ | Default behavior |
 | 173 | Dispatch budget > 1 (parallel) | ✅ | Section 3.5 multi-agent dispatch |
 | 174 | State transition guard matrix | 🔧 | CLI-only: formal precondition enforcement |
@@ -306,6 +306,6 @@
 ## Summary by Status
 
 **✅ Fully Included:** 134 rules — the complete operational core
-**⚡ Condensed:** 28 rules — essence captured with less verbosity
-**🔧 CLI-Only:** 6 rules — require programmatic enforcement (Canary Gate, WAL, Anti-Bias G3-G6, state transition guards)
-**⏭️ Excluded:** 8 rules — 5 Strategic Lenses, Perspective Rotation, and Vision Assessment tracking are too heavyweight for Lite's token budget
+**⚡ Condensed:** 31 rules — essence captured with less verbosity (including WAL, capability gate, governance ledger)
+**🔧 CLI-Only:** 3 rules — require programmatic enforcement (Canary Battery CT-1..5 grading, state transition guards, dual-model critique)
+**⏭️ Excluded:** 8 rules — 5 Strategic Lenses triggers (covered by conditional Section 3.3), Perspective Rotation (covered by diversity check), and Vision Assessment tracking (covered by lastVisionAssessment)
