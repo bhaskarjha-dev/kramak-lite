@@ -10,7 +10,7 @@ An autonomous development engine for AI coding agents.
 Zero dependencies. Any IDE. Any model.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Spec Version](https://img.shields.io/badge/Spec-v2.0.0-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
+[![Spec Version](https://img.shields.io/badge/Spec-v2.3.0-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
 [![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
 [![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
 
@@ -32,7 +32,7 @@ AI coding agents are powerful but unreliable. Without guardrails, they:
 
 **But guardrails alone aren't enough.** An agent that follows rules mechanically is just a task executor. Kramak Lite gives the agent **strategic intelligence** — the ability to think like a CTO, assess the project from multiple perspectives, plan dynamically, and adapt.
 
-Kramak Lite does all this. In one Markdown file (~32KB). With zero runtime dependencies.
+Kramak Lite does all this. In one Markdown file (~45KB). With zero runtime dependencies.
 
 ---
 
@@ -144,7 +144,8 @@ That's it. The agent will assess the project strategically, plan Work Items from
 **State** is tracked in `.kramak/state.json`.
 **Batch plans** live in `.kramak/plans/`.
 **Work Items** live in `.kramak/work-items/`.
-**User goals** go in `.kramak/inbox/`.
+**User goals & feedback** go in `.kramak/inbox/INBOX.md`.
+**Cross-session history** is logged in `.kramak/SESSION-LOG.md`.
 Everything is plain Markdown and JSON — no runtime, no CLI, no magic.
 
 ---
@@ -195,16 +196,28 @@ Determines what kind of work to prioritize. BUILD focuses on architecture and fe
 ```
 your-project/
 ├── .kramak/
-│   ├── KRAMAK-LITE.md              ← The spec (single file, ~32KB)
+│   ├── KRAMAK-LITE.md              ← The spec (single file, ~45KB, v2.3.0)
 │   ├── state.json                  ← Current state (auto-created)
+│   ├── SESSION-LOG.md              ← Cross-session history (Planner/Executor/Auditor)
+│   ├── HUMAN-TASKS.md              ← Async human blockers (API keys, decisions)
 │   ├── schemas/
 │   │   ├── state.schema.json       ← State validation schema
 │   │   └── work-item.schema.json   ← Work Item validation schema
-│   ├── plans/                      ← Batch plans (auto-populated by planner)
+│   ├── plans/                      ← Batch plans & audit reports
 │   ├── work-items/                 ← Work Items (auto-populated by planner)
-│   ├── inbox/                      ← User goals and direction (you write here)
-│   └── templates/
-│       └── WORK-ITEM.template.md   ← WI format reference
+│   ├── inbox/
+│   │   └── INBOX.md                ← User goals and direction (you write here)
+│   └── templates/                  ← Production templates
+│       ├── session-log.md          ← Universal session log template
+│       ├── inbox.md                ← Inbox template
+│       ├── batch-plan.md           ← Batch plan template
+│       ├── human-tasks.md          ← Human tasks template
+│       ├── audit-report.md         ← Audit report template
+│       ├── retrospective.md        ← Batch learning template
+│       ├── WORK-ITEM.template.md   ← Master WI template
+│       ├── work-item-guided.md     ← 🔴 Guided tier template
+│       ├── work-item-directed.md   ← 🟡 Directed tier template
+│       └── work-item-outcome.md    ← 🟢 Outcome tier template
 └── ...your code...
 ```
 
@@ -214,9 +227,11 @@ your-project/
 
 | Aspect | Kramak Lite | Kramak (Full) |
 |---|---|---|
-| **Spec size** | ~32KB (1 file) | ~191KB (20 files) |
+| **Spec size** | ~45KB (1 file, v2.3.0) | ~191KB (20 files) |
+| **Rule coverage** | 100% of enforceable rules (173/173) | 176 rules (includes CLI-only guards) |
 | **Strategic intelligence** | 5-lens vision + PERCEIVE→REASON→DECIDE + perspectives | Full 5-lens + multi-cycle perspective tracking |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
+| **Cross-session log** | Unified SESSION-LOG.md (Plan/Exec/Audit) | PLANNING-LOG + PROGRESS.md + RETRO |
 | **Multi-agent** | Supported (optional) | Supported (with worktree isolation) |
 | **Product lifecycle** | BUILD/SHIP/ITERATE with priority ladders | Full 5-lens strategic vision + GROWTH phase |
 | **Failure recovery** | 6-category taxonomy + circuit breaker + recovery shortcuts | Full decision tree + ODC/MAST crosswalk |

@@ -2,7 +2,41 @@
 
 All notable changes to Kramak Lite are documented here.
 
-## [2.0.0] - 2026-08-29
+## [2.3.0] - 2026-08-29
+
+### Added — Unified Cross-Session Telemetry & Inbox Template
+- **Universal Session Log (`.kramak/templates/session-log.md`)** — Replaces single-purpose planning log with a unified cross-session log. All roles (Planner, Executor, Auditor) append entries, providing full narrative history in `.kramak/SESSION-LOG.md`.
+- **Structured Inbox Template (`.kramak/templates/inbox.md`)** — Standardized template with `Unprocessed` and `Processed` sections and explicit item types (`bug`, `direction`, `insight`, `data`, `credential`).
+- **Initial Inbox Tracking** — Pre-populated `.kramak/inbox/INBOX.md` and `.kramak/inbox/.gitkeep` in the repository for immediate out-of-the-box onboarding.
+- **100% Enforceable Rule Coverage** — Updated mapping to reflect that all 173 enforceable rules from full Kramak are covered (148 full, 25 condensed).
+
+### Changed
+- **Executor Handoff (§4.7)** — Added mandatory step 2 to log execution summary (completed/failed WIs, key issues, session gates triggered) to `.kramak/SESSION-LOG.md`.
+- **Auditor Handoff (§5)** — Added mandatory step 9 to log audit summary (verdict, fixes applied, strategic concerns, recommendations) to `.kramak/SESSION-LOG.md`.
+- **Spec Size** — ~45KB (625 lines), encapsulating the complete autonomous engine and telemetry.
+
+---
+
+## [2.2.0] - 2026-08-29
+
+### Added — Strategic Vision & Meta-Cognitive Perspective Selection
+- **5-Lens Strategic Vision System (§3.3)** — Conditional assessment (Quality Retrospective, User Journey Walk, Competitive & Market Scan, Innovation Brainstorm, Architecture Check) triggered at milestones, roadmap depletion, periodic intervals, or planner judgment.
+- **PERCEIVE → REASON → DECIDE Loop (§3.4)** — Deep meta-cognitive planning loop with 5 strategic questions and 25+ named perspective archetypes across 5 categories.
+- **Perspective History Tracking** — Rolling window of last 5 perspectives stored in `state.perspectiveHistory` with diversity check (3+ consecutive identical = nudge to switch).
+
+---
+
+## [2.1.0] - 2026-08-29
+
+### Added — Rigorous Non-Negotiable Planning & Session Handoffs
+- **Non-Negotiable Planning Minimum (§3)** — 6 mandatory planning artifacts required before transitioning to execution (cannot skip for urgency or hackathons).
+- **Hard Limit: No Interactive Questions** — Bounded autonomy invariant: agent does not interrupt users with questions; writes to `.kramak/HUMAN-TASKS.md` instead.
+- **Cross-Session `nextAction` Invariant** — Every exit path (planner, executor, auditor, circuit breaker, waiting) writes an explicit `nextAction` string to `state.json`.
+- **Production Template Suite** — Added templates for batch plans, human tasks, audit reports, and retrospectives.
+
+---
+
+
 
 ### Changed — Autonomous Engine Overhaul
 

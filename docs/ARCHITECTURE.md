@@ -8,7 +8,7 @@
 ## 1. Why Single-File Architecture
 
 ### The Decision
-Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~32KB, ~7,500 tokens). Data files (schemas, templates, state, work items, batch plans) are separate.
+Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~45KB, ~10,000 tokens). Data files (schemas, templates, state, work items, batch plans) are separate.
 
 ### The Reasoning
 
@@ -21,27 +21,28 @@ Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~3
 Per-session token loading:
 - **Planning session:** ~54 KB (~13,500 tokens) loaded — PRINCIPLES.md + PLANNER.md
 - **Executing session:** ~31 KB (~7,750 tokens) loaded — PRINCIPLES.md + EXECUTOR.md
-- **Kramak Lite (any session):** ~32 KB (~7,500 tokens) loaded — just KRAMAK-LITE.md
+- **Kramak Lite (any session):** ~45 KB (~10,000 tokens) loaded — just KRAMAK-LITE.md
 
 **Post-research Kramak (current full spec) uses 20 files / 191 KB** with progressive loading via ROUTER.md. This is necessary at 191KB to avoid lost-in-middle attention degradation.
 
-**At 32 KB, single-file is strictly superior because:**
+**At 45 KB, single-file is strictly superior because:**
 
 1. **Fewer failure points.** Multi-file = 3+ `view_file` calls per session. Each can fail, truncate, or be skipped. Single file = 1 call = everything loaded.
 2. **No routing overhead.** Pre-research adapter had a routing table (phase → file). That table itself consumed attention and could be followed incorrectly.
-3. **7,500 tokens is in the sweet spot.** "Lost in the middle" kicks in at ~40-50% context utilization. At 7,500 tokens in a 128K context, we're at ~5.8% — deep in the high-attention primacy zone. And smaller than what the pre-research version loaded per-session (31-56KB).
+3. **10,000 tokens is in the sweet spot.** "Lost in the middle" kicks in at ~40-50% context utilization. At 10,000 tokens in a 128K context, we're at ~7.8% — deep in the high-attention primacy zone. And smaller than what the pre-research version loaded for planning (54KB).
 4. **Section headers ARE routing.** When the model reads `## 4. Execute` and knows `state.phase === "executing"`, it naturally follows that section. No explicit routing needed.
-5. **The "waste" is acceptable.** During execution, the model reads ~12KB of planning instructions it doesn't need. That's ~3,000 extra tokens — 2.3% of a 128K context window. The benefit (everything loaded, no missed instructions) far outweighs the cost.
+5. **The "waste" is acceptable.** During execution, the model reads ~15KB of planning instructions it doesn't need. That's ~3,700 extra tokens — under 3% of a 128K context window. The benefit (everything loaded, zero cross-file fragmentation) far outweighs the cost.
 
 ### The Threshold
-If KRAMAK-LITE.md grows past ~45KB (~11,000 tokens), splitting becomes necessary. At 32KB, we're well below this and still smaller than what models successfully ran with in the pre-research era.
+If KRAMAK-LITE.md grows past ~60KB (~15,000 tokens), splitting becomes necessary. At ~45KB, it encapsulates 100% of enforceable rules within the primary attention zone.
 
 ### What's Correctly Separate
 - **Schemas** (`state.schema.json`, `work-item.schema.json`) — machine-readable validation, not instruction text
-- **Templates** (`WORK-ITEM.template.md`) — format reference, not process instructions
+- **Templates** (`templates/`) — 10 format references (session log, inbox, batch plan, human tasks, audit report, retrospective, and tiered work items)
 - **State** (`state.json`) — runtime data, read/written separately
 - **Work Items** (`work-items/*.md`) — output artifacts created by the model
 - **Inbox** (`inbox/`) — input artifacts written by the user
+- **Session Log** (`SESSION-LOG.md`) — cumulative narrative history across Planner, Executor, and Auditor sessions
 
 These are **data files**, not **instruction files**. Instructions go in one place. Data is naturally distributed.
 

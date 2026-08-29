@@ -24,10 +24,11 @@ Your project should now have:
 your-project/
 ├── .kramak/
 │   ├── KRAMAK-LITE.md        ← The spec (this is the only file the agent needs)
-│   ├── schemas/              ← Validation schemas (auto-used)
-│   ├── work-items/           ← Agent writes Work Items here (starts empty)
-│   ├── inbox/                ← You write goals here (optional)
-│   └── templates/            ← WI format reference
+│   ├── schemas/              ← Validation schemas (state & work-item)
+│   ├── work-items/           ← Agent writes Work Items here
+│   ├── inbox/                ← You write goals & direction here (INBOX.md)
+│   ├── plans/                ← Batch plans and audit reports
+│   └── templates/            ← Template format references
 ├── src/                      ← Your existing code (untouched)
 ├── package.json              ← Your existing config (untouched)
 └── ...
@@ -78,19 +79,17 @@ Install adapters for all IDEs you use. They're independent files in different lo
 
 ### Step 3: (Optional) Write a Goal
 
-Tell the agent what to build by creating a goal file:
+Tell the agent what to build by adding a goal to `.kramak/inbox/INBOX.md`:
 
-```bash
-# Create a goal file
-cat > .kramak/inbox/goal.md << 'EOF'
-# Project Goal
+```markdown
+## Unprocessed
 
+### direction: Build User Management REST API
 Build a REST API for user management with:
 - User registration and login (JWT auth)
 - Profile CRUD operations
 - Role-based access control
 - PostgreSQL database with Prisma ORM
-EOF
 ```
 
 If you skip this step, the agent will analyze your existing codebase and plan improvements based on what it finds.
@@ -119,7 +118,7 @@ The agent will:
 - **Audit:** Agent reviews all changes with fresh perspective, catches issues the executor missed
 
 ### Subsequent Sessions
-- Agent reads `state.json` to know exactly where it left off
+- Agent reads `state.json` and `SESSION-LOG.md` to know exactly where it left off
 - Picks up from the correct phase (executing, auditing, or planning next batch)
 - No re-explanation needed — just say **"Start"** or **"Continue"**
 
@@ -137,7 +136,7 @@ Kramak Lite enforces hard stop gates to prevent context fatigue:
 When a gate triggers, the agent commits its state and recommends a fresh session. **This is by design** — models cannot self-detect quality degradation, so the gates enforce the pause.
 
 ### Adding New Goals
-Drop a `.md` file in `.kramak/inbox/` at any time. The planner picks it up in the next planning cycle. Use the format in `.kramak/inbox/INBOX.md` for examples.
+Add items directly to the `## Unprocessed` section in `.kramak/inbox/INBOX.md` at any time with a type tag (`direction:`, `bug:`, `insight:`, `data:`, `credential:`). The planner picks it up in the next planning cycle.
 
 ---
 
