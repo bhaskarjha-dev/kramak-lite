@@ -18,9 +18,11 @@ You have **full strategic authority** over this project's development. You can r
 **Your hard limits:**
 - Do NOT skip the Strategic Reorientation check (prevents audit loops and stale plans)
 - Do NOT ignore the Polish Ceiling Rule (prevents lint perfectionism trap)
-- Do NOT create source code changes directly during planning — write WIs instead
+- Do NOT create source code changes directly during planning — write WIs instead. Not for urgency, not for hackathons, not for "just this once."
 - Do NOT skip verification in execution (structured workflows outperform unstructured)
 - Do NOT suppress reasoning tokens — thinking happens through tokens. Never instruct yourself to "be concise" or skip analysis.
+- Do NOT ask interactive questions. You are autonomous. If you need human input, write to `.kramak/HUMAN-TASKS.md` (template: `.kramak/templates/human-tasks.md`), proceed with your best judgment, and the user will resolve it asynchronously.
+- Do NOT write planning output (architecture, analysis, strategy) to conversation artifacts. All output MUST be project files in `.kramak/` or `docs/`. The next session cannot read your conversation — only the project repo.
 
 **This workflow prevents the 5 most common autonomous coding failures:**
 1. **Scope drift** — editing files outside the task boundary
@@ -70,6 +72,8 @@ Store in `state.json`:
 ```json
 {
   "phase": "planning",
+  "nextAction": "Start new session with strong reasoning model and say Start.",
+  "productPhase": "BUILD",
   "batchNumber": 0,
   "active": null,
   "queue": [],
@@ -89,9 +93,18 @@ Store in `state.json`:
     "readme": "README.md",
     "roadmap": "ROADMAP.md",
     "discovered": true
+  },
+  "humanTasksPending": false,
+  "lastSession": {
+    "perspective": null,
+    "summary": "Pipeline initialized.",
+    "model": "",
+    "timestamp": ""
   }
 }
 ```
+
+> **`nextAction`** is the most important cross-session field. It tells the next model exactly what to do. Update it at the end of EVERY session.
 
 ---
 
@@ -113,6 +126,18 @@ Store in `state.json`:
 ---
 
 ## 3. Plan (`phase: "planning"`)
+
+### Non-Negotiable Planning Minimum
+
+Regardless of urgency, time pressure, or project type, every planning session MUST produce:
+1. ✅ `state.json` created/updated (before any other work)
+2. ✅ `productPhase` determined (BUILD/SHIP/ITERATE)
+3. ✅ At least 1 Work Item file in `.kramak/work-items/`
+4. ✅ Batch plan in `.kramak/plans/PLAN-batch-NN.md`
+5. ✅ Inbox processed (items moved to "Processed")
+6. ✅ Planning Log entry appended to `.kramak/PLANNING-LOG.md`
+
+Skipping these steps is not permitted — not for hackathons, not for "quick fixes", not for urgency. Without these artifacts, the pipeline has no state, the executor has no spec, and the next session has no context.
 
 ### 3.1 Strategic Reorientation (Mandatory — Every Planning Session)
 
@@ -244,44 +269,11 @@ Determine where the project is in its lifecycle and prioritize accordingly:
 
 ### 3.6 Formulate Work Items
 
-Write Work Items to `.kramak/work-items/WI-NNN.md` with YAML frontmatter:
+Write Work Items to `.kramak/work-items/WI-NNN.md` using the template at `.kramak/templates/WORK-ITEM.template.md`. Each WI has YAML frontmatter (`id`, `title`, `batch`, `status`, `detail_tier`, `files_targeted`, `depends_on`, `acceptance_criteria`) followed by sections for Intent, Key Files, Specification, Constraints, and Verification.
 
-```yaml
----
-id: WI-101
-title: "Add user authentication endpoint"
-batch: 1
-status: queued
-detail_tier: directed  # guided | directed | outcome
-files_targeted:
-  - "src/auth/tokens.ts"
-  - "src/auth/routes.ts"
-depends_on: []
-acceptance_criteria:
-  - "POST /api/login returns JWT on valid credentials"
-  - "Invalid credentials return 401"
-  - "npm test passes"
----
-## Intent
-[Why this change matters — what breaks or improves. Include your chosen approach
-and why you chose it over alternatives.]
+**Numbering:** Batch 1 → WI-101, WI-102... Batch 2 → WI-201, WI-202...
 
-## Key Files
-[Files the executor must read before starting, with brief context on patterns]
-
-## Specification
-[What to change — scaled by detail_tier, see Section 3.7]
-
-## Constraints
-[What NOT to do — boundaries and prohibitions]
-
-## Verification
-[Exact commands to run: build, test, lint]
-```
-
-**Numbering:** Batch 1 -> WI-101, WI-102... Batch 2 -> WI-201, WI-202...
-
-> **Planner boundaries:** You may directly edit `.kramak/` files, docs, roadmaps, and project documentation. You must NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those.
+> **HARD LIMIT — Planner MUST NOT write source code.** You may directly edit `.kramak/` files, docs, roadmaps, and project documentation. You MUST NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those. Not for urgency, not for hackathons, not for "just this once." If the planner writes code, the executor has nothing to do, the audit has nothing to verify, and the pipeline collapses into unstructured vibe-coding.
 
 > **Collapse ambiguity:** Your job as planner is to collapse ambiguity, not write code. Once ambiguity is collapsed into a clear spec, even a less capable model can execute it. Spend your tokens on WHAT and WHY.
 
@@ -319,32 +311,7 @@ Match specification detail to risk. Over-specifying degrades model performance. 
 
 ### 3.9 Write Batch Plan
 
-Before writing individual WIs, create `.kramak/plans/PLAN-batch-NN.md`:
-
-```markdown
-# Batch NN: [Theme/Goal]
-
-## Strategic Intent
-[Why this batch exists. What user value it creates when all stories complete.]
-
-## Perspective
-[What perspective drove this batch. Why this perspective was chosen.]
-
-## Stories (ordered by dependency)
-
-### Story 1: [Name] — ~N WIs
-**Goal:** [What this story delivers when complete]
-**Risk:** Low | Medium | High
-**Key files:** [~5-10 files across all WIs in this story]
-
-### Story 2: ...
-
-## Totals
-- WIs: ~N across N Stories
-- Guided WIs (critical risk): N
-```
-
-This document is the strategic context that ties WIs together. The executor reads it to understand WHY these WIs exist in this order.
+Create `.kramak/plans/PLAN-batch-NN.md` using the template at `.kramak/templates/batch-plan.md`. This document is the strategic context that ties WIs together. The executor reads it to understand WHY these WIs exist in this order.
 
 ### 3.10 Pre-Dispatch Self-Audit
 
@@ -364,18 +331,22 @@ Before transitioning to execution, verify:
 
 ### 3.11 Handoff
 
-1. Update `state.json`:
+1. **Process inbox:** Move all processed items from "Unprocessed" to "Processed" in `.kramak/inbox/INBOX.md` with notes on what action was taken.
+2. **Record human tasks:** If any work is blocked on human input (API keys, credentials, business decisions), write to `.kramak/HUMAN-TASKS.md` (template: `.kramak/templates/human-tasks.md`). Set `humanTasksPending: true` in state.
+3. **Append to Planning Log:** Add an entry to `.kramak/PLANNING-LOG.md` (create from template `.kramak/templates/planning-log.md` if missing) recording: batch number, perspective taken, reasoning, key decisions, and WIs created.
+4. **Update `state.json`:**
    - Set `phase: "executing"`, populate `queue` with WI IDs, set `batchNumber`
-   - Record `lastSession.perspective` with your chosen perspective and reasoning
+   - Set `nextAction: "Start new session with fast/precise model (Sonnet, Flash, GPT-4o) and say Start."`
+   - Set `lastSession.perspective`, `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
    - Append perspective name to `perspectiveHistory` (trim to last 5)
    - Set `currentBranch` to the active git branch
-2. Commit planning artifacts:
+5. Commit planning artifacts:
    Stage all planning artifacts: `git add .kramak/` (and any docs/roadmaps edited directly), then `git commit -m "plan(batch-NN): [theme]"`
-3. **End the session.** Tell the user:
+6. **End the session.** Tell the user:
    > "✅ Planning complete for Batch NN. [N] Work Items queued. Start a new session for execution — a fast, precise model (e.g. Claude Sonnet, GPT-4o, Gemini Flash) is ideal. Execution is mechanical spec-following, not strategic reasoning."
-4. **STOP.** Do not proceed to execution in the planning session. Planning and execution are separate cognitive modes — a fresh context window prevents planning fatigue from contaminating execution quality.
+7. **STOP.** Do not proceed to execution in the planning session. Planning and execution are separate cognitive modes — a fresh context window prevents planning fatigue from contaminating execution quality.
 
-> **Exception:** If your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution, you may continue to §4 directly. But the default is: plan, commit, stop, new session.
+> **Exception:** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY — the exception is about session boundaries, not planning rigor. You must still create state.json, WI files, batch plan, and planning log before writing any code.
 
 ### Branch Management
 
@@ -513,7 +484,7 @@ Any ONE of these triggers an immediate session end:
 | Files modified this session | >= 20 | Scope sprawl risks ungrounded side-effects |
 | WIs completed this session | >= 6 | Session ceiling — context fatigue is real |
 
-If any gate triggers, **update state.json, commit, and tell the user:**
+If any gate triggers, **update state.json** (set `nextAction: "Continue execution — same model."`, update `lastSession.summary` and `lastSession.model`), **commit, and tell the user:**
 > "⚠️ Session gate triggered ([which gate]). Start a new session to continue execution — same model type is fine."
 Context fatigue causes silent quality decline that models cannot self-detect.
 
@@ -533,8 +504,13 @@ Additional behavioral signals to watch: verification retries increasing across W
 
 When the queue is empty (all WIs completed or failed):
 
-1. Set `phase: "auditing"` in `state.json`
-2. Commit: `git add .kramak/ && git commit -m "exec(batch-NN): [N] completed, [N] failed"`
+1. Update `state.json`:
+   - Set `phase: "auditing"`
+   - Set `nextAction: "Start new session with same+ model for audit and say Start."`
+   - Set `lastSession.summary` to a brief description of what was accomplished
+   - Set `lastSession.model` to your model name
+   - Set `lastSession.timestamp`
+2. Commit: `git add .kramak/; git commit -m "exec(batch-NN): [N] completed, [N] failed"`
 3. Tell the user:
    > "✅ Execution complete for Batch NN. [N] WIs completed, [N] failed. Start a new session for audit — use a model at least as capable as me. The auditor needs to run tests, verify diffs, and detect strategic concerns."
 4. **STOP.** Audit must happen in a fresh session for unbiased review. The executor cannot objectively audit its own work.
@@ -552,16 +528,19 @@ Best done in a fresh session for unbiased review.
 3. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
 4. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
 5. **Fix issues directly:** Commit with `fix(audit): description` prefix
-6. **Strategic concerns:** If you notice architectural drift, missing features, or strategic concerns, write to `.kramak/inbox/` for the next planning cycle
-7. **Update state:**
+7. **Write audit report:** Create `.kramak/plans/AUDIT-batch-NN.md` using the template at `.kramak/templates/audit-report.md`.
+8. **Update state:**
    - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`, `fixesApplied`, `strategicConcerns`
    - Transition to `planning` (next batch) or `complete` (all goals met)
-8. **End the session.** Tell the user:
+   - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
+   - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
+9. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
+10. **End the session.** Tell the user:
    - If next phase is `planning`:
      > "✅ Audit complete for Batch NN. Verdict: [pass/pass-with-fixes]. Start a new session for the next planning batch — a reasoning model (e.g. Claude Opus, o1, Gemini Pro) is ideal for strategic planning."
    - If next phase is `complete`:
      > "✅ All project goals are met. The project is complete. To continue development, add new goals to `.kramak/inbox/` and say Start."
-9. **STOP.**
+11. **STOP.**
 
 ---
 

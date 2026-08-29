@@ -11,6 +11,10 @@
       "enum": ["planning", "executing", "auditing", "waiting", "escalated", "complete"],
       "description": "Current lifecycle phase."
     },
+    "nextAction": {
+      "type": "string",
+      "description": "Human-readable instruction for the next session. The most important cross-session field — tells the next model exactly what to do."
+    },
     "productPhase": {
       "type": "string",
       "enum": ["BUILD", "SHIP", "ITERATE"],
@@ -105,10 +109,22 @@
           "type": ["string", "null"],
           "description": "Perspective taken in the last planning session, e.g. 'Solution Architect because the data model needs restructuring before new features'."
         },
+        "summary": {
+          "type": "string",
+          "description": "Human-readable summary of what was accomplished. Enables cross-session continuity without reading conversation history."
+        },
+        "model": {
+          "type": "string",
+          "description": "Which model ran the last session (e.g. 'Claude Opus 4.6', 'Gemini Flash')."
+        },
         "batchNumber": { "type": "integer" },
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "description": "Context from the most recent session for continuity."
+    },
+    "humanTasksPending": {
+      "type": "boolean",
+      "description": "True when HUMAN-TASKS.md has unresolved tasks requiring human action."
     },
     "lastVisionAssessment": {
       "type": "object",
