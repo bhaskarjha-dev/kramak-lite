@@ -452,7 +452,7 @@ If a WI fails verification after genuine effort:
    - **In-scope failure:** Error is in `files_targeted` and caused by your changes → fix it. Retry budget applies.
    - **Out-of-scope / pre-existing failure:** Error is in an unrelated module you didn't touch → document in `.kramak/inbox/INBOX.md` for the next planner. Continue if it doesn't block your WI's acceptance criteria.
 
-2. **Classify** the failure:
+2. **Classify** the failure (Tie-breaking priority: `scope-exceeded > dependency-missing > ambiguous-spec > code-drift > verification-fail > tool-error` — first match wins):
    - `code-drift` — target source changed since planning
    - `verification-fail` — build/test errors persist after retries
    - `scope-exceeded` — fix requires touching files outside `files_targeted`

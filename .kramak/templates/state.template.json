@@ -1,0 +1,36 @@
+{
+  "phase": "planning",
+  "nextAction": "Start new session with a reasoning model and say Start.",
+  "productPhase": "BUILD",
+  "batchNumber": 1,
+  "active": null,
+  "queue": [],
+  "completed": [],
+  "failed": [],
+  "metrics": {
+    "totalCompleted": 0,
+    "totalFailed": 0,
+    "consecutiveFailures": 0,
+    "circuitBreakerTripped": false
+  },
+  "toolchain": {
+    "checkCommands": [],
+    "detected": false
+  },
+  "projectStructure": {
+    "readme": null,
+    "roadmap": null,
+    "architecture": null,
+    "productSpec": null,
+    "conventions": null,
+    "discovered": false
+  },
+  "perspectiveHistory": [],
+  "humanTasksPending": false,
+  "lastSession": {
+    "perspective": null,
+    "summary": "Pipeline initialized.",
+    "model": "",
+    "timestamp": ""
+  }
+}
