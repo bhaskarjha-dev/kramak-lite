@@ -191,7 +191,7 @@ Since both use the `.kramak` directory, upgrading is straightforward:
 ## Tips for Success
 
 1. **Start small.** Let the agent do 1-2 batches before giving it a huge project.
-2. **Write clear goals.** The more specific your `.kramak/inbox/goal.md`, the better the first plan.
+2. **Write clear goals.** The more specific your `.kramak/inbox/INBOX.md`, the better the first plan.
 3. **Trust the process.** Most WIs are Directed — the agent figures out implementation details.
 4. **Respect session limits.** After 5+ WIs, start a new session. Quality degrades silently.
 5. **Read the Work Items.** Check `.kramak/work-items/` to see what the agent planned — they're your review checkpoint.

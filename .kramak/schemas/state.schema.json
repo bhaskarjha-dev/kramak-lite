@@ -22,8 +22,8 @@
     },
     "batchNumber": {
       "type": "integer",
-      "minimum": 1,
-      "description": "Current batch number."
+      "minimum": 0,
+      "description": "Current batch number. 0 indicates pre-first-batch (initialization)."
     },
     "active": {
       "type": ["string", "null"],

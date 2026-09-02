@@ -207,7 +207,10 @@ your-project/
 │   ├── work-items/                 ← Work Items (auto-populated by planner)
 │   ├── inbox/
 │   │   └── INBOX.md                ← User goals and direction (you write here)
+│   ├── ledger/                     ← Governance self-modification log
 │   └── templates/                  ← Production templates
+│       ├── state.template.json     ← Initial state bootstrap template
+│       ├── AGENTS.template.md      ← Project conventions template (agent orientation)
 │       ├── session-log.md          ← Universal session log template
 │       ├── inbox.md                ← Inbox template
 │       ├── batch-plan.md           ← Batch plan template
@@ -330,6 +333,7 @@ For stronger enforcement, use a more capable model or consider upgrading to [ful
 
 ## Requirements
 
+- **Git** — used for scope tracking, branching, crash recovery, and commit history
 - An AI coding agent with file read/write and terminal access
 - That's it. No Node.js, no Python, no package manager.
 

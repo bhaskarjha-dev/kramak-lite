@@ -37,6 +37,7 @@ All notable changes to Kramak Lite are documented here.
 ---
 
 
+## [2.0.0] - 2026-08-29
 
 ### Changed — Autonomous Engine Overhaul
 

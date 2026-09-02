@@ -2,7 +2,7 @@
   "phase": "planning",
   "nextAction": "Start new session with a reasoning model and say Start.",
   "productPhase": "BUILD",
-  "batchNumber": 1,
+  "batchNumber": 0,
   "active": null,
   "queue": [],
   "completed": [],

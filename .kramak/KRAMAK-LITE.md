@@ -58,6 +58,7 @@ If `.git` directory is missing: run `git init`, create `.gitignore` tailored to 
 Scan for project docs: README, ROADMAP.md, ARCHITECTURE.md, `docs/`, `.github/`.
 Record discovered paths in `state.projectStructure` so future sessions skip the scan.
 If ROADMAP.md is missing, create one based on README and codebase analysis.
+If no project conventions file exists (e.g. `AGENTS.md`, `CLAUDE.md`, or similar), create one from `.kramak/templates/AGENTS.template.md` — it captures toolchain, directory structure, architecture patterns, and key invariants for agent orientation.
 
 ### Capability Gate
 
@@ -73,41 +74,7 @@ Before proceeding, verify your fitness for this session's phase:
 
 If you are an expensive reasoning model entering an execution phase: recommend a fast/precise model for execution. Reasoning tokens are valuable for planning, not for mechanical code editing.
 
-Store in `state.json`:
-```json
-{
-  "phase": "planning",
-  "nextAction": "Start new session with strong reasoning model and say Start.",
-  "productPhase": "BUILD",
-  "batchNumber": 0,
-  "active": null,
-  "queue": [],
-  "completed": [],
-  "failed": [],
-  "metrics": {
-    "totalCompleted": 0,
-    "totalFailed": 0,
-    "consecutiveFailures": 0,
-    "circuitBreakerTripped": false
-  },
-  "toolchain": {
-    "checkCommands": ["npm test", "npx tsc --noEmit"],
-    "detected": true
-  },
-  "projectStructure": {
-    "readme": "README.md",
-    "roadmap": "ROADMAP.md",
-    "discovered": true
-  },
-  "humanTasksPending": false,
-  "lastSession": {
-    "perspective": null,
-    "summary": "Pipeline initialized.",
-    "model": "",
-    "timestamp": ""
-  }
-}
-```
+Create `state.json` by copying `.kramak/templates/state.template.json` and populating it with the detected toolchain and discovered project structure paths.
 
 > **`nextAction`** is the most important cross-session field. It tells the next model exactly what to do. Update it at the end of EVERY session.
 
@@ -417,6 +384,8 @@ Before executing, reconcile state with filesystem:
 > **Pre-execution scope intercept:** Before modifying ANY file, verify its path appears in `files_targeted`. If not listed, do not modify it. This is the primary control — the post-commit git diff check is the backup.
 
 > **Periodic Re-Grounding:** After every 3rd tool call, OR immediately after any tool error, **RE-READ the active WI specification.** Compare your current working tree diff against `acceptance_criteria` and `files_targeted`. If drift is detected (working on code outside scope or deviating from intent), STOP and re-align immediately. Plan compliance decays across extended sessions — periodic re-grounding is the primary defense against autonomous scope creep.
+
+> **Context Compaction Recovery:** If you detect that your context was compacted, summarized, or truncated by the IDE mid-session, **re-read `.kramak/KRAMAK-LITE.md` in full** before continuing any work. Context compaction can silently drop workflow rules, causing the agent to revert to unstructured behavior.
 
 ```
 1. Read the batch plan (plans/PLAN-batch-NN.md) for strategic context
