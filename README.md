@@ -253,8 +253,8 @@ your-project/
 |---|---|
 | **[Getting Started](docs/GETTING-STARTED.md)** | Step-by-step setup for every scenario (new project, existing project, existing AI config) |
 | **[Architecture](docs/ARCHITECTURE.md)** | Why single-file, IDE compatibility strategy, token analysis, naming decisions |
-| **[Competitive Comparison](docs/COMPARISON.md)** | Objective 20-tool benchmark and comparison against Spec Kit, BMAD, Superpowers |
-| **[Roadmap](docs/ROADMAP.md)** | The Road to #1: Phased execution plan for distribution, hooks, and benchmarks |
+| **[Competitive Comparison](docs/COMPARISON.md)** | Objective 21-tool benchmark matrix and head-to-head architectural analysis |
+| **[Roadmap](docs/ROADMAP.md)** | Provisional candidate backlog for open distribution standards, backstops, and benchmarks |
 | **[Full Kramak Mapping](docs/FULL-KRAMAK-MAPPING.md)** | Rule-by-rule coverage map of all 176 rules |
 | **[Changelog](CHANGELOG.md)** | Version history with rationale for every change |
 
