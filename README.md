@@ -10,7 +10,7 @@ An autonomous development engine for AI coding agents.
 Zero dependencies. Any IDE. Any model.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Spec Version](https://img.shields.io/badge/Spec-v2.3.0-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
+[![Spec Version](https://img.shields.io/badge/Spec-v2.3.0_(Aug_2026)-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
 [![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
 [![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
 
@@ -197,14 +197,14 @@ Determines what kind of work to prioritize. BUILD focuses on architecture and fe
 your-project/
 ├── .kramak/
 │   ├── KRAMAK-LITE.md              ← The spec (single file, ~45KB, v2.3.0)
-│   ├── state.json                  ← Current state (auto-created)
-│   ├── SESSION-LOG.md              ← Cross-session history (Planner/Executor/Auditor)
-│   ├── HUMAN-TASKS.md              ← Async human blockers (API keys, decisions)
+│   ├── state.json                  ← Current state (auto-created at runtime)
+│   ├── SESSION-LOG.md              ← Cross-session history (created at runtime)
+│   ├── HUMAN-TASKS.md              ← Async human blockers (created at runtime)
 │   ├── schemas/
 │   │   ├── state.schema.json       ← State validation schema
 │   │   └── work-item.schema.json   ← Work Item validation schema
-│   ├── plans/                      ← Batch plans & audit reports
-│   ├── work-items/                 ← Work Items (auto-populated by planner)
+│   ├── plans/                      ← Batch plans & audit reports (created at runtime)
+│   ├── work-items/                 ← Work Items (created at runtime by planner)
 │   ├── inbox/
 │   │   └── INBOX.md                ← User goals and direction (you write here)
 │   ├── ledger/                     ← Governance self-modification log
@@ -231,7 +231,7 @@ your-project/
 | Aspect | Kramak Lite | Kramak (Full) |
 |---|---|---|
 | **Spec size** | ~45KB (1 file, v2.3.0) | ~191KB (20 files) |
-| **Rule coverage** | 100% of enforceable rules (173/173) | 176 rules (includes CLI-only guards) |
+| **Rule coverage** | 173 of 173 enforceable rules — 100% (176 total minus 3 CLI-only) | 176 rules (includes CLI-only guards) |
 | **Strategic intelligence** | 5-lens vision + PERCEIVE→REASON→DECIDE + perspectives | Full 5-lens + multi-cycle perspective tracking |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
 | **Cross-session log** | Unified SESSION-LOG.md (Plan/Exec/Audit) | PLANNING-LOG + PROGRESS.md + RETRO |
@@ -304,17 +304,15 @@ Note: Full Kramak's extra phases (`dispatch`, `merge_queue`, `bootstrap`) and `G
 <details>
 <summary><strong>Which AI models work best with Kramak Lite?</strong></summary>
 
-Kramak Lite works with any model, but compliance varies:
+Kramak Lite works with any model, but compliance varies by model class (as of August 2026):
 
-| Model | Planning | Execution | Audit | Overall |
-|---|---|---|---|---|
-| Gemini 2.5 Pro | Excellent | Good | Good | **Strong** |
-| Claude Opus 4.6 | Excellent | Excellent | Excellent | **Excellent** |
-| Claude Sonnet 4.0 | Good | Good | Adequate | **Strong** |
-| GPT-4o | Good | Adequate | Adequate | **Moderate** |
-| Flash/Mini models | Adequate | May skip steps | May rubber-stamp | **Basic** |
+| Model Class | Examples | Planning | Execution | Audit | Overall |
+|---|---|---|---|---|---|
+| Frontier reasoning | Gemini 2.5 Pro, Claude Opus 4 | Excellent | Excellent | Excellent | **Excellent** |
+| Strong mid-tier | Claude Sonnet 4, GPT-4o | Good | Good | Adequate | **Strong** |
+| Fast / mini | Gemini Flash, GPT-4o-mini | Adequate | May skip steps | May rubber-stamp | **Basic** |
 
-All models benefit from the framework. Stronger models follow it more completely.
+All models benefit from the framework. Stronger models follow it more completely. Model names and versions change rapidly — test with your current model.
 
 </details>
 

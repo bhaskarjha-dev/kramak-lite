@@ -1,7 +1,8 @@
 # Kramak-Lite vs. the AI-Agent Process-Control Landscape
-### Objective Competitive Benchmark & Architectural Comparison
+### Competitive Analysis & Architectural Comparison
 
-> **Benchmarked Against:** 20 tools across 6 standardized dimensions (September 2026 snapshot).  
+> **Benchmarked Against:** 20 tools across 6 standardized dimensions (August 2026 snapshot).  
+> **Methodology:** Author-assessed scoring based on public documentation, repos, and feature audits. Scores reflect one evaluator's judgment — not community consensus or automated measurement. Tool versions may have changed since the snapshot date.  
 > **Core Value Proposition:** Single-file, zero-dependency, IDE-agnostic process-control specification (Plan → Execute → Audit state machine) with quantitative hard-stop gates and tiered task detail.
 
 ---

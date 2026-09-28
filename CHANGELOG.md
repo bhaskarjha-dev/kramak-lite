@@ -2,6 +2,8 @@
 
 All notable changes to Kramak Lite are documented here.
 
+> **Note:** The v2.x releases (2.0.0 through 2.3.0) represent iterative development stages during a focused sprint on 2026-08-29. Each version captures a distinct capability milestone (autonomous engine → non-negotiable planning → strategic vision → unified telemetry).
+
 ## [2.3.0] - 2026-08-29
 
 ### Added — Unified Cross-Session Telemetry & Inbox Template
@@ -173,3 +175,14 @@ This release restores the full autonomous engine from the pre-research Kramak an
 - **Single file over multi-file** — see `docs/ARCHITECTURE.md` for rationale
 - **No runtime dependencies** — pure Markdown + JSON schemas
 - **Constitutional framing** — avoid identity claims that conflict with IDE system prompts
+
+---
+
+[2.3.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.2.0...v2.3.0
+[2.2.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.0.0...v2.1.0
+[2.0.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.3.0...v2.0.0
+[1.3.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.0.0...v1.1.0
+

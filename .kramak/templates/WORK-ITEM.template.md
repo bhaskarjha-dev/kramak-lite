@@ -34,9 +34,11 @@ completed_at: null
 
 [Exact commands to validate the change:]
 ```bash
-# Example:
-npm test
-npx tsc --noEmit
+# Use the project's toolchain.checkCommands, e.g.:
+# npm test && npx tsc --noEmit       (Node/TypeScript)
+# pytest && ruff check .              (Python)
+# cargo test && cargo clippy           (Rust)
+# go test ./... && go vet ./...        (Go)
 ```
 
 <!-- The section below is auto-populated by the executor on failure. Do not fill manually. -->

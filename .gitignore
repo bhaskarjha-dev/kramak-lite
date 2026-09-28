@@ -1,12 +1,18 @@
-# Kramak runtime state
+# Kramak runtime state (created by the agent, NOT shipped in the repo)
 .kramak/state.json
+.kramak/state.json.tmp
 .kramak/work-items/*.md
 !.kramak/work-items/.gitkeep
 .kramak/plans/*.md
 !.kramak/plans/.gitkeep
+
+# Kramak inbox (INBOX.md IS tracked — it's the user→pipeline communication channel)
 .kramak/inbox/*.md
 !.kramak/inbox/INBOX.md
 !.kramak/inbox/.gitkeep
+
+# Note: SESSION-LOG.md and HUMAN-TASKS.md are intentionally NOT ignored.
+# They are cross-session artifacts that persist in git for continuity.
 
 # OS
 .DS_Store

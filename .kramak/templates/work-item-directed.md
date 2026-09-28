@@ -24,9 +24,9 @@ completed_at: null
 
 **Goal:** [What this change accomplishes]
 
-**Interfaces/Types to implement or modify:**
-```typescript
-// Key interfaces the executor must create or modify
+**Types/Interfaces to implement or modify:**
+```
+// Key types, interfaces, or schemas the executor must create or modify
 ```
 
 **Integration points:**
@@ -45,7 +45,9 @@ completed_at: null
 ## Verification
 
 ```bash
-# Exact commands to validate:
-npm test
-npx tsc --noEmit
+# Use the project's toolchain.checkCommands, e.g.:
+# npm test && npx tsc --noEmit       (Node/TypeScript)
+# pytest && ruff check .              (Python)
+# cargo test && cargo clippy           (Rust)
+# go test ./... && go vet ./...        (Go)
 ```

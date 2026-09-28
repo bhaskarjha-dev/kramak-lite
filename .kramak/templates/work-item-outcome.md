@@ -31,7 +31,9 @@ Deliver these observable results:
 ## Verification
 
 ```bash
-# Exact commands to validate:
-npm test
-npx tsc --noEmit
+# Use the project's toolchain.checkCommands, e.g.:
+# npm test && npx tsc --noEmit       (Node/TypeScript)
+# pytest && ruff check .              (Python)
+# cargo test && cargo clippy           (Rust)
+# go test ./... && go vet ./...        (Go)
 ```

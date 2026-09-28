@@ -8,8 +8,8 @@
   "properties": {
     "id": {
       "type": "string",
-      "pattern": "^WI-[0-9]{3}$",
-      "description": "Batch-scoped ID. Batch 1: WI-101..., Batch 2: WI-201..."
+      "pattern": "^WI-[0-9]{3,}$",
+      "description": "Batch-scoped ID. Batch 1: WI-101..., Batch 2: WI-201..., Batch 10+: WI-1001..."
     },
     "title": {
       "type": "string",

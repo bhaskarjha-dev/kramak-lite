@@ -1,7 +1,7 @@
 # Kramak-Lite — Strategic Roadmap: Candidate Explorations & Future Horizons
 
 > **Current Version:** v2.3.0  
-> **Last Updated:** September 2026  
+> **Last Updated:** August 2026  
 > **Status:** Provisional Roadmap & Exploratory Candidate Backlog (Non-Binding)  
 > **Core Principle:** Host-Agnostic, Zero-Dependency Standard. All items below represent exploratory candidate directions under evaluation. Kramak-Lite will not be locked into or bound by any single proprietary vendor or ecosystem.
 

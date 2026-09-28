@@ -8,7 +8,7 @@
 ## 1. Why Single-File Architecture
 
 ### The Decision
-Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~45KB, ~10,000 tokens). Data files (schemas, templates, state, work items, batch plans) are separate.
+Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~45KB, ~10,000 tokens at typical Markdown tokenization rates). Data files (schemas, templates, state, work items, batch plans) are separate.
 
 ### The Reasoning
 
@@ -106,7 +106,7 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 - All 6 phases (planning, executing, auditing, waiting, escalated, complete)
 - **Strategic Vision System** — 5-lens assessment (Quality, User Journey, Competitive, Innovation, Architecture) with conditional triggers
 - **PERCEIVE → REASON → DECIDE** meta-cognitive planning loop
-- **Perspective Archetype System** — 25+ perspectives across 5 categories with diversity tracking
+- **Perspective Archetype System** — 25+ perspectives across 6 categories (Building, Product, Operational, Growth, Scaling, Emergent) with diversity tracking
 - **Product Phase Priority Ladders** — ordered stacks for BUILD/SHIP/ITERATE with transition criteria
 - **CTO Empowerment Framing** — bounded freedoms + hard limits (constitutional, no identity conflict)
 - Goldilocks Rule with 3 detail tiers
@@ -164,20 +164,20 @@ Typical execution session:         ~11,500 tokens of instructions
 
 ### Kramak Lite Token Cost Per Session
 ```
-KRAMAK-LITE.md:          ~7,500 tokens (everything, every session)
+KRAMAK-LITE.md:          ~10,000 tokens (everything, every session)
 ```
 
-**Reduction: 35-60% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version.
+**Reduction: 15-47% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The v2.0.0 spec was ~7,500 tokens; v2.3.0 grew to ~10,000 tokens with the addition of Strategic Vision, meta-cognition, and unified telemetry.)
 
 ### Size Context
 - Pre-research planning session: ~13,500 tokens (PLANNER.md + PRINCIPLES.md)
 - Pre-research execution session: ~7,750 tokens (EXECUTOR.md + PRINCIPLES.md)
-- Kramak Lite (any session): ~7,500 tokens — **comparable to the pre-research executor session**
+- Kramak Lite (any session): ~10,000 tokens — **smaller than the pre-research planner session, comparable to its executor session**
 
 ### Safe Threshold
 - Modern context windows: 128K-1M tokens
 - "Lost in the middle" threshold: ~40-50% utilization
-- Kramak Lite at 7,500 tokens: 5.8% of 128K, 0.75% of 1M
+- Kramak Lite at ~10,000 tokens: 7.8% of 128K, 1.0% of 1M
 - **Verdict:** Well within the high-attention zone for any model
 
 ---

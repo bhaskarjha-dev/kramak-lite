@@ -36,7 +36,7 @@ your-project/
 
 ### Step 2: Add Your IDE Adapter
 
-The adapter is a small file (~20 lines) that tells your AI agent where to find the Kramak spec. Pick your IDE:
+The adapter is a small file (~25-40 lines) that tells your AI agent where to find the Kramak spec. Pick your IDE:
 
 #### Antigravity IDE
 ```bash
