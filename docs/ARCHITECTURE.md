@@ -139,11 +139,8 @@ Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
 These features provide additional depth in the [full Kramak](https://github.com/bhaskarjha-dev/kramak) specification.
 
 **Not Needed in Lite (beyond scope or too heavyweight):**
-| Feature | Why Excluded |
-|---|---|
 | Domain conventions module | Ecosystem-specific playbooks (React, Python, Go, Rust patterns) — too large, model already knows these |
 | RIPER-5 per-commit checklist | Models skip checklists when they conflict with harness commit flow |
-| Re-grounding cadence (every 3 tool calls) | Prescriptive cadence doesn't work in practice. "Re-read when needed" is better |
 
 ---
 
@@ -201,22 +198,11 @@ Before the research-driven overhaul (commit `9c6b205`), Kramak worked as a simpl
 
 ---
 
-## 6. Future Development Priorities
+### Core Spec Maintenance Invariants
+- If the spec grows past ~60KB (~15,000 tokens), consider splitting into phase-specific modules (`PLANNER-LITE.md`, `EXECUTOR-LITE.md`).
+- Keep the single-file architecture as long as it stays under the primary attention threshold.
+- Maintain the ~60% autonomy engine / ~40% guardrails structural balance.
+- Monitor IDE system prompt changes and update adapters accordingly to preserve constitutional framing.
+- Preserve 100% vendor and host agnosticism across all documentation and specifications.
 
-### Phase 2: Ecosystem Depth
-Expand the Kramak Lite specification with targeted enhancements:
-- MCP server integration for seamless IDE ↔ spec communication
-- Benchmark results against SWE-Bench/FeatBench with quantitative before/after data
-- Community-contributed perspective archetypes and domain-specific priority ladders
-- Visual status dashboard (single-file HTML reading `state.json`)
-
-### Adapter Improvements
-- Monitor IDE system prompt changes and update adapters accordingly
-- Test with more model tiers (Flash, Haiku, GPT-4o-mini) to verify constitutional framing effectiveness
-- Consider "always-active rule" elevation for IDEs that support it
-
-### Spec Maintenance
-- If the spec grows past 45KB (~11,000 tokens), consider splitting into PLANNER-LITE.md and EXECUTOR-LITE.md
-- Keep the single-file architecture as long as it stays under the attention threshold
-- Audit spec size quarterly against model context window advances
-- Current allocation: ~60% autonomy engine / ~40% guardrails — maintain this ratio
+> For future development priorities, candidate explorations, and ecosystem packaging under evaluation, see [**ROADMAP.md**](ROADMAP.md).
