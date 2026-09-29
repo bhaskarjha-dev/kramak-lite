@@ -2,7 +2,7 @@
 
 > **Purpose:** Maps every one of full Kramak's 176 rules to its status in Kramak Lite.
 > **Source:** `.kramak/RULES-INVENTORY.md` in the full Kramak repository.
-> **Spec Version:** v3.0.0 — all "Lite Location" references use v3.0.0 section numbering.
+> **Spec Version:** 0.1.0-dev — all "Lite Location" references use current section numbering.
 > **Use this when:** Auditing Lite coverage, deciding what to add, or evaluating if a full-Kramak feature should be ported.
 
 ---
@@ -21,7 +21,7 @@
 
 ---
 
-## Spec Structure Quick Reference (v3.0.0)
+## Spec Structure Quick Reference
 
 Use this to verify "Lite Location" entries below:
 

@@ -37,7 +37,7 @@ When `.kramak/state.json` exists in this workspace:
 | escalated | 3+ failures — show diagnosis, stop |
 | complete | All goals met — check inbox for new work |
 
-## Orchestration (v3.0.0)
+## Orchestration
 
 If your harness supports subagent spawning (but NOT inside Teamwork):
 

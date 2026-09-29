@@ -167,7 +167,7 @@ Typical execution session:         ~11,500 tokens of instructions
 KRAMAK-LITE.md:          ~12,000 tokens (everything, every session)
 ```
 
-**Reduction: 15-36% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The v2.0.0 spec was ~7,500 tokens; v3.0.0 grew to ~12,000 tokens with the addition of Strategic Vision, meta-cognition, unified telemetry, and orchestration protocol.)
+**Reduction: 15-36% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The early spec was ~7,500 tokens; the current spec is ~13,000 tokens with the addition of Strategic Vision, meta-cognition, unified telemetry, orchestration protocol, and external mode.)
 
 ### Size Context
 - Pre-research planning session: ~13,500 tokens (PLANNER.md + PRINCIPLES.md)
@@ -209,10 +209,10 @@ Before the research-driven overhaul (commit `9c6b205`), Kramak worked as a simpl
 
 ---
 
-## 6. Governance Protocol Layer (v3.0.0)
+## 6. Governance Protocol Layer
 
 ### The Decision
-Kramak Lite evolves from a "session-level playbook" to a "governance protocol that orchestrators consume." The spec now supports four execution modes (`manual`, `orchestrated`, `parallel`, `external`) while remaining a pure Markdown + JSON schema specification with zero runtime dependencies.
+Kramak Lite evolves from a "session-level playbook" to a "governance protocol that orchestrators consume." The spec supports four execution modes (`manual`, `orchestrated`, `parallel`, `external`) while remaining a pure Markdown + JSON schema specification with zero runtime dependencies.
 
 ### The Reasoning
 
@@ -225,7 +225,7 @@ Kramak Lite evolves from a "session-level playbook" to a "governance protocol th
 | **Governance Protocol** | Kramak Lite | Roles, phase state machine, scope enforcement, circuit breaker, strategic planning |
 | **Orchestration Mechanism** | Harness/IDE | Subagent spawning, parallel dispatch, session management, model selection |
 
-Kramak Lite was trying to own both layers in v2.x (via manual session instructions). In v3.0.0, it cleanly owns only the governance layer and provides hooks for orchestrators to consume.
+Kramak Lite was trying to own both layers in v2.x (via manual session instructions). It now cleanly owns only the governance layer and provides hooks for orchestrators to consume.
 
 ### Key Design Decisions
 

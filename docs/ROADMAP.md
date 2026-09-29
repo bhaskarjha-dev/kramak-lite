@@ -1,8 +1,8 @@
 # Kramak-Lite — Strategic Roadmap: Candidate Explorations & Future Horizons
 
-> **Current Version:** v3.0.0  
+> **Current Version:** 0.1.0-dev  
 > **Last Updated:** September 2026  
-> **Status:** Provisional Roadmap & Exploratory Candidate Backlog (Non-Binding)  
+> **Status:** Pre-Release Development — Heading toward v0.1.0 public release  
 > **Core Principle:** Host-Agnostic, Zero-Dependency Standard. All items below represent exploratory candidate directions under evaluation. Kramak-Lite will not be locked into or bound by any single proprietary vendor or ecosystem.
 
 ---
@@ -15,7 +15,7 @@ In an exhaustive independent competitive benchmark across 21 process-control too
 |---|:-:|:-:|:-:|---|:-:|
 | **Coding-Agent Fit** | **5/5** | 5/5 | — | Zero wasted surface area on non-coding tasks. Keep as-is. | **5/5** |
 | **Workflow Rigor** | **4/5** | 5/5 (Spec Kit, GSD) | 1 pt | Explore explicit adversarial audit framing and visible drift reconciliation. | **5/5** |
-| **Portability** | **5/5** | 5/5 (Tied) | — | Unmatched zero-runtime-dependency, single-file spec (~52KB). Core asset. | **5/5** |
+| **Portability** | **5/5** | 5/5 (Tied) | — | Unmatched zero-runtime-dependency, single-file spec (~55KB). Core asset. | **5/5** |
 | **Gate Enforcement** | **4/5** | 5/5 (Spec Kitty) | 1 pt | Quantitative gates exist; evaluate optional external git/CI backstops. | **5/5** |
 | **Host/Model Reach** | **4/5** | 5/5 (Spec Kit) | 1 pt | 4 hand-maintained adapters vs. 38+ auto-detected agents via universal standards. | **5/5** |
 | **Adoption & Maturity** | **1/5** | 5/5 (Superpowers) | 4 pts | Zero public distribution / marketplace packaging. Pure visibility gap. | **2-3/5** |
@@ -36,7 +36,7 @@ Early research notes hypothesized a conceptual "6-rung progressive enforcement l
    │
  Tier 2   Universal Open Agent Packaging (Universal Agent Plugin standards, cross-agent skills)
    │
- Tier 1   Canonical Core (Implemented v3.0.0: Single-file, zero-dependency, constitutional framing, orchestration-aware)
+ Tier 1   Canonical Core (Implemented: Single-file, zero-dependency, constitutional framing, orchestration-aware)
 ```
 
 **Sovereignty Invariant:** Keep the core `.kramak/KRAMAK-LITE.md` completely zero-dependency and model-agnostic. Higher tiers are evaluated purely as **optional, opt-in satellite layers** (e.g., portable scripts or open packaging formats). If any candidate direction compromises independence or introduces bloat, it will not be adopted.
@@ -132,7 +132,7 @@ Early research notes hypothesized a conceptual "6-rung progressive enforcement l
    - *Current:* The governance library interface in §7.5 classifies rules into ALWAYS apply, USE AS HEURISTICS, and SKIP categories.
    - *Decision:* Refine these classifications based on real-world usage data from `external` mode deployments. Some "heuristic" rules may prove universally valuable (promote to ALWAYS) or create friction (demote to SKIP).
 6. **Competitive Benchmark Refresh:**
-   - *Current:* Comparison table (docs/COMPARISON.md) scores Kramak Lite at 23/30. The v3.0.0 changes likely improve Workflow Rigor (+1) and Host/Model Reach (+1) to 25/30.
+   - *Current:* Comparison table (docs/COMPARISON.md) scores Kramak Lite at 23/30. The governance protocol and external mode changes likely improve Workflow Rigor (+1) and Host/Model Reach (+1) to 25/30.
    - *Decision:* Re-evaluate benchmark scores against updated 2026 competitive landscape, including Antigravity Teamwork integration capabilities.
 7. **Architecture Decision Records:**
    - *Added:* `docs/decisions/` directory for ADRs capturing strategic reasoning behind architectural changes.

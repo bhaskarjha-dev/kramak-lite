@@ -14,8 +14,9 @@ Each ADR follows a consistent structure:
 
 | ADR | Title | Date | Status |
 |---|---|---|---|
-| [ADR-001](ADR-001-governance-protocol-evolution.md) | Governance Protocol Evolution (v3.0.0) | September 2026 | Accepted |
+| [ADR-001](ADR-001-governance-protocol-evolution.md) | Governance Protocol Evolution | September 2026 | Accepted |
 | [ADR-002](ADR-002-external-orchestrator-integration.md) | External Orchestrator Integration (Teamwork Compatibility) | September 2026 | Accepted |
+| [ADR-003](ADR-003-version-reset.md) | Version Reset to 0.1.0-dev (Pre-Release Strategy) | September 2026 | Accepted |
 
 ## When to Write an ADR
 

@@ -1,6 +1,6 @@
 # Kramak Lite — Autonomous Development Engine
 
-> **Version:** 3.0.0
+> **Version:** 0.1.0-dev
 > **Activate:** When the user says **"Start"** (or "begin", "continue", "go", "kramak").
 
 ## Your Role in This Project

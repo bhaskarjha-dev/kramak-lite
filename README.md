@@ -10,7 +10,7 @@ An autonomous development engine for AI coding agents.
 Zero dependencies. Any IDE. Any model.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Spec Version](https://img.shields.io/badge/Spec-v3.0.0_(Sep_2026)-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
+[![Spec Version](https://img.shields.io/badge/Spec-v0.1.0--dev-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
 [![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
 [![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
 
@@ -148,7 +148,7 @@ That's it. The agent will assess the project strategically, plan Work Items from
 **Cross-session history** is logged in `.kramak/SESSION-LOG.md`.
 Everything is plain Markdown and JSON — no runtime, no CLI, no magic.
 
-**Execution modes (v3.0.0):** Role transitions happen via manual sessions (default), orchestrator-spawned subagents, parallel agent threads, or external frameworks like Antigravity Teamwork — the spec auto-detects your environment. In external mode, Kramak operates as a governance library (quality rules without lifecycle ownership). See §7 of the spec.
+**Execution modes:** Role transitions happen via manual sessions (default), orchestrator-spawned subagents, parallel agent threads, or external frameworks like Antigravity Teamwork — the spec auto-detects your environment. In external mode, Kramak operates as a governance library (quality rules without lifecycle ownership). See §7 of the spec.
 
 ---
 
@@ -198,7 +198,7 @@ Determines what kind of work to prioritize. BUILD focuses on architecture and fe
 ```
 your-project/
 ├── .kramak/
-│   ├── KRAMAK-LITE.md              ← The spec (single file, ~52KB, v3.0.0)
+│   ├── KRAMAK-LITE.md              ← The spec (single file, ~55KB)
 │   ├── state.json                  ← Current state (auto-created at runtime)
 │   ├── SESSION-LOG.md              ← Cross-session history (created at runtime)
 │   ├── HUMAN-TASKS.md              ← Async human blockers (created at runtime)
@@ -232,7 +232,7 @@ your-project/
 
 | Aspect | Kramak Lite | Kramak (Full) |
 |---|---|---|
-| **Spec size** | ~52KB (1 file, v3.0.0) | ~191KB (20 files) |
+| **Spec size** | ~55KB (1 file) | ~191KB (20 files) |
 | **Rule coverage** | 173 of 173 enforceable rules — 100% (176 total minus 3 CLI-only) | 176 rules (includes CLI-only guards) |
 | **Strategic intelligence** | 5-lens vision + PERCEIVE→REASON→DECIDE + perspectives | Full 5-lens + multi-cycle perspective tracking |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |

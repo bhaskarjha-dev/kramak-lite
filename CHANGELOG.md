@@ -2,9 +2,20 @@
 
 All notable changes to Kramak Lite are documented here.
 
-> **Note:** The v2.x releases (2.0.0 through 2.3.0) represent iterative development stages during a focused sprint on 2026-08-29. Each version captures a distinct capability milestone (autonomous engine → non-negotiable planning → strategic vision → unified telemetry).
+## [0.1.0-dev] — In Development
 
-## [3.0.0] - 2026-09-29
+> **Target:** First public release.
+> **Status:** In development. This version includes all features built during pre-release iterations, plus any new work (MCP server, plugins, etc.) being developed before the v0.1.0 public launch.
+
+When ready to release, the `-dev` suffix is dropped and this becomes `[0.1.0]`.
+
+---
+
+## Pre-Release Development History
+
+> The following versions were internal development iterations before the first public release. They are preserved here as a record of the spec's evolution but do not correspond to any published releases. Version numbers were internal milestone markers tracking the spec's maturity.
+
+### Internal 3.0.0 — 2026-09-29 — Governance Protocol Evolution
 
 ### Added — Governance Protocol Evolution (Manual / Orchestrated / Parallel)
 
@@ -30,7 +41,7 @@ This release evolves Kramak Lite from a session-level playbook into a governance
 - **Backward-compatible default.** `executionMode: "manual"` is the default. Existing v2.x workflows are unchanged.
 - **"When in doubt, run sequentially."** Parallel execution is an optimization, not a requirement. The safety invariant (zero file overlap) is strict by design.
 
-## [2.3.0] - 2026-08-29
+### Internal 2.3.0 — 2026-08-29 — Unified Cross-Session Telemetry
 
 ### Added — Unified Cross-Session Telemetry & Inbox Template
 - **Universal Session Log (`.kramak/templates/session-log.md`)** — Replaces single-purpose planning log with a unified cross-session log. All roles (Planner, Executor, Auditor) append entries, providing full narrative history in `.kramak/SESSION-LOG.md`.
@@ -45,7 +56,7 @@ This release evolves Kramak Lite from a session-level playbook into a governance
 
 ---
 
-## [2.2.0] - 2026-08-29
+### Internal 2.2.0 — 2026-08-29 — Strategic Vision & Meta-Cognition
 
 ### Added — Strategic Vision & Meta-Cognitive Perspective Selection
 - **5-Lens Strategic Vision System (§3.3)** — Conditional assessment (Quality Retrospective, User Journey Walk, Competitive & Market Scan, Innovation Brainstorm, Architecture Check) triggered at milestones, roadmap depletion, periodic intervals, or planner judgment.
@@ -54,7 +65,7 @@ This release evolves Kramak Lite from a session-level playbook into a governance
 
 ---
 
-## [2.1.0] - 2026-08-29
+### Internal 2.1.0 — 2026-08-29 — Non-Negotiable Planning
 
 ### Added — Rigorous Non-Negotiable Planning & Session Handoffs
 - **Non-Negotiable Planning Minimum (§3)** — 6 mandatory planning artifacts required before transitioning to execution (cannot skip for urgency or hackathons).
@@ -65,7 +76,7 @@ This release evolves Kramak Lite from a session-level playbook into a governance
 ---
 
 
-## [2.0.0] - 2026-08-29
+### Internal 2.0.0 — 2026-08-29 — Autonomous Engine Overhaul
 
 ### Changed — Autonomous Engine Overhaul
 
@@ -104,7 +115,7 @@ This release restores the full autonomous engine from the pre-research Kramak an
 
 ---
 
-## [1.3.0] - 2026-08-21
+### Internal 1.3.0 — 2026-08-21
 
 ### Added — 13 additions to reach ~95% rule coverage
 - **Strategic Override protocol** — planner can change `productPhase` with documented evidence (prevents stuck phases)
@@ -128,7 +139,7 @@ This release restores the full autonomous engine from the pre-research Kramak an
 
 ---
 
-## [1.2.0] - 2026-08-21
+### Internal 1.2.0 — 2026-08-21
 
 ### Added — 8 additions from exhaustive cross-file audit
 - **Constitutional framing** — reframed spec from "follow this process" to "this helps you produce better work" (the #1 IDE compatibility fix)
@@ -152,7 +163,7 @@ This release restores the full autonomous engine from the pre-research Kramak an
 
 ---
 
-## [1.1.0] - 2026-08-21
+### Internal 1.1.0 — 2026-08-21
 
 ### Added — 12 strategic intelligence gaps closed
 - **Strategic Reorientation Check** — 4-question guard against blindly following stale state
@@ -177,7 +188,7 @@ This release restores the full autonomous engine from the pre-research Kramak an
 
 ---
 
-## [1.0.0] - 2026-08-21
+### Internal 1.0.0 — 2026-08-21 — Initial Specification
 
 ### Added — Initial release
 - Single-file spec: `KRAMAK-LITE.md` (264 lines, 11.2 KB)
@@ -204,12 +215,5 @@ This release restores the full autonomous engine from the pre-research Kramak an
 
 ---
 
-[3.0.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.3.0...v3.0.0
-[2.3.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.2.0...v2.3.0
-[2.2.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.1.0...v2.2.0
-[2.1.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.0.0...v2.1.0
-[2.0.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.3.0...v2.0.0
-[1.3.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.2.0...v1.3.0
-[1.2.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v1.0.0...v1.1.0
+<!-- No public release comparison links yet — all versions above are pre-release internal milestones -->
 
