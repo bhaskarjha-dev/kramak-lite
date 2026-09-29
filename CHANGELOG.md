@@ -7,6 +7,22 @@ All notable changes to Kramak Lite are documented here.
 > **Target:** First public release.
 > **Status:** In development. When ready to release, the `-dev` suffix is dropped and this becomes `[0.1.0]`.
 
+### 2026-09-29 — License Harmonization: Apache 2.0 → MIT
+
+- **License switched to MIT** — Harmonized with full Kramak (MIT). Research confirmed all direct competitors in the AI agent process-control space (GitHub Spec Kit, BMAD-METHOD, Superpowers, GSD Core) use MIT. The skills.sh agent plugin ecosystem and community MCP servers also overwhelmingly favor MIT. Apache 2.0's patent grant provides negligible value for a markdown-based development methodology with no patent portfolio. MIT maximizes adoption for future MCP servers, agent plugins, and ecosystem packaging.
+- Updated LICENSE file, README badge, README license section, and ROADMAP open decision (marked resolved).
+
+### 2026-09-29 — Quality Audit Fixes (8 Findings)
+
+- **F-01:** Fixed FAQ adapter size claim (~25 → ~65 lines) in README to match actual AGENTS.md (69 lines) and other README references
+- **F-02:** Standardized spec size references to ~56KB across all documentation (README directory tree, ROADMAP ×2, ADR-001). Actual spec: 55,783 bytes ≈ ~56KB
+- **F-03:** Defined "fail" audit verdict path — spec §5 now describes when to use `fail` (fundamental misimplementation, all WIs failed, architectural regression), what happens next (re-plan), and how to communicate it. Updated audit-report and session-log templates to include `fail` option
+- **F-04:** Updated ROADMAP adapter count from "4 hand-maintained adapters" to "2 adapters (universal AGENTS.md + optional .mdc)" reflecting the adapter consolidation
+- **F-05:** Fixed ARCHITECTURE template count from "9 format references" to "11 template files" — was missing conventions.template.md and state.template.json
+- **F-06:** Clarified FULL-KRAMAK-MAPPING CLI-only count methodology — 1 rule (174) is fully CLI-only; rules 15 and 159 are condensed with CLI-only sub-aspects replaced by lightweight alternatives. Updated summary table and coverage text
+- **F-07:** Fixed .gitignore ledger pattern from `*.md` to `*.jsonl` — spec defines ledger format as JSONL, not Markdown
+- **F-08:** Added `ledger/` directory to GETTING-STARTED.md simplified tree
+
 ### 2026-09-29 — Universal Adapter Architecture & Track-by-Default Philosophy
 
 Two commits that fundamentally improved the project's distribution model, terminology, and .gitignore philosophy.

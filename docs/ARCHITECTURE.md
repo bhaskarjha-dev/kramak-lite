@@ -38,7 +38,7 @@ If KRAMAK-LITE.md grows large enough that models demonstrably lose instruction-f
 
 ### What's Correctly Separate
 - **Schemas** (`state.schema.json`, `work-item.schema.json`) — machine-readable validation, not instruction text
-- **Templates** (`templates/`) — 9 format references (session log, batch plan, human tasks, audit report, retrospective, and tiered work items)
+- **Templates** (`templates/`) — 11 template files (session log, batch plan, human tasks, audit report, retrospective, tiered work items ×3, master WI template, project conventions, and state bootstrap)
 - **State** (`state.json`) — runtime data, read/written separately
 - **Work Items** (`work-items/*.md`) — output artifacts created by the model
 - **Inbox** (`inbox/`) — input artifacts written by the user

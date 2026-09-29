@@ -580,8 +580,10 @@ Best done in a fresh session for unbiased review.
 8. **Write retrospective:** Create `.kramak/plans/RETRO-batch-NN.md` using the template at `.kramak/templates/retrospective.md`. Focus on what the NEXT planner should learn from this batch.
 9. **Append to Session Log:** Add an audit entry to `.kramak/SESSION-LOG.md` recording: batch number, model, verdict, fixes applied, strategic concerns, and recommendations for next planner.
 10. **Update state:**
-    - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes), `timestamp`, `fixesApplied`, `strategicConcerns`
-    - Transition to `planning` (next batch) or `complete` (all goals met)
+    - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes / fail), `timestamp`, `fixesApplied`, `strategicConcerns`
+    - **Verdict guide:** `pass` = all WIs verified, no fixes needed. `pass-with-fixes` = issues found and fixed inline. `fail` = fundamental misimplementation, all WIs failed, or architectural regression that cannot be fixed inline — the batch must be re-planned.
+    - If verdict is `fail`: transition to `planning`. Set `nextAction` to `"Batch NN failed audit. Start new session with reasoning model to re-plan and say Start."`. Write the failure rationale to `.kramak/inbox/INBOX.md`.
+    - If verdict is `pass` or `pass-with-fixes`: transition to `planning` (next batch) or `complete` (all goals met)
     - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
     - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
 11. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`

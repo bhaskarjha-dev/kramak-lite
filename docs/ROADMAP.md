@@ -15,9 +15,9 @@ In an exhaustive independent competitive benchmark across 21 process-control too
 |---|:-:|:-:|:-:|---|:-:|
 | **Coding-Agent Fit** | **5/5** | 5/5 | — | Zero wasted surface area on non-coding tasks. Keep as-is. | **5/5** |
 | **Workflow Rigor** | **4/5** | 5/5 (Spec Kit, GSD) | 1 pt | Explore explicit adversarial audit framing and visible drift reconciliation. | **5/5** |
-| **Portability** | **5/5** | 5/5 (Tied) | — | Unmatched zero-runtime-dependency, single-file spec (~55KB). Core asset. | **5/5** |
+| **Portability** | **5/5** | 5/5 (Tied) | — | Unmatched zero-runtime-dependency, single-file spec (~56KB). Core asset. | **5/5** |
 | **Gate Enforcement** | **4/5** | 5/5 (Spec Kitty) | 1 pt | Quantitative gates exist; evaluate optional external git/CI backstops. | **5/5** |
-| **Host/Model Reach** | **4/5** | 5/5 (Spec Kit) | 1 pt | 4 hand-maintained adapters vs. 38+ auto-detected agents via universal standards. | **5/5** |
+| **Host/Model Reach** | **4/5** | 5/5 (Spec Kit) | 1 pt | 2 adapters (universal AGENTS.md + optional .mdc) vs. 38+ auto-detected agents via universal standards. | **5/5** |
 | **Adoption & Maturity** | **1/5** | 5/5 (Superpowers) | 4 pts | Zero public distribution / marketplace packaging. Pure visibility gap. | **2-3/5** |
 | **TOTAL** | **23/30** | **26/30** (Spec Kit) | **-3** | **Close 3 technical points to tie #1 on merit alone (26/30).** | **27/30** |
 
@@ -116,11 +116,10 @@ Early research notes hypothesized a conceptual "6-rung progressive enforcement l
 
 ## 4. Open Decisions & Backlog
 
-1. **License Harmonization:**
-   - *Current:* Root `kramak` uses MIT; `kramak-lite` uses Apache 2.0.
-   - *Decision:* Evaluate whether to harmonize both on MIT (maximum adoption friendliness) or keep Apache 2.0 on Lite (for explicit patent grants).
+1. **License Harmonization:** ✅ Resolved
+   - *Decision:* Both `kramak` and `kramak-lite` now use MIT. Harmonized based on ecosystem research: all direct competitors (Spec Kit, BMAD, Superpowers, GSD Core) use MIT, skills.sh ecosystem favors MIT, and MIT maximizes adoption for future MCP servers and agent plugins.
 2. **Phase Separation vs. Single File:**
-   - *Current:* Single ~55KB file (`KRAMAK-LITE.md`).
+   - *Current:* Single ~56KB file (`KRAMAK-LITE.md`).
    - *Decision:* Maintain the single-file core. With 250K–1M token context windows now standard, the single-file architecture case rests on reliability and simplicity, not token budget. Only split if models demonstrably lose instruction-following accuracy in later sections.
 3. **External Mode Framework-Specific Detection:**
    - *Current:* `external` mode detection relies on "were you spawned with a pre-assigned task?" heuristic.

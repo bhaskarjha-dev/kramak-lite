@@ -9,7 +9,7 @@
 An autonomous development engine for AI coding agents.
 Zero dependencies. Any IDE. Any model.
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Spec Version](https://img.shields.io/badge/Spec-v0.1.0--dev-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
 [![Dependencies: Zero Runtime](https://img.shields.io/badge/Runtime_Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
 [![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
@@ -172,7 +172,7 @@ Determines what kind of work to prioritize. BUILD focuses on architecture and fe
 ```
 your-project/
 ├── .kramak/
-│   ├── KRAMAK-LITE.md              ← The spec (single file, ~55KB)
+│   ├── KRAMAK-LITE.md              ← The spec (single file, ~56KB)
 │   ├── state.json                  ← Current state (auto-created at runtime)
 │   ├── SESSION-LOG.md              ← Cross-session history (created at runtime)
 │   ├── HUMAN-TASKS.md              ← Async human blockers (created at runtime)
@@ -253,7 +253,7 @@ This design means:
 
 **No, if you follow the instructions.** The Quick Start includes explicit "append" commands for each IDE. Never `cp` over an existing config file — always `cat >> ` to append.
 
-The Kramak adapter is a small section (~25 lines) that tells your agent how to find and follow `KRAMAK-LITE.md`. It cooperates with your existing rules — it doesn't replace them.
+The Kramak adapter is a small section (~65 lines) that tells your agent how to find and follow `KRAMAK-LITE.md`. It cooperates with your existing rules — it doesn't replace them.
 
 </details>
 
@@ -314,7 +314,7 @@ For stronger enforcement, use a more capable model or consider upgrading to [ful
 
 ## License
 
-Apache 2.0
+MIT
 
 ## Links
 

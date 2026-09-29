@@ -31,7 +31,7 @@
 !.kramak/work-items/.gitkeep
 .kramak/plans/*.md
 !.kramak/plans/.gitkeep
-.kramak/ledger/*.md
+.kramak/ledger/*.jsonl
 !.kramak/ledger/.gitkeep
 .kramak/inbox/*.md
 !.kramak/inbox/INBOX.md

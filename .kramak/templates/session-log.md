@@ -32,7 +32,7 @@
 <!-- === AUDIT ENTRY TEMPLATE ===
 ### Batch NN — Audit — [YYYY-MM-DD]
 **Model:** [model name]
-**Verdict:** pass / pass-with-fixes
+**Verdict:** pass / pass-with-fixes / fail
 **Fixes applied:** [N] — [brief descriptions]
 **Strategic concerns:** [Concerns forwarded to inbox]
 **Recommendations:** [What the next planner should know]

@@ -13,11 +13,11 @@
 |---|---|---|
 | ✅ Included in Lite | 148 | 84% |
 | ⚡ Included (condensed form) | 25 | 14% |
-| 🔧 CLI-Only (needs programmatic enforcement) | 3 | 2% |
+| 🔧 CLI-Only (needs programmatic enforcement) | 1 | 1% |
 | ⏭️ Excluded (too heavyweight for marginal gain) | 0 | 0% |
 | **Total** | **176** | |
 
-**Effective coverage:** 173 of 176 rules (98%) are included fully or in condensed form. Excluding CLI-only rules that cannot be enforced via markdown, coverage is 173 of 173 enforceable rules (**100%**).
+**Effective coverage:** 173 of 176 rules (98%) are included fully or in condensed form. Excluding the 1 CLI-only rule that cannot be enforced via markdown, coverage is 173 of 175 enforceable rules (**99%**). The remaining 2 rules (15, 159) are condensed but have CLI-only sub-aspects replaced by lightweight alternatives.
 
 ---
 
@@ -345,6 +345,6 @@ Use this to verify "Lite Location" entries below:
 ## Summary by Status
 
 **✅ Fully Included:** 148 rules — the complete operational core including Strategic Vision and Perspective Selection
-**⚡ Condensed:** 25 rules — essence captured with less verbosity (including WAL, capability gate, governance ledger)
-**🔧 CLI-Only:** 3 rules — require programmatic enforcement (Canary Battery CT-1..5 grading, state transition guards, dual-model critique)
+**⚡ Condensed:** 25 rules — essence captured with less verbosity (including WAL, capability gate, governance ledger). Note: Rules 15 and 159 have CLI-only sub-aspects (Canary Battery CT-1..5 grading, dual-model critique) replaced by condensed alternatives in Lite.
+**🔧 CLI-Only:** 1 rule — requires programmatic enforcement (state transition guard matrix, rule 174)
 **⏭️ Excluded:** 0 rules — all enforceable rules are now included

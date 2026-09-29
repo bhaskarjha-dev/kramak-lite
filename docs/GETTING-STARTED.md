@@ -27,6 +27,7 @@ your-project/
 │   ├── schemas/              ← Validation schemas (state & work-item)
 │   ├── work-items/           ← Agent writes Work Items here
 │   ├── inbox/                ← You write goals & direction here (INBOX.md)
+│   ├── ledger/               ← Governance self-modification log
 │   ├── plans/                ← Batch plans and audit reports
 │   └── templates/            ← Template format references
 ├── src/                      ← Your existing code (untouched)

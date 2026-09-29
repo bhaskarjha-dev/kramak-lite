@@ -3,7 +3,7 @@
 > **Date:** [YYYY-MM-DD]
 > **Auditor:** [Model Name / Session ID]
 > **Batch Theme:** [Theme from batch plan]
-> **Verdict:** `pass` | `pass-with-fixes`
+> **Verdict:** `pass` | `pass-with-fixes` | `fail`
 
 ---
 
