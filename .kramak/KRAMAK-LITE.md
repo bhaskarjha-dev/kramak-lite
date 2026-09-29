@@ -52,13 +52,13 @@ Read `.kramak/state.json`. Handle each case:
 Scan the workspace root to populate `state.toolchain`. Identify the ecosystem from manifest files (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), detect the correct package manager from lockfiles (e.g. `pnpm-lock.yaml` → pnpm, `bun.lock` → Bun), and populate `checkCommands` with the project's build, test, and lint commands. For monorepos, detect the orchestrator (`turbo.json`, `pnpm-workspace.yaml`, `nx.json`) and configure workspace-scoped commands. Use your knowledge of each ecosystem's conventions — the goal is accurate detection, not following a rigid checklist.
 
 ### Git Initialization
-If `.git` directory is missing: run `git init`, create `.gitignore` tailored to the detected stack, and make an initial commit (`chore: initial commit`) before proceeding.
+If `.git` directory is missing: run `git init`, create `.gitignore` tailored to the detected stack (include `.kramak/state.json.tmp` — the WAL recovery file is always ephemeral), and make an initial commit (`chore: initial commit`) before proceeding.
 
 ### Project Discovery
 Scan for project docs: README, ROADMAP.md, ARCHITECTURE.md, `docs/`, `.github/`.
 Record discovered paths in `state.projectStructure` so future sessions skip the scan.
 If ROADMAP.md is missing, create one based on README and codebase analysis.
-If no project conventions file exists (e.g. `AGENTS.md`, `CLAUDE.md`, or similar), create one from `.kramak/templates/AGENTS.template.md` — it captures toolchain, directory structure, architecture patterns, and key invariants for agent orientation.
+If no project conventions file exists (e.g. `AGENTS.md`, `CLAUDE.md`, or similar), create one from `.kramak/templates/conventions.template.md` — it captures toolchain, directory structure, architecture patterns, and key invariants for agent orientation.
 
 ### Capability Gate
 
@@ -126,7 +126,7 @@ Regardless of urgency, time pressure, or project type, every planning session MU
 5. ✅ Inbox processed (items moved to "Processed")
 6. ✅ Session Log entry appended to `.kramak/SESSION-LOG.md`
 
-Skipping these steps is not permitted — not for hackathons, not for "quick fixes", not for urgency. Without these artifacts, the pipeline has no state, the executor has no spec, and the next session has no context.
+Skipping these steps is not permitted — not for hackathons, not for "quick fixes", not for urgency. Without these artifacts, the workflow has no state, the executor has no spec, and the next session has no context.
 
 ### 3.1 Strategic Reorientation (Mandatory — Every Planning Session)
 
@@ -140,14 +140,14 @@ Before planning any work, answer these 5 questions:
 
 If any answer changes the plan, adjust before proceeding. Do NOT blindly follow `state.phase` — the phase reflects what the LAST session thought should happen. Context changes between sessions.
 
-> **Blocked Fallback:** If deployment is blocked by human tasks but non-blocked work exists, switch to BUILD phase and continue available work. Record `deploymentBlocked: true` in state. Don't let one blocker stall the entire pipeline.
+> **Blocked Fallback:** If deployment is blocked by human tasks but non-blocked work exists, switch to BUILD phase and continue available work. Record `deploymentBlocked: true` in state. Don't let one blocker stall the entire workflow.
 
 ### 3.2 Orient — Read Before Thinking
 
 Read in this order to prevent anchoring bias:
 
 1. **Project docs** — README, ROADMAP, architecture docs (big picture first — read BEFORE state.json to form an independent assessment)
-2. **Cross-session context** — `.kramak/SESSION-LOG.md` (full pipeline history: planning decisions, execution results, audit findings) and latest `.kramak/plans/RETRO-batch-NN.md` (what the auditor learned from the last batch). These prevent repeating past mistakes and anchoring on a single perspective.
+2. **Cross-session context** — `.kramak/SESSION-LOG.md` (full workflow history: planning decisions, execution results, audit findings) and latest `.kramak/plans/RETRO-batch-NN.md` (what the auditor learned from the last batch). These prevent repeating past mistakes and anchoring on a single perspective.
 3. **Inbox** — `.kramak/inbox/INBOX.md` for user goals, bugs, or direction changes (highest priority input)
    - `bug` -> Create WI only if security or build-blocking; otherwise defer to ITERATE
    - `direction` -> Re-evaluate priorities, restructure roadmap if needed
@@ -272,7 +272,7 @@ The generic template at `.kramak/templates/WORK-ITEM.template.md` serves as a re
 
 **Numbering:** Batch 1 → WI-101, WI-102... Batch 2 → WI-201, WI-202...
 
-> **HARD LIMIT — Planner MUST NOT write source code.** You may directly edit `.kramak/` files, docs, roadmaps, and project documentation. You MUST NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those. Not for urgency, not for hackathons, not for "just this once." If the planner writes code, the executor has nothing to do, the audit has nothing to verify, and the pipeline collapses into unstructured vibe-coding.
+> **HARD LIMIT — Planner MUST NOT write source code.** You may directly edit `.kramak/` files, docs, roadmaps, and project documentation. You MUST NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those. Not for urgency, not for hackathons, not for "just this once." If the planner writes code, the executor has nothing to do, the audit has nothing to verify, and the workflow collapses into unstructured vibe-coding.
 
 > **Collapse ambiguity:** Your job as planner is to collapse ambiguity, not write code. Once ambiguity is collapsed into a clear spec, even a less capable model can execute it. Spend your tokens on WHAT and WHY.
 
@@ -627,7 +627,7 @@ When human action is needed (API keys, billing, business decisions, external app
 1. Record in `.kramak/inbox/` with: WHAT is needed, WHY it blocks, HOW to resolve it
 2. Set `phase: "waiting"` only if ALL remaining work is blocked
 3. If non-blocked WIs exist, skip the blocked item and continue with independent work
-4. Never block the entire pipeline for a single credential or approval
+4. Never block the entire workflow for a single credential or approval
 
 ---
 
@@ -646,7 +646,7 @@ Two WIs may run in parallel **only if ALL conditions are true:**
 
 If any condition is false, the WIs MUST run sequentially within the same group.
 
-> **When in doubt, run sequentially.** Parallel execution is an optimization, not a requirement. A serial pipeline that produces correct results is always better than a parallel pipeline with merge conflicts.
+> **When in doubt, run sequentially.** Parallel execution is an optimization, not a requirement. A serial workflow that produces correct results is always better than a parallel workflow with merge conflicts.
 
 ### 7.2 Dispatch Protocol
 
@@ -732,8 +732,8 @@ Before modifying any `.kramak/` governance file, answer these three questions:
 2. **Does this help ALL types of work?** (Frontend, backend, infra, docs, tests — not just what you are doing now.)
 3. **Could this change hurt a different type of work?** (A frontend-specific rule hurts backend batches.)
 
-> This guard prevents recency-biased pipeline drift — the tendency to add rules that help your current task but harm future ones.
+> This guard prevents recency-biased specification drift — the tendency to add rules that help your current task but harm future ones.
 
-**Governance ledger:** Log every `.kramak/` specification modification to `.kramak/ledger/self-modifications.jsonl` as an append-only entry: `{"timestamp": "ISO", "file": "changed-file", "summary": "what and why", "guard_answers": ["answer1", "answer2", "answer3"]}`. This immutable trail lets future sessions review the evolution of the pipeline and revert harmful self-modifications.
+**Governance ledger:** Log every `.kramak/` specification modification to `.kramak/ledger/self-modifications.jsonl` as an append-only entry: `{"timestamp": "ISO", "file": "changed-file", "summary": "what and why", "guard_answers": ["answer1", "answer2", "answer3"]}`. This immutable trail lets future sessions review the evolution of the specification and revert harmful self-modifications.
 
 **Cooldown rule:** Specification changes proposed during the current session take effect in the **next session**, not immediately. This prevents a single session from both identifying a "problem" and implementing a biased "fix" in the same context window. Exception: typo fixes and broken-link repairs may take effect immediately.

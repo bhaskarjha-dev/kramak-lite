@@ -1,6 +1,6 @@
 # Inbox
 
-> Communication channel between humans and the pipeline.
+> Communication channel between humans and the Kramak workflow.
 > Add items to **Unprocessed** — the planner processes them at the start of each planning session.
 > Processed items are moved to **Processed** with action notes.
 

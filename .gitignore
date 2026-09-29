@@ -1,37 +1,41 @@
 # ═══════════════════════════════════════════════════════
 # Kramak Lite — .gitignore
 # ═══════════════════════════════════════════════════════
-# Covers both the distribution repo and dogfooding scenarios.
-# For user projects adopting Kramak, see docs/GETTING-STARTED.md.
+# This is the DISTRIBUTION REPO — not a user project.
+# Everything here is either source/distribution content
+# or dogfooding artifacts that shouldn't ship.
+#
+# For user projects adopting Kramak, see the guidance
+# in docs/GETTING-STARTED.md — the default recommendation
+# is to TRACK almost everything in .kramak/ for full
+# development continuity and process archaeology.
 # ═══════════════════════════════════════════════════════
 
-# ── Kramak Runtime State ──────────────────────────────
-# Created by the agent during execution. Not shipped.
-.kramak/state.json
+# ── Kramak WAL Recovery ───────────────────────────────
+# The ONLY file that should ALWAYS be ignored, everywhere.
+# This is a Write-Ahead Log temp file used for atomic
+# state updates during crash recovery. It is never valid
+# after recovery completes.
 .kramak/state.json.tmp
 
-# ── Kramak Work Items & Plans ─────────────────────────
-# Agent-generated runtime artifacts. Ignored by default
-# to keep git history clean. Teams wanting full WI/plan
-# traceability can remove these entries.
+# ── Kramak Dogfooding Artifacts ───────────────────────
+# These patterns exist because this is the DISTRIBUTION
+# repo. If someone tests Kramak against this repo itself,
+# the runtime artifacts should not be committed to the
+# distribution. In a real USER project, these should
+# generally be TRACKED (see GETTING-STARTED.md).
+.kramak/state.json
+.kramak/SESSION-LOG.md
+.kramak/HUMAN-TASKS.md
 .kramak/work-items/*.md
 !.kramak/work-items/.gitkeep
 .kramak/plans/*.md
 !.kramak/plans/.gitkeep
-
-# ── Kramak Inbox ──────────────────────────────────────
-# INBOX.md is the user→agent communication channel (tracked).
-# Other inbox files are transient processing artifacts.
+.kramak/ledger/*.md
+!.kramak/ledger/.gitkeep
 .kramak/inbox/*.md
 !.kramak/inbox/INBOX.md
 !.kramak/inbox/.gitkeep
-
-# ── Kramak Cross-Session Artifacts ────────────────────
-# The following are intentionally NOT ignored:
-#   SESSION-LOG.md   — cross-session narrative history
-#   HUMAN-TASKS.md   — human-action blockers with visibility
-#   ledger/*.md      — governance audit trail for spec changes
-# They persist in git for team continuity and auditability.
 
 # ── Temporary Directories ─────────────────────────────
 temp/

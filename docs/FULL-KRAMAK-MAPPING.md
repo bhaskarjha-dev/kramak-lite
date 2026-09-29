@@ -276,7 +276,7 @@ Use this to verify "Lite Location" entries below:
 |---|---|---|---|
 | 122 | Project docs wrong → fix directly | ✅ | §3.10 (Common planning situations) |
 | 123 | AGENTS.md outdated → update directly | ✅ | §3.10 (Common planning situations) |
-| 124 | Pipeline needs improvement → improve with guard | ✅ | §8 (Process Governance) |
+| 124 | Workflow needs improvement → improve with guard | ✅ | §8 (Process Governance) |
 | 125 | New dependency → write a WI | ✅ | §3.10 (Common planning situations) |
 | 126 | Data model change → Guided WIs in order | ✅ | §3.10 (Common planning situations) |
 | 127 | Codebase drifted from docs → update docs | ✅ | §3.10 (Common planning situations) |

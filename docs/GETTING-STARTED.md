@@ -66,7 +66,40 @@ cp /path/to/kramak-lite/adapters/cursor/kramak.mdc .cursor/rules/kramak.mdc
 
 Just use `AGENTS.md` — every modern harness reads it natively. For Cursor, you can optionally also install `kramak.mdc` for higher priority. All adapters point to the same `.kramak/KRAMAK-LITE.md`.
 
-### Step 3: (Optional) Write a Goal
+### Step 3: Configure `.gitignore`
+
+Add one line to your project's `.gitignore`:
+
+```gitignore
+# Kramak WAL recovery file — always ephemeral
+.kramak/state.json.tmp
+```
+
+**That's the only required entry.** Everything else in `.kramak/` — state, work items, plans, session logs, audit reports — is your development process record. Tracking it means:
+- Clone the repo on any machine and resume instantly
+- Team members see what was planned, executed, and audited
+- Code reviewers get the strategic context behind changes
+- Full crash/machine-death recovery via `git clone`
+
+<details>
+<summary><strong>Optional: lighter git footprint</strong></summary>
+
+If you prefer a cleaner git history and don't need full process archaeology, you can also ignore the verbose runtime artifacts:
+
+```gitignore
+# Kramak — lighter footprint (keeps state + session log, ignores WI/plan details)
+.kramak/state.json.tmp
+.kramak/work-items/*.md
+!.kramak/work-items/.gitkeep
+.kramak/plans/*.md
+!.kramak/plans/.gitkeep
+```
+
+> **Note:** Ignoring work items and plans means you lose the detailed planning/execution record. `SESSION-LOG.md` still provides a narrative summary.
+
+</details>
+
+### Step 4: (Optional) Write a Goal
 
 Tell the agent what to build by adding a goal to `.kramak/inbox/INBOX.md`:
 
@@ -83,7 +116,7 @@ Build a REST API for user management with:
 
 If you skip this step, the agent will analyze your existing codebase and plan improvements based on what it finds.
 
-### Step 4: Say **"Start"**
+### Step 5: Say **"Start"**
 
 Open your AI agent and type: **Start**
 

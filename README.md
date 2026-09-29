@@ -186,7 +186,7 @@ your-project/
 │   ├── ledger/                     ← Governance self-modification log
 │   └── templates/                  ← Production templates
 │       ├── state.template.json     ← Initial state bootstrap template
-│       ├── AGENTS.template.md      ← Project conventions template (agent orientation)
+│       ├── conventions.template.md ← Project conventions template (agent orientation)
 │       ├── session-log.md          ← Universal session log template
 │       ├── batch-plan.md           ← Batch plan template
 │       ├── human-tasks.md          ← Human tasks template

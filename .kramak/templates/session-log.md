@@ -1,6 +1,6 @@
 # Session Log
 
-> Chronological record of ALL pipeline sessions (planning, execution, audit).
+> Chronological record of ALL workflow sessions (planning, execution, audit).
 > Each session appends an entry. Any model in any IDE can read this to understand
 > the project's full history without reading individual batch files.
 > Entries are in reverse chronological order (newest first).

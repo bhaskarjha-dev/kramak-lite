@@ -1,7 +1,7 @@
 # Human Tasks
 
 > Tasks that require human action (API keys, account signups, business decisions, external approvals).
-> The pipeline does NOT block on these — it continues with non-dependent work.
+> The workflow does NOT block on these — it continues with non-dependent work.
 > When a task is resolved, move it to Completed and note the resolution.
 
 ---
