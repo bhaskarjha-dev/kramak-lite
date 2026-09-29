@@ -107,6 +107,23 @@ The agent will:
 6. Audit the results with fresh-eyes review
 7. Plan the next batch or mark the project complete
 
+### Multi-Agent / Orchestrated Execution
+
+If your IDE supports subagent spawning (Antigravity, Claude Code Task tool, etc.), Kramak Lite auto-detects this and uses it:
+
+| Mode | What Happens | When It's Used |
+|---|---|---|
+| `manual` | User starts new sessions for each role (Plan → Execute → Audit) | No subagent capability |
+| `orchestrated` | Planner auto-spawns executor and auditor subagents | Harness supports subagent spawning |
+| `parallel` | Multiple executor subagents run simultaneously on non-overlapping WIs | Harness supports parallel agents |
+| `external` | External framework (e.g. Teamwork) owns the lifecycle; Kramak provides governance rules | You're inside an external orchestrator |
+
+**No extra setup needed.** The spec auto-detects your harness capabilities (§1 Execution Mode Detection). The same `.kramak/` directory and adapter works for all modes.
+
+**For Antigravity Teamwork:** The adapter automatically sets `executionMode: "external"`. Kramak provides scope enforcement, verification protocols, and circuit breaker — Teamwork handles dispatch and lifecycle. See the adapter's "Teamwork Integration" section.
+
+**For manual orchestration:** If you want to use `orchestrated` mode but your harness doesn't auto-detect, you can manually set `"executionMode": "orchestrated"` in `state.json` before saying "Start".
+
 ---
 
 ## What to Expect

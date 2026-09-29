@@ -40,9 +40,9 @@
 - **🟢 Outcome (low risk):** [N]
 
 ## Execution Mode
-- **Mode:** [manual / orchestrated / parallel]
+- **Mode:** [manual / orchestrated / parallel / external]
 
-<!-- Only include Parallel Groups if executionMode is orchestrated or parallel -->
+<!-- Only include Parallel Groups if executionMode is orchestrated, parallel, or external -->
 ## Parallel Groups (if applicable)
 - **Group A:** WI-N01, WI-N02 — Key files: `src/auth/`, `src/db/`
 - **Group B:** WI-N03 — Key files: `src/ui/`

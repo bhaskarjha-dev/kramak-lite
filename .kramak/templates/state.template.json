@@ -33,5 +33,10 @@
     "summary": "Pipeline initialized.",
     "model": "",
     "timestamp": ""
+  },
+  "currentBranch": null,
+  "parallelGroups": {},
+  "concurrency": {
+    "budget": 1
   }
 }
