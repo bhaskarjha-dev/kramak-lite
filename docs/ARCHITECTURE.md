@@ -204,6 +204,8 @@ Before the research-driven overhaul (commit `9c6b205`), Kramak worked as a simpl
 - Preserve 100% vendor and host agnosticism across all documentation and specifications.
 
 > For future development priorities, candidate explorations, and ecosystem packaging under evaluation, see [**ROADMAP.md**](ROADMAP.md).
+>
+> For the strategic reasoning behind major architectural decisions (alternatives considered, tradeoffs, what was deliberately NOT done), see [**decisions/**](decisions/README.md).
 
 ---
 

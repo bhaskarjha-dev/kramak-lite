@@ -120,5 +120,20 @@ Early research notes hypothesized a conceptual "6-rung progressive enforcement l
    - *Current:* Root `kramak` uses MIT; `kramak-lite` uses Apache 2.0.
    - *Decision:* Evaluate whether to harmonize both on MIT (maximum adoption friendliness) or keep Apache 2.0 on Lite (for explicit patent grants).
 2. **Phase Separation vs. Single File:**
-   - *Current:* Single ~52KB file (`KRAMAK-LITE.md`).
+   - *Current:* Single ~55KB file (`KRAMAK-LITE.md`).
    - *Decision:* Maintain the single-file core. With 250K–1M token context windows now standard, the single-file architecture case rests on reliability and simplicity, not token budget. Only split if models demonstrably lose instruction-following accuracy in later sections.
+3. **External Mode Framework-Specific Detection:**
+   - *Current:* `external` mode detection relies on "were you spawned with a pre-assigned task?" heuristic.
+   - *Decision:* As more external orchestrators emerge beyond Antigravity Teamwork, evaluate whether framework-specific detection heuristics or adapter annotations are needed.
+4. **Teamwork Blueprint Module:**
+   - *Candidate:* If/when Teamwork supports custom governance hooks, Kramak Lite could be loaded as a standard Teamwork blueprint module rather than just a SKILL.md adapter.
+   - *Prerequisite:* Teamwork blueprint API must be stable and documented.
+5. **§7.5 ALWAYS/HEURISTIC/SKIP Refinement:**
+   - *Current:* The governance library interface in §7.5 classifies rules into ALWAYS apply, USE AS HEURISTICS, and SKIP categories.
+   - *Decision:* Refine these classifications based on real-world usage data from `external` mode deployments. Some "heuristic" rules may prove universally valuable (promote to ALWAYS) or create friction (demote to SKIP).
+6. **Competitive Benchmark Refresh:**
+   - *Current:* Comparison table (docs/COMPARISON.md) scores Kramak Lite at 23/30. The v3.0.0 changes likely improve Workflow Rigor (+1) and Host/Model Reach (+1) to 25/30.
+   - *Decision:* Re-evaluate benchmark scores against updated 2026 competitive landscape, including Antigravity Teamwork integration capabilities.
+7. **Architecture Decision Records:**
+   - *Added:* `docs/decisions/` directory for ADRs capturing strategic reasoning behind architectural changes.
+   - *Maintenance:* Write an ADR for any future decision involving tradeoffs between alternatives. See [ADR index](decisions/README.md).
