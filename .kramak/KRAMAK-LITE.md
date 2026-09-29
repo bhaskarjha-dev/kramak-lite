@@ -42,7 +42,7 @@ Read `.kramak/state.json`. Handle each case:
 | `state.json` exists, `nextAction` present | Read `nextAction` — it tells you exactly what to do. Route by `phase`. |
 | `state.json` exists, no `nextAction` | Read `phase` and route (Section 2). Check `lastSession.summary` for context. |
 | `state.json` missing, code/docs exist | Detect toolchain, scan workspace, create `state.json` with `phase: "planning"`. |
-| `state.json` missing, workspace empty | Create `.kramak/inbox/INBOX.md` from template (`.kramak/templates/inbox.md`). Add note: "Empty workspace. Please describe project." Create `state.json` with `phase: "waiting"`. STOP. |
+| `state.json` missing, workspace empty | Ensure `.kramak/inbox/INBOX.md` exists (it ships with the repo). Add note: "Empty workspace. Please describe project." Create `state.json` with `phase: "waiting"`. STOP. |
 
 > **Empty Workspace Guard:** If `state.phase == "planning"` but the workspace has no source code, no design docs, and INBOX has no unprocessed items — do NOT proceed to planning. Set `phase: "waiting"`, set `nextAction: "Add project description to inbox and say Start."` STOP.
 
@@ -372,11 +372,11 @@ Before transitioning to execution, verify:
 
 | Situation | Action |
 |---|---|
-| First batch ever | `git checkout -b pipeline/batch-01` from main |
+| First batch ever | `git checkout -b kramak/batch-01` from main |
 | Continuing current batch | Stay on current branch |
-| New feature area | `git checkout -b pipeline/batch-NN` from main |
-| Batch reached stable state | Merge to main: `git checkout main && git merge pipeline/batch-NN` |
-| Risky experimental changes | Branch from current: `git checkout -b pipeline/batch-NN-experimental` |
+| New feature area | `git checkout -b kramak/batch-NN` from main |
+| Batch reached stable state | Merge to main: `git checkout main && git merge kramak/batch-NN` |
+| Risky experimental changes | Branch from current: `git checkout -b kramak/batch-NN-experimental` |
 
 ---
 
@@ -663,7 +663,7 @@ If any condition is false, the WIs MUST run sequentially within the same group.
 
 After all parallel groups complete:
 
-1. **Merge** each group's branch into the batch branch: `git merge --no-ff pipeline/batch-NN-group-X`
+1. **Merge** each group's branch into the batch branch: `git merge --no-ff kramak/batch-NN-group-X`
 2. **Resolve conflicts** if any — prefer the later-committed change unless the earlier one is a schema or data model change
 3. **Run full `checkCommands`** on the merged result — the merged codebase must pass all checks
 4. **If merge fails:** Record conflict details in `state.json`, set `phase: "escalated"`, **STOP**
@@ -700,7 +700,7 @@ This section applies when `state.executionMode` is `external` — meaning an ext
 
 **What ALWAYS applies (regardless of mode):**
 - Scope enforcement: Only modify files in `files_targeted` (§4.2)
-- Grounded Verification: LOCATE → QUOTE → VERIFY → DESIGN → CROSS-CHECK (§4.2)
+- Grounded Verification: LOCATE → QUOTE → VERIFY → DESIGN → CROSS-CHECK (§3.7)
 - Verification after changes: Run `checkCommands` (§4.3)
 - Circuit breaker: 3 consecutive failures or oscillation = escalate (§4.5)
 - Session health gates: WI count, file count, error count limits (§4.6)

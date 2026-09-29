@@ -8,7 +8,7 @@
 ## 1. Why Single-File Architecture
 
 ### The Decision
-Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~52KB, ~12,000 tokens at typical Markdown tokenization rates). Data files (schemas, templates, state, work items, batch plans) are separate.
+Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~56KB, ~14,000 tokens at typical Markdown tokenization rates). Data files (schemas, templates, state, work items, batch plans) are separate.
 
 ### The Reasoning
 
@@ -21,24 +21,24 @@ Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~5
 Per-session token loading:
 - **Planning session:** ~54 KB (~13,500 tokens) loaded — PRINCIPLES.md + PLANNER.md
 - **Executing session:** ~31 KB (~7,750 tokens) loaded — PRINCIPLES.md + EXECUTOR.md
-- **Kramak Lite (any session):** ~52 KB (~12,000 tokens) loaded — just KRAMAK-LITE.md
+- **Kramak Lite (any session):** ~56 KB (~14,000 tokens) loaded — just KRAMAK-LITE.md
 
 **Post-research Kramak (current full spec) uses 20 files / 191 KB** with progressive loading via ROUTER.md. This is necessary at 191KB to avoid lost-in-middle attention degradation.
 
-**At ~52KB, single-file is strictly superior because:**
+**At ~56KB, single-file is strictly superior because:**
 
 1. **Fewer failure points.** Multi-file = 3+ `view_file` calls per session. Each can fail, truncate, or be skipped. Single file = 1 call = everything loaded.
 2. **No routing overhead.** Pre-research adapter had a routing table (phase → file). That table itself consumed attention and could be followed incorrectly.
-3. **~12,000 tokens is trivial for modern models.** With context windows at 250K–1M tokens (2026 landscape), ~12,000 tokens of instruction is <5% of even the smallest available context. Single-file loading causes zero attention pressure.
+3. **~14,000 tokens is trivial for modern models.** With context windows at 250K–1M tokens (2026 landscape), ~14,000 tokens of instruction is <5% of even the smallest available context. Single-file loading causes zero attention pressure.
 4. **Section headers ARE routing.** When the model reads `## 4. Execute` and knows `state.phase === "executing"`, it naturally follows that section. No explicit routing needed.
 5. **The "waste" is acceptable.** During execution, the model reads ~18KB of planning/orchestration instructions it doesn't need. The benefit (everything loaded, zero cross-file fragmentation) far outweighs the cost.
 
 ### Splitting Consideration
-If KRAMAK-LITE.md grows large enough that models demonstrably lose instruction-following accuracy in its later sections, splitting becomes necessary. At ~52KB this has not been observed. Given modern context window sizes (250K–1M), the practical splitting threshold is well above 100KB — the single-file argument is about reliability and simplicity, not fitting in a token budget.
+If KRAMAK-LITE.md grows large enough that models demonstrably lose instruction-following accuracy in its later sections, splitting becomes necessary. At ~56KB this has not been observed. Given modern context window sizes (250K–1M), the practical splitting threshold is well above 100KB — the single-file argument is about reliability and simplicity, not fitting in a token budget.
 
 ### What's Correctly Separate
 - **Schemas** (`state.schema.json`, `work-item.schema.json`) — machine-readable validation, not instruction text
-- **Templates** (`templates/`) — 10 format references (session log, inbox, batch plan, human tasks, audit report, retrospective, and tiered work items)
+- **Templates** (`templates/`) — 9 format references (session log, batch plan, human tasks, audit report, retrospective, and tiered work items)
 - **State** (`state.json`) — runtime data, read/written separately
 - **Work Items** (`work-items/*.md`) — output artifacts created by the model
 - **Inbox** (`inbox/`) — input artifacts written by the user
@@ -86,11 +86,14 @@ This works because:
 - **Failure-linked rules** — each rule names the failure it prevents, so the model has intrinsic motivation to follow it
 
 ### Adapter Design Pattern
-Each adapter (SKILL.md, CLAUDE.md, .cursorrules, AGENTS.md):
-1. Uses constitutional framing ("helps you produce higher-quality code")
-2. Lists 5 always-active rules that apply even before "Start" is said
-3. Provides a quick-reference phase table
-4. Points to KRAMAK-LITE.md as the single source of truth
+The universal adapter (`AGENTS.md`) and the optional Cursor variant (`kramak.mdc`):
+1. Use constitutional framing ("helps you produce higher-quality code")
+2. List 6 always-active rules that apply even before "Start" is said
+3. Provide a quick-reference phase table
+4. Point to KRAMAK-LITE.md as the single source of truth
+5. Include external orchestrator integration guidance (scope enforcement, verification, circuit breaker)
+
+`AGENTS.md` is the [universal standard](https://agents.md) — natively read by all major AI coding harnesses (Claude Code, Cursor, Antigravity, Windsurf, Codex, Cline, Roo Code, Devin, GitHub Copilot, Zed, Amp, Warp, and more). The Cursor `.mdc` variant adds YAML frontmatter (`alwaysApply`, `globs`) for richer integration with Cursor's rule hierarchy but is otherwise identical.
 
 ### Known Limitations
 - IDE system prompts are proprietary and change without notice
@@ -164,19 +167,19 @@ Typical execution session:         ~11,500 tokens of instructions
 
 ### Kramak Lite Token Cost Per Session
 ```
-KRAMAK-LITE.md:          ~12,000 tokens (everything, every session)
+KRAMAK-LITE.md:          ~14,000 tokens (everything, every session)
 ```
 
-**Reduction: 15-36% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The early spec was ~7,500 tokens; the current spec is ~13,000 tokens with the addition of Strategic Vision, meta-cognition, unified telemetry, orchestration protocol, and external mode.)
+**Reduction: 7-26% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The early spec was ~7,500 tokens; the current spec is ~14,000 tokens with the addition of Strategic Vision, meta-cognition, unified telemetry, orchestration protocol, and external mode.)
 
 ### Size Context
 - Pre-research planning session: ~13,500 tokens (PLANNER.md + PRINCIPLES.md)
 - Pre-research execution session: ~7,750 tokens (EXECUTOR.md + PRINCIPLES.md)
-- Kramak Lite (any session): ~12,000 tokens — **comparable to the pre-research planner session, provides far more capability**
+- Kramak Lite (any session): ~14,000 tokens — **comparable to the pre-research planner session, provides far more capability**
 
 ### Context Window Fit
 - Modern context windows (2026): 250K–1M tokens
-- Kramak Lite at ~12,000 tokens: <5% of even the smallest modern context
+- Kramak Lite at ~14,000 tokens: <5% of even the smallest modern context
 - **Verdict:** Token budget is a non-issue. The single-file case rests on reliability and simplicity, not on fitting in a tight budget.
 
 ---

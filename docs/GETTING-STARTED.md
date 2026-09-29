@@ -34,48 +34,37 @@ your-project/
 └── ...
 ```
 
-### Step 2: Add Your IDE Adapter
+### Step 2: Add the Adapter
 
-The adapter is a small file (~25-40 lines) that tells your AI agent where to find the Kramak spec. Pick your IDE:
+Copy the universal adapter to your project root:
 
-#### Antigravity IDE
 ```bash
-mkdir -p .agents/skills/kramak/
-cp /path/to/kramak-lite/adapters/antigravity/SKILL.md .agents/skills/kramak/SKILL.md
+cp /path/to/kramak-lite/adapters/AGENTS.md ./AGENTS.md
 ```
-> Installs as a skill. No conflicts with existing skills.
 
-#### Claude Code
-```bash
-# If you DON'T have a CLAUDE.md yet:
-cp /path/to/kramak-lite/adapters/claude-code/CLAUDE.md ./CLAUDE.md
+`AGENTS.md` is the [universal standard](https://agents.md) — it works natively with Claude Code, Cursor, Antigravity, Windsurf, Codex, Cline, Roo Code, Devin, GitHub Copilot, Zed, Amp, Warp, and every other modern AI coding harness.
 
-# If you ALREADY have a CLAUDE.md (don't overwrite!):
-echo "" >> ./CLAUDE.md
-cat /path/to/kramak-lite/adapters/claude-code/CLAUDE.md >> ./CLAUDE.md
-```
-> **Important:** If you have existing rules in CLAUDE.md, always append — never overwrite. Kramak cooperates with your existing rules.
+> **Already have an AGENTS.md?** Append instead of overwriting:
+> ```bash
+> echo "" >> ./AGENTS.md
+> cat /path/to/kramak-lite/adapters/AGENTS.md >> ./AGENTS.md
+> ```
+> Kramak's adapter is ~65 lines that cooperate with your existing rules.
 
-#### Cursor
+#### Cursor Users (Optional Enhancement)
+
+For Cursor-specific metadata (glob targeting, `alwaysApply` priority):
+
 ```bash
 mkdir -p .cursor/rules/
-cp /path/to/kramak-lite/adapters/cursor/.cursorrules .cursor/rules/kramak.mdc
+cp /path/to/kramak-lite/adapters/cursor/kramak.mdc .cursor/rules/kramak.mdc
 ```
-> Cursor loads all `.mdc` files from `.cursor/rules/`. No conflicts.
 
-#### Other IDEs (Windsurf, Cline, Gemini CLI, etc.)
-```bash
-# If you DON'T have an AGENTS.md / GEMINI.md yet:
-cp /path/to/kramak-lite/adapters/generic/AGENTS.md ./AGENTS.md
-
-# If you ALREADY have one (don't overwrite!):
-echo "" >> ./AGENTS.md
-cat /path/to/kramak-lite/adapters/generic/AGENTS.md >> ./AGENTS.md
-```
-> Rename to `GEMINI.md`, `.clinerules`, or whatever your IDE reads.
+> This gives Kramak higher priority in Cursor's rule hierarchy. The universal `AGENTS.md` also works without this step.
 
 #### Using Multiple IDEs?
-Install adapters for all IDEs you use. They're independent files in different locations — all point to the same `.kramak/KRAMAK-LITE.md`.
+
+Just use `AGENTS.md` — every modern harness reads it natively. For Cursor, you can optionally also install `kramak.mdc` for higher priority. All adapters point to the same `.kramak/KRAMAK-LITE.md`.
 
 ### Step 3: (Optional) Write a Goal
 
@@ -120,7 +109,7 @@ If your IDE supports subagent spawning (Antigravity, Claude Code Task tool, etc.
 
 **No extra setup needed.** The spec auto-detects your harness capabilities (§1 Execution Mode Detection). The same `.kramak/` directory and adapter works for all modes.
 
-**For Antigravity Teamwork:** The adapter automatically sets `executionMode: "external"`. Kramak provides scope enforcement, verification protocols, and circuit breaker — Teamwork handles dispatch and lifecycle. See the adapter's "Teamwork Integration" section.
+**For external orchestrators (Antigravity Teamwork, Claude Code Agent Teams, Cursor parallel agents, etc.):** The adapter's "External Orchestrator Integration" section tells Kramak to operate as a governance library — providing scope enforcement, verification, and circuit breaker while the framework handles dispatch and lifecycle.
 
 **For manual orchestration:** If you want to use `orchestrated` mode but your harness doesn't auto-detect, you can manually set `"executionMode": "orchestrated"` in `state.json` before saying "Start".
 

@@ -27,7 +27,7 @@ Each tool was evaluated across six dimensions (1–5 points each, 30 max):
 | 3 | **GSD Core** | 5 | 5 | 3 | 4 | 5 | 3 | **25** | Context-engineering system, fresh subagent loops, mandatory installer |
 | 5 | **Spec Kitty** | 5 | 5 | 2 | 5 | 4 | 3 | **24** | Spec Kit fork, git worktrees, CI drift detector gate |
 | 5 | **Gangsta Agents** | 5 | 4 | 5 | 4 | 4 | 2 | **24** | 6-phase heist framework, contract gate, persistent ledger |
-| **7** | **Kramak-Lite** | **5** | **4** | **5** | **4** | **4** | **1** | **23** | **Single ~52KB markdown spec, 0 runtime deps, orchestration-aware, quantitative gates** |
+| **7** | **Kramak-Lite** | **5** | **4** | **5** | **4** | **4** | **1** | **23** | **Single ~56KB markdown spec, 0 runtime deps, orchestration-aware, quantitative gates** |
 | 7 | **OpenSpec** | 5 | 3 | 3 | 2 | 5 | 5 | **23** | Delta-format specs for brownfield repos, explicitly advisory ("nothing locks") |
 | 7 | **Tessl** | 5 | 4 | 3 | 3 | 4 | 4 | **23** | Commercial platform ($125M raised), spec-as-source code generation |
 | 10 | **MUSUBI** | 5 | 5 | 4 | 5 | 2 | 1 | **22** | 7 agents × 31 skills, 9-article constitution, high rigor, stalled (~57★) |

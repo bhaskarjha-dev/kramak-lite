@@ -5,7 +5,7 @@
 # Force LF for spec and config files
 *.md text eol=lf
 *.json text eol=lf
-.cursorrules text eol=lf
+*.mdc text eol=lf
 
 # Binary assets
 *.png binary

@@ -37,3 +37,15 @@ Deliver these observable results:
 # cargo test && cargo clippy           (Rust)
 # go test ./... && go vet ./...        (Go)
 ```
+
+<!-- The section below is auto-populated by the executor on failure. Do not fill manually. -->
+<!--
+## Failure Diagnosis
+
+- **Category:** [code-drift | verification-fail | scope-exceeded | dependency-missing | ambiguous-spec | tool-error]
+- **What happened:** [root cause explanation]
+- **Error Trajectory:**
+  - Attempt 1: [N] errors - [description]
+  - Attempt 2: [N] errors - [description]
+- **Suggested fix:** [recommend tier elevation if spec was ambiguous]
+-->

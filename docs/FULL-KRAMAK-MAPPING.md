@@ -207,7 +207,7 @@ Use this to verify "Lite Location" entries below:
 
 | # | Rule | Status | Lite Location |
 |---|---|---|---|
-| 80 | First batch: checkout -b pipeline/batch-01 | ⚡ | §3 Branch Management table (after §3.11) |
+| 80 | First batch: checkout -b kramak/batch-01 | ⚡ | §3 Branch Management table (after §3.11) |
 | 81 | Continuing batch: stay on current branch | ✅ | §3 Branch Management table |
 | 82 | New feature area: new branch from main | ⚡ | §3 Branch Management table |
 | 83 | Stable batch merge to main | ⚡ | §3 Branch Management table |

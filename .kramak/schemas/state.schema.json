@@ -147,7 +147,7 @@
         "batchNumber": { "type": "integer" },
         "verdict": {
           "type": "string",
-          "enum": ["pass", "pass-with-fixes"]
+          "enum": ["pass", "pass-with-fixes", "fail"]
         },
         "timestamp": { "type": "string", "format": "date-time" },
         "fixesApplied": { "type": "integer", "minimum": 0 },

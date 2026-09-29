@@ -126,7 +126,7 @@ Early research notes hypothesized a conceptual "6-rung progressive enforcement l
    - *Current:* `external` mode detection relies on "were you spawned with a pre-assigned task?" heuristic.
    - *Decision:* As more external orchestrators emerge beyond Antigravity Teamwork, evaluate whether framework-specific detection heuristics or adapter annotations are needed.
 4. **Teamwork Blueprint Module:**
-   - *Candidate:* If/when Teamwork supports custom governance hooks, Kramak Lite could be loaded as a standard Teamwork blueprint module rather than just a SKILL.md adapter.
+   - *Candidate:* If/when Teamwork supports custom governance hooks, Kramak Lite could be loaded as a standard Teamwork blueprint module rather than just an AGENTS.md adapter.
    - *Prerequisite:* Teamwork blueprint API must be stable and documented.
 5. **§7.5 ALWAYS/HEURISTIC/SKIP Refinement:**
    - *Current:* The governance library interface in §7.5 classifies rules into ALWAYS apply, USE AS HEURISTICS, and SKIP categories.

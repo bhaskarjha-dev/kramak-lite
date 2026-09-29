@@ -1,15 +1,11 @@
----
-description: Autonomous development engine — strategic planning, verified execution, and auditing
-globs: 
-alwaysApply: true
----
-
 # Kramak — Autonomous Development Engine
 
-This project uses Kramak for structured autonomous development. When the user says **"Start"** (or "begin", "continue", "go", "kramak"):
+This project uses Kramak for structured autonomous development.
 
-1. Read `.kramak/KRAMAK-LITE.md` for the full process specification
-2. Read `.kramak/state.json` for current project state
+When the user says **"Start"** (or "begin", "continue", "go", "kramak"):
+
+1. Read `.kramak/KRAMAK-LITE.md` — the complete process specification
+2. Read `.kramak/state.json` — the current project state
 3. Follow the workflow from the section matching `state.phase`
 
 ## Project Authority
@@ -19,9 +15,10 @@ When activated, you have full strategic authority over this project's developmen
 ## Always-Active Rules
 
 When `.kramak/state.json` exists:
-- Only modify files in the active Work Item's `files_targeted`
+
+- Only modify files listed in the active Work Item's `files_targeted`
 - Read actual files before editing — never code from memory
-- Run `toolchain.checkCommands` after changes
+- Run `toolchain.checkCommands` after making changes
 - Update `state.json` after Work Item state transitions
 - Never hardcode API keys or credentials — use environment variables
 - After each WI, check hard stop gates (≥6 WIs, ≥20 files, ≥4 errors, ≥1 failure = fresh session)
@@ -47,4 +44,25 @@ If your harness supports subagent spawning:
 
 If your harness does NOT support subagents, the spec falls back to `manual` mode — tell the user to start a new session for each role transition.
 
-If you are running inside an external orchestrator (e.g., a multi-agent framework that owns task decomposition and dispatch), set `executionMode: "external"`. In this mode, Kramak provides quality governance rules (scope enforcement, verification, circuit breaker) but does NOT own phase transitions. See §7.5 in KRAMAK-LITE.md.
+## External Orchestrator Integration
+
+When loaded inside a multi-agent framework that owns lifecycle and dispatch (e.g., Antigravity Teamwork, Claude Code Agent Teams, Cursor parallel agents, Warp supervisor/worker, Devin parallel instances):
+
+- Set `executionMode: "external"` — the framework owns lifecycle, dispatch, and verification triggers.
+- Kramak operates as a **governance library**, NOT a workflow framework.
+
+**What to apply from Kramak (most frameworks lack this):**
+- Scope enforcement (`files_targeted` per WI) — prevents agents from touching unrelated files
+- Grounded Verification (LOCATE→QUOTE→VERIFY→DESIGN→CROSS-CHECK) — prevents hallucinated code
+- Circuit breaker (3 failures = escalate) — prevents infinite retry loops
+- Session health gates — prevents context fatigue degradation
+- Strategic Intelligence (5-lens vision, perspectives, Goldilocks Rule) — IF assigned a planning-tier role
+- Audit criteria (§5 checklist) — IF assigned a verification-tier role
+
+**What to SKIP (the framework handles this natively):**
+- Phase transitions — framework handles lifecycle
+- Subagent spawning — framework handles dispatch
+- Merge protocol — framework handles branch integration
+- Parallel group management — framework assigns worktrees
+
+See §7.5 in KRAMAK-LITE.md for the full external orchestrator protocol.

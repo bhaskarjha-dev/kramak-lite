@@ -1,25 +1,50 @@
-# Kramak runtime state (created by the agent, NOT shipped in the repo)
+# ═══════════════════════════════════════════════════════
+# Kramak Lite — .gitignore
+# ═══════════════════════════════════════════════════════
+# Covers both the distribution repo and dogfooding scenarios.
+# For user projects adopting Kramak, see docs/GETTING-STARTED.md.
+# ═══════════════════════════════════════════════════════
+
+# ── Kramak Runtime State ──────────────────────────────
+# Created by the agent during execution. Not shipped.
 .kramak/state.json
 .kramak/state.json.tmp
+
+# ── Kramak Work Items & Plans ─────────────────────────
+# Agent-generated runtime artifacts. Ignored by default
+# to keep git history clean. Teams wanting full WI/plan
+# traceability can remove these entries.
 .kramak/work-items/*.md
 !.kramak/work-items/.gitkeep
 .kramak/plans/*.md
 !.kramak/plans/.gitkeep
 
-# Kramak inbox (INBOX.md IS tracked — it's the user→pipeline communication channel)
+# ── Kramak Inbox ──────────────────────────────────────
+# INBOX.md is the user→agent communication channel (tracked).
+# Other inbox files are transient processing artifacts.
 .kramak/inbox/*.md
 !.kramak/inbox/INBOX.md
 !.kramak/inbox/.gitkeep
 
-# Note: SESSION-LOG.md and HUMAN-TASKS.md are intentionally NOT ignored.
-# They are cross-session artifacts that persist in git for continuity.
+# ── Kramak Cross-Session Artifacts ────────────────────
+# The following are intentionally NOT ignored:
+#   SESSION-LOG.md   — cross-session narrative history
+#   HUMAN-TASKS.md   — human-action blockers with visibility
+#   ledger/*.md      — governance audit trail for spec changes
+# They persist in git for team continuity and auditability.
 
-# OS
+# ── Temporary Directories ─────────────────────────────
+temp/
+tmp/
+
+# ── OS ────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+Desktop.ini
 
-# IDE
+# ── IDE / Editor ──────────────────────────────────────
 .idea/
 .vscode/
 *.swp
 *.swo
+*~

@@ -11,7 +11,7 @@ Zero dependencies. Any IDE. Any model.
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 [![Spec Version](https://img.shields.io/badge/Spec-v0.1.0--dev-7C3AED.svg)](.kramak/KRAMAK-LITE.md)
-[![Dependencies: Zero](https://img.shields.io/badge/Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
+[![Dependencies: Zero Runtime](https://img.shields.io/badge/Runtime_Dependencies-Zero-brightgreen.svg)](.kramak/KRAMAK-LITE.md)
 [![Full Kramak](https://img.shields.io/badge/Full_Kramak-Available-lightgrey.svg)](https://github.com/bhaskarjha-dev/kramak)
 
 </div>
@@ -32,7 +32,7 @@ AI coding agents are powerful but unreliable. Without guardrails, they:
 
 **But guardrails alone aren't enough.** An agent that follows rules mechanically is just a task executor. Kramak Lite gives the agent **strategic intelligence** — the ability to think like a CTO, assess the project from multiple perspectives, plan dynamically, and adapt.
 
-Kramak Lite does all this. In one Markdown file (~52KB). With zero runtime dependencies.
+Kramak Lite does all this. In one Markdown file (~56KB). With zero runtime dependencies.
 
 ---
 
@@ -47,67 +47,41 @@ cp -r kramak-lite/.kramak/ your-project/.kramak/
 
 > **Why `.kramak` and not `.kramak-lite`?** The `.kramak` directory is the ecosystem namespace — like `.git` or `.vscode`. The file inside (`KRAMAK-LITE.md`) identifies which version you're running. Upgrading to full Kramak later is seamless: just replace the directory contents. [More in FAQ →](#faq)
 
-### 2. Add your IDE adapter
+### 2. Add the adapter
 
-Pick your IDE and follow the instructions:
-
-<details>
-<summary><strong>🟣 Antigravity IDE</strong></summary>
+Copy the universal adapter to your project root:
 
 ```bash
-mkdir -p .agents/skills/kramak/
-cp kramak-lite/adapters/antigravity/SKILL.md .agents/skills/kramak/SKILL.md
+cp kramak-lite/adapters/AGENTS.md ./AGENTS.md
 ```
 
-This installs Kramak as an Antigravity skill. No conflicts with existing skills.
-
-</details>
+That's it. `AGENTS.md` is the [universal standard](https://agents.md) — it works natively with Claude Code, Cursor, Antigravity, Windsurf, Codex, Cline, Roo Code, Devin, GitHub Copilot, Zed, Amp, Warp, and every other modern AI coding harness.
 
 <details>
-<summary><strong>🟠 Claude Code</strong></summary>
+<summary><strong>Cursor users (optional enhancement)</strong></summary>
 
-**If you don't have a CLAUDE.md yet:**
-```bash
-cp kramak-lite/adapters/claude-code/CLAUDE.md ./CLAUDE.md
-```
-
-**If you already have a CLAUDE.md** (don't overwrite it!):
-```bash
-echo "" >> ./CLAUDE.md
-cat kramak-lite/adapters/claude-code/CLAUDE.md >> ./CLAUDE.md
-```
-
-This appends the Kramak section to your existing rules.
-
-</details>
-
-<details>
-<summary><strong>🔵 Cursor</strong></summary>
+For Cursor-specific metadata (glob targeting, priority over AGENTS.md):
 
 ```bash
 mkdir -p .cursor/rules/
-cp kramak-lite/adapters/cursor/.cursorrules .cursor/rules/kramak.mdc
+cp kramak-lite/adapters/cursor/kramak.mdc .cursor/rules/kramak.mdc
 ```
 
-Cursor loads all `.mdc` files from `.cursor/rules/`. No conflicts with existing rules.
+This gives Kramak higher priority in Cursor's rule hierarchy. The universal `AGENTS.md` also works without this step.
 
 </details>
 
 <details>
-<summary><strong>⚪ Other IDEs</strong> (Windsurf, Cline, Gemini CLI, etc.)</summary>
+<summary><strong>Already have an AGENTS.md?</strong></summary>
 
-**If you don't have an AGENTS.md / GEMINI.md yet:**
-```bash
-cp kramak-lite/adapters/generic/AGENTS.md ./AGENTS.md
-```
+Append instead of overwriting:
 
-**If you already have one** (don't overwrite it!):
 ```bash
 echo "" >> ./AGENTS.md
-cat kramak-lite/adapters/generic/AGENTS.md >> ./AGENTS.md
+cat kramak-lite/adapters/AGENTS.md >> ./AGENTS.md
 ```
 
-Rename to `GEMINI.md`, `.clinerules`, or whatever your IDE reads.
+Kramak's adapter is a small section (~65 lines) that cooperates with your existing rules.
 
 </details>
 
@@ -214,7 +188,6 @@ your-project/
 │       ├── state.template.json     ← Initial state bootstrap template
 │       ├── AGENTS.template.md      ← Project conventions template (agent orientation)
 │       ├── session-log.md          ← Universal session log template
-│       ├── inbox.md                ← Inbox template
 │       ├── batch-plan.md           ← Batch plan template
 │       ├── human-tasks.md          ← Human tasks template
 │       ├── audit-report.md         ← Audit report template
@@ -232,7 +205,7 @@ your-project/
 
 | Aspect | Kramak Lite | Kramak (Full) |
 |---|---|---|
-| **Spec size** | ~55KB (1 file) | ~191KB (20 files) |
+| **Spec size** | ~56KB (1 file) | ~191KB (20 files) |
 | **Rule coverage** | 173 of 173 enforceable rules — 100% (176 total minus 3 CLI-only) | 176 rules (includes CLI-only guards) |
 | **Strategic intelligence** | 5-lens vision + PERCEIVE→REASON→DECIDE + perspectives | Full 5-lens + multi-cycle perspective tracking |
 | **States** | 6 (plan/exec/audit/wait/escalate/complete) | 9 (adds dispatch/merge_queue/bootstrap) |
@@ -287,7 +260,7 @@ The Kramak adapter is a small section (~25 lines) that tells your agent how to f
 <details>
 <summary><strong>Can I use Kramak Lite with multiple IDEs simultaneously?</strong></summary>
 
-Yes. Install adapters for all IDEs you use. They're independent files in different locations (`.agents/skills/` for Antigravity, `CLAUDE.md` for Claude Code, `.cursor/rules/` for Cursor). They all point to the same `.kramak/KRAMAK-LITE.md`.
+Yes. `AGENTS.md` is the [universal standard](https://agents.md) — every modern harness reads it natively. Just copy `AGENTS.md` to your project root once. For Cursor, you can optionally also install `kramak.mdc` in `.cursor/rules/` for higher priority. All adapters point to the same `.kramak/KRAMAK-LITE.md`.
 
 </details>
 
