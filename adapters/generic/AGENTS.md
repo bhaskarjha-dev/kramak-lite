@@ -33,3 +33,13 @@ When `.kramak/state.json` exists:
 | waiting | Human action needed — show what's blocking |
 | escalated | 3+ failures — show diagnosis, stop |
 | complete | All goals met — check inbox for new work |
+
+## Orchestration (v3.0.0)
+
+If your harness supports subagent spawning:
+
+- **Plan → Execute:** Spawn executor subagent(s) with fresh context. Pass `.kramak/KRAMAK-LITE.md`, `state.json`, batch plan, and WI files. See §7.4 for subagent prompts.
+- **Execute → Audit:** Spawn auditor subagent with fresh context. Pass `.kramak/KRAMAK-LITE.md`, `state.json`, batch plan, and audit template.
+- **Parallel WIs:** If `state.parallelGroups` exists, spawn one executor subagent per group. Each gets its own git worktree or branch.
+
+If your harness does NOT support subagents, the spec falls back to `manual` mode — tell the user to start a new session for each role transition.

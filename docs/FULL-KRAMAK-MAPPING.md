@@ -2,7 +2,7 @@
 
 > **Purpose:** Maps every one of full Kramak's 176 rules to its status in Kramak Lite.
 > **Source:** `.kramak/RULES-INVENTORY.md` in the full Kramak repository.
-> **Spec Version:** v2.3.0 — all "Lite Location" references use v2.3.0 section numbering.
+> **Spec Version:** v3.0.0 — all "Lite Location" references use v3.0.0 section numbering.
 > **Use this when:** Auditing Lite coverage, deciding what to add, or evaluating if a full-Kramak feature should be ported.
 
 ---
@@ -21,7 +21,7 @@
 
 ---
 
-## Spec Structure Quick Reference (v2.3.0)
+## Spec Structure Quick Reference (v3.0.0)
 
 Use this to verify "Lite Location" entries below:
 
@@ -53,7 +53,7 @@ Use this to verify "Lite Location" entries below:
 | §4.7 | Execution Complete |
 | §5 | Audit |
 | §6 | Resume Protocol (+ Human Tasks) |
-| §7 | Multi-Agent Dispatch |
+| §7 | Orchestrated & Parallel Execution |
 | §8 | Process Governance |
 
 ---
@@ -330,11 +330,11 @@ Use this to verify "Lite Location" entries below:
 | 166 | Bootstrap Scenario 4 (new with requirements) | ✅ | §1 (init table, row 3) |
 | 167 | Bootstrap Scenario 5 (empty workspace) | ✅ | §1 (init table, row 4) |
 | 168 | Toolchain detection (multi-ecosystem) | ✅ | §1 (Toolchain Detection) |
-| 169 | Monorepo orchestration | ⚡ | §7 (Multi-Agent Dispatch) + §1 (Toolchain Detection: monorepo detection) |
+| 169 | Monorepo orchestration | ⚡ | §7 (Orchestrated & Parallel Execution) + §1 (Toolchain Detection: monorepo detection) |
 | 170 | Git initialization | ✅ | §1 (Git Initialization) |
 | 171 | Crash & WAL recovery | ⚡ | §4.1 (State Reconciliation) + §4.1 (Atomic state writes callout: .tmp write-then-rename) |
-| 172 | Dispatch budget = 1 (sequential) | ✅ | Default behavior (§7 Multi-Agent Dispatch is optional) |
-| 173 | Dispatch budget > 1 (parallel) | ✅ | §7 (Multi-Agent Dispatch) |
+| 172 | Dispatch budget = 1 (sequential) | ✅ | Default behavior (§7 is for orchestrated/parallel mode; manual mode is sequential by default) |
+| 173 | Dispatch budget > 1 (parallel) | ✅ | §7 (Orchestrated & Parallel Execution: §7.1–§7.4) |
 | 174 | State transition guard matrix | 🔧 | CLI-only: formal precondition enforcement |
 | 175 | Resume drift check | ✅ | §6 (Resume drift check callout) |
 | 176 | Evidence language precision | ⚡ | Implicit: Lite doesn't cite research papers directly |

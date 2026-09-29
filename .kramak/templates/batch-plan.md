@@ -38,3 +38,12 @@
 - **🔴 Guided (critical risk):** [N]
 - **🟡 Directed (medium risk):** [N]
 - **🟢 Outcome (low risk):** [N]
+
+## Execution Mode
+- **Mode:** [manual / orchestrated / parallel]
+
+<!-- Only include Parallel Groups if executionMode is orchestrated or parallel -->
+## Parallel Groups (if applicable)
+- **Group A:** WI-N01, WI-N02 — Key files: `src/auth/`, `src/db/`
+- **Group B:** WI-N03 — Key files: `src/ui/`
+- **Safety check:** No file overlap between groups ✅

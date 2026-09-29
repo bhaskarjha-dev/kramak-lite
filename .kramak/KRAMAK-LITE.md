@@ -1,6 +1,6 @@
 # Kramak Lite — Autonomous Development Engine
 
-> **Version:** 2.3.0
+> **Version:** 3.0.0
 > **Activate:** When the user says **"Start"** (or "begin", "continue", "go", "kramak").
 
 ## Your Role in This Project
@@ -74,6 +74,20 @@ Before proceeding, verify your fitness for this session's phase:
 
 If you are an expensive reasoning model entering an execution phase: recommend a fast/precise model for execution. Reasoning tokens are valuable for planning, not for mechanical code editing.
 
+### Execution Mode Detection
+
+Determine how role transitions (Plan → Execute → Audit) will be managed based on your environment's capabilities:
+
+| Capability | How to Detect | Execution Mode |
+|---|---|---|
+| You can spawn subagents with isolated context windows | Harness provides subagent/task delegation tools | `orchestrated` |
+| Multiple agent threads can run independently | Harness supports parallel agent sessions | `parallel` |
+| Single agent, no subagent spawning | No delegation capability available | `manual` |
+
+Record `state.executionMode`. Default is `manual` — identical to v2.x behavior. If uncertain, use `manual`.
+
+In `orchestrated` or `parallel` mode, role transitions happen via subagent spawning instead of manual session switching. The process model (Plan → Execute → Audit) is identical — only the delivery mechanism changes. Each subagent gets a fresh context window, which naturally enforces the role separation that manual sessions provided in v2.x.
+
 Create `state.json` by copying `.kramak/templates/state.template.json` and populating it with the detected toolchain and discovered project structure paths.
 
 > **`nextAction`** is the most important cross-session field. It tells the next model exactly what to do. Update it at the end of EVERY session.
@@ -91,9 +105,9 @@ Create `state.json` by copying `.kramak/templates/state.template.json` and popul
 | `escalated` | 3+ consecutive failures. Show diagnosis. STOP. | — |
 | `complete` | Check `inbox/` for new goals. If empty, confirm completion. STOP. | — |
 
-> **One role per session.** Each session you are ONE role: **Planner**, **Executor**, or **Auditor**. Read only your phase’s section. When your work is done, commit state, recommend the right model for the next phase, and **STOP**. The user starts a fresh session for the next phase.
+> **One role per agent.** Each agent instance is ONE role: **Planner**, **Executor**, or **Auditor**. Read only your phase’s section. In `manual` mode, each role runs in a separate human-initiated session. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context. Either way: one agent = one role = clean context.
 >
-> **Model guidance:** Planning needs a strong reasoning model. Execution needs a fast, precise model. Auditing needs at least the execution model’s capability. Tell the user which to use at the end of every session.
+> **Model guidance:** Planning needs a strong reasoning model. Execution needs a fast, precise model. Auditing needs at least the execution model’s capability. Communicate model requirements at every role transition — whether to the user (`manual`) or via model selection in the subagent spawn (`orchestrated`/`parallel`).
 
 ---
 
@@ -290,6 +304,7 @@ Match specification detail to risk. Over-specifying degrades model performance. 
 - **Build order within a story:** Schema/data model (Guided) → backend logic (Directed) → frontend UI (Directed/Outcome) → integration wiring (Directed) → polish (Outcome)
 - **Consider alternatives:** For medium/high-risk work, evaluate at least 2 approaches and document the chosen one with rationale in the WI Intent. For architectural decisions, consider 3.
 - **Confidence calibration:** Rate your confidence per WI: High (proceed), Medium (verify assumptions first), Low (research and flag risk explicitly)
+- **Parallel groups** (when `executionMode` is `orchestrated` or `parallel`): Assign each WI a `parallel_group` label (e.g., `"A"`, `"B"`). WIs in different groups have non-overlapping `files_targeted` and no mutual `depends_on` — they can run simultaneously. WIs in the same group share files or dependencies and must run sequentially within the group. Record groups in the batch plan and in each WI's YAML frontmatter.
 
 ### 3.9 Write Batch Plan
 
@@ -318,17 +333,31 @@ Before transitioning to execution, verify:
 3. **Append to Session Log:** Add a planning entry to `.kramak/SESSION-LOG.md` (create from template `.kramak/templates/session-log.md` if missing) recording: batch number, model, perspective taken, reasoning, key decisions, WIs created, and risks identified.
 4. **Update `state.json`:**
    - Set `phase: "executing"`, populate `queue` with WI IDs, set `batchNumber`
-   - Set `nextAction: "Start new session with fast/precise model (Sonnet, Flash, GPT-4o) and say Start."`
+   - Set `nextAction` (see mode-specific step 6 below)
    - Set `lastSession.perspective`, `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
    - Append perspective name to `perspectiveHistory` (trim to last 5)
    - Set `currentBranch` to the active git branch
+   - If parallel groups were assigned, set `parallelGroups` mapping group IDs to WI ID arrays
 5. Commit planning artifacts:
    Stage all planning artifacts: `git add .kramak/` (and any docs/roadmaps edited directly), then `git commit -m "plan(batch-NN): [theme]"`
-6. **End the session.** Tell the user:
-   > "✅ Planning complete for Batch NN. [N] Work Items queued. Start a new session for execution — a fast, precise model (e.g. Claude Sonnet, GPT-4o, Gemini Flash) is ideal. Execution is mechanical spec-following, not strategic reasoning."
-7. **STOP.** Do not proceed to execution in the planning session. Planning and execution are separate cognitive modes — a fresh context window prevents planning fatigue from contaminating execution quality.
+6. **Transition to execution by mode:**
 
-> **Exception:** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY — the exception is about session boundaries, not planning rigor. You must still create state.json, WI files, batch plan, and planning log before writing any code.
+   **`manual` mode:**
+   - Set `nextAction: "Start new session with fast/precise model (Sonnet, Flash, GPT-4o) and say Start."`
+   - Tell the user:
+     > "✅ Planning complete for Batch NN. [N] Work Items queued. Start a new session for execution — a fast, precise model (e.g. Claude Sonnet, GPT-4o, Gemini Flash) is ideal."
+   - **STOP.** Planning and execution are separate cognitive modes — a fresh context window prevents planning fatigue from contaminating execution quality.
+
+   **`orchestrated` mode:**
+   - Set `nextAction: "Executor subagent(s) spawned. Await completion."`
+   - Spawn executor subagent(s) using the Executor Subagent Prompt (§7.4). If `parallelGroups` exist, spawn one subagent per group — each gets its own git worktree or branch and its group's WI slice.
+   - After all executor subagents return, read their results (completed/failed WIs). Update `state.json` with their reported completions and failures.
+   - Proceed to spawn auditor subagent using the Auditor Subagent Prompt (§7.4). After auditor returns, update state with audit results.
+   - Set final `nextAction: "Batch NN cycle complete. Start new session for next planning batch."` and **STOP.**
+
+   **`parallel` mode:** Same as `orchestrated`, using the harness's parallel agent mechanism instead of subagent spawning.
+
+> **Exception (manual mode only):** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY. In `orchestrated`/`parallel` mode, always use subagents — context isolation is the mechanism that preserves role separation.
 
 ### Branch Management
 
@@ -500,15 +529,24 @@ When the queue is empty (all WIs completed or failed):
 
 1. Update `state.json`:
    - Set `phase: "auditing"`
-   - Set `nextAction: "Start new session with same+ model for audit and say Start."`
+   - Set `nextAction` (see mode-specific step 4 below)
    - Set `lastSession.summary` to a brief description of what was accomplished
    - Set `lastSession.model` to your model name
    - Set `lastSession.timestamp`
 2. **Append to Session Log:** Add an execution entry to `.kramak/SESSION-LOG.md` (create from template `.kramak/templates/session-log.md` if missing) recording: batch number, model, WIs completed, WIs failed (with categories and brief reasons), key issues encountered, and session gates triggered.
 3. Commit: `git add .kramak/; git commit -m "exec(batch-NN): [N] completed, [N] failed"`
-4. Tell the user:
-   > "✅ Execution complete for Batch NN. [N] WIs completed, [N] failed. Start a new session for audit — use a model at least as capable as me. The auditor needs to run tests, verify diffs, and detect strategic concerns."
-5. **STOP.** Audit must happen in a fresh session for unbiased review. The executor cannot objectively audit its own work.
+4. **Transition to audit by mode:**
+
+   **`manual` mode:**
+   - Set `nextAction: "Start new session with same+ model for audit and say Start."`
+   - Tell the user:
+     > "✅ Execution complete for Batch NN. [N] WIs completed, [N] failed. Start a new session for audit — use a model at least as capable as me."
+   - **STOP.** Audit must happen in a fresh context for unbiased review.
+
+   **`orchestrated`/`parallel` mode:**
+   - Set `nextAction: "Returning results to orchestrator for audit phase."`
+   - Return your results (completed WIs, failed WIs, session log entry) to the parent agent. The parent spawns the auditor subagent — you do NOT spawn it yourself.
+   - **STOP.** Your role as executor is complete.
 
 ---
 
@@ -533,12 +571,19 @@ Best done in a fresh session for unbiased review.
     - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
     - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
 11. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
-12. **End the session.** Tell the user:
+12. **Transition by mode:**
+
+    **`manual` mode:**
     - If next phase is `planning`:
       > "✅ Audit complete for Batch NN. Verdict: [pass/pass-with-fixes]. Start a new session for the next planning batch — a reasoning model (e.g. Claude Opus, o1, Gemini Pro) is ideal for strategic planning."
     - If next phase is `complete`:
       > "✅ All project goals are met. The project is complete. To continue development, add new goals to `.kramak/inbox/` and say Start."
-13. **STOP.**
+    - **STOP.**
+
+    **`orchestrated`/`parallel` mode:**
+    - Return your audit results (verdict, fixes applied, strategic concerns) to the parent agent.
+    - The parent reads the audit results, updates final state, and **STOP**s — telling the user to say "Start" for the next batch.
+    - **STOP.** Your role as auditor is complete.
 
 ---
 
@@ -567,15 +612,68 @@ When human action is needed (API keys, billing, business decisions, external app
 
 ---
 
-## 7. Multi-Agent Dispatch (Optional)
+## 7. Orchestrated & Parallel Execution
 
-If your environment supports parallel execution (subagents, worktrees, multiple terminals):
+This section governs execution when `state.executionMode` is `orchestrated` or `parallel`. In `manual` mode, skip this section entirely — role transitions are handled by the user starting new sessions.
 
-1. Group WIs by file-independence — ensure `files_targeted` sets do not overlap
-2. Set `state.concurrency.budget` greater than 1
-3. Each agent gets an independent slice of the queue
-4. Use `git worktree` or isolated branches for true parallel execution
-5. After all shards complete, merge results and run unified audit
+### 7.1 Parallel Dispatch Safety Invariants
+
+Two WIs may run in parallel **only if ALL conditions are true:**
+
+1. Their `files_targeted` sets have **zero intersection**
+2. Neither has a `depends_on` referencing the other
+3. They do not share schema, migration, or data model dependencies
+4. They belong to **different** `parallel_group` values (assigned during planning, §3.8)
+
+If any condition is false, the WIs MUST run sequentially within the same group.
+
+> **When in doubt, run sequentially.** Parallel execution is an optimization, not a requirement. A serial pipeline that produces correct results is always better than a parallel pipeline with merge conflicts.
+
+### 7.2 Dispatch Protocol
+
+| Step | Action |
+|---|---|
+| 1 | Read `state.parallelGroups` for group assignments |
+| 2 | For each group, create an isolated workspace: `git worktree add` or a dedicated branch |
+| 3 | Spawn one executor subagent per group, each with its own workspace |
+| 4 | Each subagent receives: its group's WI IDs, the batch plan, and `KRAMAK-LITE.md` |
+| 5 | Each subagent follows §4 for its WI slice — all execution rules apply per-subagent |
+| 6 | Hard stop gates (§4.6) apply **per subagent**, not globally |
+
+### 7.3 Merge & Verify
+
+After all parallel groups complete:
+
+1. **Merge** each group's branch into the batch branch: `git merge --no-ff pipeline/batch-NN-group-X`
+2. **Resolve conflicts** if any — prefer the later-committed change unless the earlier one is a schema or data model change
+3. **Run full `checkCommands`** on the merged result — the merged codebase must pass all checks
+4. **If merge fails:** Record conflict details in `state.json`, set `phase: "escalated"`, **STOP**
+5. **If merge passes:** Proceed to audit (§5)
+
+### 7.4 Subagent Role Prompts
+
+When spawning a subagent for a specific role, pass these minimal instructions along with the paths to `KRAMAK-LITE.md` and `state.json`:
+
+**Executor Subagent Prompt:**
+> You are the Executor for Kramak batch [NN], group [X].
+> Read `.kramak/KRAMAK-LITE.md` §4 for your execution rules.
+> Read `.kramak/state.json` for the WI queue.
+> Read the batch plan (`.kramak/plans/PLAN-batch-NN.md`) for strategic context.
+> Execute WIs [list] following §4 rules strictly.
+> Do NOT read §3 (planning) — you are not the Planner.
+> Do NOT perform strategic analysis — focus on mechanical, precise execution.
+> When your queue slice is empty, commit state and report your results (completed/failed WIs).
+
+**Auditor Subagent Prompt:**
+> You are the Auditor for Kramak batch [NN].
+> Read `.kramak/KRAMAK-LITE.md` §5 for your audit rules.
+> Read `.kramak/state.json` for completed and failed WIs.
+> Read the batch plan for strategic intent verification.
+> You did NOT write this code — audit with adversarial skepticism.
+> Run all verification commands. Review actual diffs against WI acceptance criteria.
+> Write audit report and retrospective. Commit state and report your results (verdict, fixes, concerns).
+
+> **Prompt isolation is critical.** Each subagent prompt deliberately excludes other roles' sections. This is the automated equivalent of "start a fresh session" — the subagent cannot be influenced by the spawning agent's planning context, which naturally prevents cognitive contamination.
 
 ---
 

@@ -4,6 +4,31 @@ All notable changes to Kramak Lite are documented here.
 
 > **Note:** The v2.x releases (2.0.0 through 2.3.0) represent iterative development stages during a focused sprint on 2026-08-29. Each version captures a distinct capability milestone (autonomous engine → non-negotiable planning → strategic vision → unified telemetry).
 
+## [3.0.0] - 2026-09-29
+
+### Added — Governance Protocol Evolution (Manual / Orchestrated / Parallel)
+
+This release evolves Kramak Lite from a session-level playbook into a governance protocol that both humans and orchestrators consume. All changes are backward-compatible — default mode is `manual`, identical to v2.x behavior. Zero runtime dependencies added.
+
+- **Execution Mode Detection (§1)** — New `state.executionMode` field (`manual` | `orchestrated` | `parallel`). The spec auto-detects harness capabilities and records how role transitions will be managed.
+- **Mode-Aware Role Transitions (§3.11, §4.7, §5)** — Every handoff point (Plan → Execute → Audit → next batch) now branches by execution mode. In `manual` mode, the user starts new sessions. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context.
+- **Parallel Dispatch Protocol (§7)** — Expanded from 5 vestigial lines to a full protocol: safety invariants (file-independence, dependency checks), dispatch protocol, merge & verify, and compact subagent role prompts.
+- **Subagent Role Prompts (§7.4)** — Executor and Auditor subagent prompts with deliberate section exclusion for cognitive isolation.
+- **Parallel Groups in Planning (§3.8)** — Planner annotates WIs with `parallel_group` labels; WIs in different groups can run simultaneously.
+- **State Schema** — Added `executionMode`, `parallelGroups` fields. Updated `nextAction` description.
+- **Work Item Schema** — Added `parallel_group` field.
+- **All 4 Adapters** — Added Orchestration hints section with subagent spawning instructions.
+- **Batch Plan Template** — Added Execution Mode and Parallel Groups sections.
+
+### Changed
+- **§2 Core Invariant** — "One role per session" → "One role per agent" — role separation is now enforced by context isolation (manual sessions OR subagent spawning), not just session boundaries.
+- **§7 Section Title** — "Multi-Agent Dispatch (Optional)" → "Orchestrated & Parallel Execution" — reflects the expanded scope and formalized protocol.
+
+### Design Decisions
+- **No runtime code.** The spec remains pure Markdown + JSON schemas. Zero dependencies. This is a governance protocol, not an orchestration framework.
+- **Backward-compatible default.** `executionMode: "manual"` is the default. Existing v2.x workflows are unchanged.
+- **"When in doubt, run sequentially."** Parallel execution is an optimization, not a requirement. The safety invariant (zero file overlap) is strict by design.
+
 ## [2.3.0] - 2026-08-29
 
 ### Added — Unified Cross-Session Telemetry & Inbox Template
@@ -178,6 +203,7 @@ This release restores the full autonomous engine from the pre-research Kramak an
 
 ---
 
+[3.0.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.3.0...v3.0.0
 [2.3.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.2.0...v2.3.0
 [2.2.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.1.0...v2.2.0
 [2.1.0]: https://github.com/bhaskarjha-dev/kramak-lite/compare/v2.0.0...v2.1.0

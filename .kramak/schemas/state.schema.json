@@ -11,9 +11,15 @@
       "enum": ["planning", "executing", "auditing", "waiting", "escalated", "complete"],
       "description": "Current lifecycle phase."
     },
+    "executionMode": {
+      "type": "string",
+      "enum": ["manual", "orchestrated", "parallel"],
+      "default": "manual",
+      "description": "How role transitions are managed. manual: user starts new sessions. orchestrated: agent spawns subagents. parallel: harness dispatches to parallel agent threads."
+    },
     "nextAction": {
       "type": "string",
-      "description": "Human-readable instruction for the next session. The most important cross-session field — tells the next model exactly what to do."
+      "description": "Instruction for the next agent (or user). The most important cross-session field — tells the next model exactly what to do."
     },
     "productPhase": {
       "type": "string",
@@ -161,6 +167,14 @@
       },
       "description": "Diagnosis when circuit breaker trips."
     },
+    "parallelGroups": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "description": "Maps parallel group IDs to arrays of WI IDs. Groups with non-overlapping files_targeted can run simultaneously. Only populated when executionMode is orchestrated or parallel."
+    },
     "concurrency": {
       "type": "object",
       "properties": {
@@ -168,7 +182,7 @@
           "type": "integer",
           "minimum": 1,
           "default": 1,
-          "description": "Number of parallel agents. Default 1 (sequential)."
+          "description": "Number of parallel agents. Default 1 (sequential). Set >1 when parallelGroups are assigned."
         }
       },
       "description": "Multi-agent dispatch configuration."

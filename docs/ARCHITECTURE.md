@@ -8,7 +8,7 @@
 ## 1. Why Single-File Architecture
 
 ### The Decision
-Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~45KB, ~10,000 tokens at typical Markdown tokenization rates). Data files (schemas, templates, state, work items, batch plans) are separate.
+Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~52KB, ~12,000 tokens at typical Markdown tokenization rates). Data files (schemas, templates, state, work items, batch plans) are separate.
 
 ### The Reasoning
 
@@ -21,20 +21,20 @@ Kramak Lite puts all process instructions in a single file (`KRAMAK-LITE.md`, ~4
 Per-session token loading:
 - **Planning session:** ~54 KB (~13,500 tokens) loaded — PRINCIPLES.md + PLANNER.md
 - **Executing session:** ~31 KB (~7,750 tokens) loaded — PRINCIPLES.md + EXECUTOR.md
-- **Kramak Lite (any session):** ~45 KB (~10,000 tokens) loaded — just KRAMAK-LITE.md
+- **Kramak Lite (any session):** ~52 KB (~12,000 tokens) loaded — just KRAMAK-LITE.md
 
 **Post-research Kramak (current full spec) uses 20 files / 191 KB** with progressive loading via ROUTER.md. This is necessary at 191KB to avoid lost-in-middle attention degradation.
 
-**At 45 KB, single-file is strictly superior because:**
+**At ~52KB, single-file is strictly superior because:**
 
 1. **Fewer failure points.** Multi-file = 3+ `view_file` calls per session. Each can fail, truncate, or be skipped. Single file = 1 call = everything loaded.
 2. **No routing overhead.** Pre-research adapter had a routing table (phase → file). That table itself consumed attention and could be followed incorrectly.
-3. **10,000 tokens is in the sweet spot.** "Lost in the middle" kicks in at ~40-50% context utilization. At 10,000 tokens in a 128K context, we're at ~7.8% — deep in the high-attention primacy zone. And smaller than what the pre-research version loaded for planning (54KB).
+3. **~12,000 tokens is trivial for modern models.** With context windows at 250K–1M tokens (2026 landscape), ~12,000 tokens of instruction is <5% of even the smallest available context. Single-file loading causes zero attention pressure.
 4. **Section headers ARE routing.** When the model reads `## 4. Execute` and knows `state.phase === "executing"`, it naturally follows that section. No explicit routing needed.
-5. **The "waste" is acceptable.** During execution, the model reads ~15KB of planning instructions it doesn't need. That's ~3,700 extra tokens — under 3% of a 128K context window. The benefit (everything loaded, zero cross-file fragmentation) far outweighs the cost.
+5. **The "waste" is acceptable.** During execution, the model reads ~18KB of planning/orchestration instructions it doesn't need. The benefit (everything loaded, zero cross-file fragmentation) far outweighs the cost.
 
-### The Threshold
-If KRAMAK-LITE.md grows past ~60KB (~15,000 tokens), splitting becomes necessary. At ~45KB, it encapsulates 100% of enforceable rules within the primary attention zone.
+### Splitting Consideration
+If KRAMAK-LITE.md grows large enough that models demonstrably lose instruction-following accuracy in its later sections, splitting becomes necessary. At ~52KB this has not been observed. Given modern context window sizes (250K–1M), the practical splitting threshold is well above 100KB — the single-file argument is about reliability and simplicity, not fitting in a token budget.
 
 ### What's Correctly Separate
 - **Schemas** (`state.schema.json`, `work-item.schema.json`) — machine-readable validation, not instruction text
@@ -164,21 +164,20 @@ Typical execution session:         ~11,500 tokens of instructions
 
 ### Kramak Lite Token Cost Per Session
 ```
-KRAMAK-LITE.md:          ~10,000 tokens (everything, every session)
+KRAMAK-LITE.md:          ~12,000 tokens (everything, every session)
 ```
 
-**Reduction: 15-47% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The v2.0.0 spec was ~7,500 tokens; v2.3.0 grew to ~10,000 tokens with the addition of Strategic Vision, meta-cognition, and unified telemetry.)
+**Reduction: 15-36% fewer instruction tokens per session** while providing MORE strategic intelligence than the pre-research version. (The v2.0.0 spec was ~7,500 tokens; v3.0.0 grew to ~12,000 tokens with the addition of Strategic Vision, meta-cognition, unified telemetry, and orchestration protocol.)
 
 ### Size Context
 - Pre-research planning session: ~13,500 tokens (PLANNER.md + PRINCIPLES.md)
 - Pre-research execution session: ~7,750 tokens (EXECUTOR.md + PRINCIPLES.md)
-- Kramak Lite (any session): ~10,000 tokens — **smaller than the pre-research planner session, comparable to its executor session**
+- Kramak Lite (any session): ~12,000 tokens — **comparable to the pre-research planner session, provides far more capability**
 
-### Safe Threshold
-- Modern context windows: 128K-1M tokens
-- "Lost in the middle" threshold: ~40-50% utilization
-- Kramak Lite at ~10,000 tokens: 7.8% of 128K, 1.0% of 1M
-- **Verdict:** Well within the high-attention zone for any model
+### Context Window Fit
+- Modern context windows (2026): 250K–1M tokens
+- Kramak Lite at ~12,000 tokens: <5% of even the smallest modern context
+- **Verdict:** Token budget is a non-issue. The single-file case rests on reliability and simplicity, not on fitting in a tight budget.
 
 ---
 
@@ -199,10 +198,46 @@ Before the research-driven overhaul (commit `9c6b205`), Kramak worked as a simpl
 ---
 
 ### Core Spec Maintenance Invariants
-- If the spec grows past ~60KB (~15,000 tokens), consider splitting into phase-specific modules (`PLANNER-LITE.md`, `EXECUTOR-LITE.md`).
-- Keep the single-file architecture as long as it stays under the primary attention threshold.
+- Keep the single-file architecture. Splitting is a last resort triggered only by demonstrable instruction-following degradation, not by arbitrary size thresholds.
 - Maintain the ~60% autonomy engine / ~40% guardrails structural balance.
 - Monitor IDE system prompt changes and update adapters accordingly to preserve constitutional framing.
 - Preserve 100% vendor and host agnosticism across all documentation and specifications.
 
 > For future development priorities, candidate explorations, and ecosystem packaging under evaluation, see [**ROADMAP.md**](ROADMAP.md).
+
+---
+
+## 6. Governance Protocol Layer (v3.0.0)
+
+### The Decision
+Kramak Lite evolves from a "session-level playbook" to a "governance protocol that orchestrators consume." The spec now supports three execution modes (`manual`, `orchestrated`, `parallel`) while remaining a pure Markdown + JSON schema specification with zero runtime dependencies.
+
+### The Reasoning
+
+**The 2026 AI coding landscape shifted.** Multi-agent orchestrators (Antigravity subagents, Claude Code Task tool, Cursor Background Agents, agentic harnesses) became the dominant execution pattern. Kramak Lite's v2.x design assumed manual session switching — a human-in-the-loop mechanism that these harnesses automate natively.
+
+**The strategic analysis revealed a critical distinction:**
+
+| Layer | Who Owns It | What It Does |
+|---|---|---|
+| **Governance Protocol** | Kramak Lite | Roles, phase state machine, scope enforcement, circuit breaker, strategic planning |
+| **Orchestration Mechanism** | Harness/IDE | Subagent spawning, parallel dispatch, session management, model selection |
+
+Kramak Lite was trying to own both layers in v2.x (via manual session instructions). In v3.0.0, it cleanly owns only the governance layer and provides hooks for orchestrators to consume.
+
+### Key Design Decisions
+
+1. **No runtime code.** The moment Kramak ships orchestration scripts, it loses its #1 competitive advantage (zero dependencies, any IDE, any model). The spec describes WHAT to do; adapters and harnesses decide HOW.
+
+2. **Backward-compatible default.** `executionMode: "manual"` is the default. Existing v2.x workflows are completely unchanged. Users who don't use orchestrators see no difference.
+
+3. **Subagent prompts in the spec, not in adapters.** The Executor/Auditor subagent prompts (§7.4) are in the spec because they encode role-specific governance rules (which sections to read, cognitive isolation requirements). Adapters just explain the spawning mechanism.
+
+4. **"When in doubt, run sequentially."** The parallel dispatch safety invariant is strict by design. Merge conflicts from parallel execution would negate the productivity gains. The invariant (zero file overlap, no mutual dependencies) guarantees conflict-free merges.
+
+5. **One batch per "Start".** In orchestrated mode, the Planner orchestrates one complete batch cycle (plan → spawn executors → spawn auditor → done), then stops. The user says "Start" for the next batch. This preserves the human checkpoint between batches.
+
+### What This Enables
+- A single Kramak Lite spec works in: manual terminal sessions, Antigravity IDE (subagents), Claude Code (Task tool), Cursor (background agents), and custom harnesses
+- Harness authors read §7 to implement dispatch; they don't need to understand the full spec
+- The governance model (roles, state machine, scope enforcement) is validated once and consumed everywhere

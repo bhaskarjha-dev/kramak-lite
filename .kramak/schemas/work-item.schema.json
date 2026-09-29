@@ -39,6 +39,10 @@
       "items": { "type": "string" },
       "description": "WI IDs that must complete before this one."
     },
+    "parallel_group": {
+      "type": "string",
+      "description": "Group label for parallel dispatch (e.g., 'A', 'B'). WIs in different groups can run simultaneously when executionMode is orchestrated or parallel. WIs in the same group run sequentially."
+    },
     "acceptance_criteria": {
       "type": "array",
       "items": { "type": "string" },
