@@ -13,9 +13,9 @@
     },
     "executionMode": {
       "type": "string",
-      "enum": ["manual", "orchestrated", "parallel"],
+      "enum": ["manual", "orchestrated", "parallel", "external"],
       "default": "manual",
-      "description": "How role transitions are managed. manual: user starts new sessions. orchestrated: agent spawns subagents. parallel: harness dispatches to parallel agent threads."
+      "description": "How role transitions are managed. manual: user starts new sessions. orchestrated: agent spawns subagents. parallel: harness dispatches to parallel agent threads. external: an external framework (e.g. Teamwork) owns lifecycle — Kramak provides governance rules only."
     },
     "nextAction": {
       "type": "string",

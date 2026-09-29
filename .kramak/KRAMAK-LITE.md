@@ -82,11 +82,14 @@ Determine how role transitions (Plan → Execute → Audit) will be managed base
 |---|---|---|
 | You can spawn subagents with isolated context windows | Harness provides subagent/task delegation tools | `orchestrated` |
 | Multiple agent threads can run independently | Harness supports parallel agent sessions | `parallel` |
+| An external framework owns task decomposition and dispatch | You were spawned BY an orchestrator (e.g. Teamwork) with a pre-assigned task, not by a user saying "Start" | `external` |
 | Single agent, no subagent spawning | No delegation capability available | `manual` |
 
 Record `state.executionMode`. Default is `manual` — identical to v2.x behavior. If uncertain, use `manual`.
 
 In `orchestrated` or `parallel` mode, role transitions happen via subagent spawning instead of manual session switching. The process model (Plan → Execute → Audit) is identical — only the delivery mechanism changes. Each subagent gets a fresh context window, which naturally enforces the role separation that manual sessions provided in v2.x.
+
+In `external` mode, an external framework (like Antigravity Teamwork, or any multi-agent harness with its own planning/dispatch) owns the lifecycle. Kramak operates as a **governance library**: agents read the relevant section for their assigned role and apply quality rules (scope enforcement, verification, circuit breaker), but do NOT own phase transitions or subagent spawning. See §7.5.
 
 Create `state.json` by copying `.kramak/templates/state.template.json` and populating it with the detected toolchain and discovered project structure paths.
 
@@ -105,9 +108,9 @@ Create `state.json` by copying `.kramak/templates/state.template.json` and popul
 | `escalated` | 3+ consecutive failures. Show diagnosis. STOP. | — |
 | `complete` | Check `inbox/` for new goals. If empty, confirm completion. STOP. | — |
 
-> **One role per agent.** Each agent instance is ONE role: **Planner**, **Executor**, or **Auditor**. Read only your phase’s section. In `manual` mode, each role runs in a separate human-initiated session. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context. Either way: one agent = one role = clean context.
+> **One role per agent.** Each agent instance is ONE role: **Planner**, **Executor**, or **Auditor**. Read only your phase’s section. In `manual` mode, each role runs in a separate human-initiated session. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context. In `external` mode, the external framework assigns your role — read the matching section and apply its quality rules. Either way: one agent = one role = clean context.
 >
-> **Model guidance:** Planning needs a strong reasoning model. Execution needs a fast, precise model. Auditing needs at least the execution model’s capability. Communicate model requirements at every role transition — whether to the user (`manual`) or via model selection in the subagent spawn (`orchestrated`/`parallel`).
+> **Model guidance:** Planning needs a strong reasoning model. Execution needs a fast, precise model. Auditing needs at least the execution model’s capability. Communicate model requirements at every role transition — whether to the user (`manual`), via model selection in the subagent spawn (`orchestrated`/`parallel`), or as metadata to the external framework (`external`).
 
 ---
 
@@ -357,7 +360,13 @@ Before transitioning to execution, verify:
 
    **`parallel` mode:** Same as `orchestrated`, using the harness's parallel agent mechanism instead of subagent spawning.
 
-> **Exception (manual mode only):** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY. In `orchestrated`/`parallel` mode, always use subagents — context isolation is the mechanism that preserves role separation.
+   **`external` mode:**
+   - Commit planning artifacts (steps 1–5 above still apply).
+   - Update `state.json` with the batch plan, WI queue, and parallel groups.
+   - Return your planning results (batch plan, WI list, parallel groups, model recommendations) to the external framework. The framework handles execution dispatch.
+   - **STOP.** Your role as planner is complete. The external framework decides what happens next.
+
+> **Exception (manual mode only):** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY. In `orchestrated`/`parallel` mode, always use subagents — context isolation is the mechanism that preserves role separation. In `external` mode, always return to the framework.
 
 ### Branch Management
 
@@ -548,6 +557,11 @@ When the queue is empty (all WIs completed or failed):
    - Return your results (completed WIs, failed WIs, session log entry) to the parent agent. The parent spawns the auditor subagent — you do NOT spawn it yourself.
    - **STOP.** Your role as executor is complete.
 
+   **`external` mode:**
+   - Commit execution artifacts and update `state.json` with completed/failed WIs, error counts, and session log.
+   - Return your execution results to the external framework. The framework triggers verification.
+   - **STOP.** Your role as executor is complete.
+
 ---
 
 ## 5. Audit (`phase: "auditing"`)
@@ -584,6 +598,11 @@ Best done in a fresh session for unbiased review.
     - Return your audit results (verdict, fixes applied, strategic concerns) to the parent agent.
     - The parent reads the audit results, updates final state, and **STOP**s — telling the user to say "Start" for the next batch.
     - **STOP.** Your role as auditor is complete.
+
+    **`external` mode:**
+    - Commit audit artifacts and update `state.json` with audit verdict and findings.
+    - Return your audit results (verdict, fixes applied, strategic concerns, next-batch recommendations) to the external framework.
+    - **STOP.** Your role as auditor is complete. The framework decides what happens next.
 
 ---
 
@@ -674,6 +693,34 @@ When spawning a subagent for a specific role, pass these minimal instructions al
 > Write audit report and retrospective. Commit state and report your results (verdict, fixes, concerns).
 
 > **Prompt isolation is critical.** Each subagent prompt deliberately excludes other roles' sections. This is the automated equivalent of "start a fresh session" — the subagent cannot be influenced by the spawning agent's planning context, which naturally prevents cognitive contamination.
+
+### 7.5 External Orchestrator Integration
+
+This section applies when `state.executionMode` is `external` — meaning an external framework (e.g., Antigravity Teamwork, a custom multi-agent harness) owns task decomposition, dispatch, and lifecycle management. In this mode, Kramak Lite operates as a **governance library**, not a workflow framework.
+
+**What ALWAYS applies (regardless of mode):**
+- Scope enforcement: Only modify files in `files_targeted` (§4.2)
+- Grounded Verification: LOCATE → QUOTE → VERIFY → DESIGN → CROSS-CHECK (§4.2)
+- Verification after changes: Run `checkCommands` (§4.3)
+- Circuit breaker: 3 consecutive failures or oscillation = escalate (§4.5)
+- Session health gates: WI count, file count, error count limits (§4.6)
+- Error taxonomy and retry logic (§4.4)
+- State persistence: Update `state.json` with completed WIs, error counts, quality metrics
+
+**What to use as heuristics (when assigned a planning role):**
+- Strategic Reorientation (§3.1) and Strategic Vision (§3.3) — for macro-level project assessment
+- PERCEIVE → REASON → DECIDE (§3.4) — for meta-cognitive planning quality
+- Perspective selection (§3.4) — for viewpoint-appropriate reasoning
+- Goldilocks Rule (§3.7) — for risk-calibrated WI detail
+- Product Phase priority ladders (§3.5) — for prioritization
+
+**What to SKIP (the external framework handles these):**
+- Phase transitions (§3.11 transition steps, §4.7 transition steps, §5 transition steps)
+- Subagent spawning (§7.2–§7.4)
+- Merge protocol (§7.3)
+- Parallel dispatch (§7.1–§7.2) — the external framework handles worktree isolation and agent assignment
+
+**How to set `phase` in external mode:** Set it based on the role the external framework assigned you. If you're doing planning work, set `phase: "planning"`. If implementation, `phase: "executing"`. If review/verification, `phase: "auditing"`. This tells you which section to read for quality rules, even though the framework controls transitions.
 
 ---
 

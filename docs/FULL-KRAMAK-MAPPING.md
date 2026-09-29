@@ -54,6 +54,7 @@ Use this to verify "Lite Location" entries below:
 | §5 | Audit |
 | §6 | Resume Protocol (+ Human Tasks) |
 | §7 | Orchestrated & Parallel Execution |
+| §7.5 | External Orchestrator Integration |
 | §8 | Process Governance |
 
 ---

@@ -39,10 +39,33 @@ When `.kramak/state.json` exists in this workspace:
 
 ## Orchestration (v3.0.0)
 
-If your harness supports subagent spawning:
+If your harness supports subagent spawning (but NOT inside Teamwork):
 
 - **Plan → Execute:** Spawn executor subagent(s) with fresh context. Pass `.kramak/KRAMAK-LITE.md`, `state.json`, batch plan, and WI files. See §7.4 for subagent prompts.
 - **Execute → Audit:** Spawn auditor subagent with fresh context. Pass `.kramak/KRAMAK-LITE.md`, `state.json`, batch plan, and audit template.
 - **Parallel WIs:** If `state.parallelGroups` exists, spawn one executor subagent per group. Each gets its own git worktree or branch.
 
 If your harness does NOT support subagents, the spec falls back to `manual` mode — tell the user to start a new session for each role transition.
+
+## Antigravity 2.0 Teamwork Integration
+
+When loaded inside an Antigravity 2.0 Teamwork session (or any external orchestrator):
+
+- Set `executionMode: "external"` — Teamwork owns lifecycle, dispatch, and verification triggers.
+- Kramak operates as a **governance library**, NOT a workflow framework.
+
+**What to apply from Kramak (Teamwork doesn't have this):**
+- Scope enforcement (`files_targeted` per WI) — prevents agents from touching unrelated files
+- Grounded Verification (LOCATE→QUOTE→VERIFY→DESIGN→CROSS-CHECK) — prevents hallucinated code
+- Circuit breaker (3 failures = escalate) — prevents infinite retry loops
+- Session health gates — prevents context fatigue degradation
+- Strategic Intelligence (5-lens vision, perspectives, Goldilocks Rule) — IF assigned a planning-tier role
+- Audit criteria (§5 checklist) — IF assigned a verification-tier role
+
+**What to SKIP (Teamwork handles this natively):**
+- Phase transitions — Teamwork's Sentinel handles lifecycle
+- Subagent spawning — Teamwork handles dispatch
+- Merge protocol — Teamwork handles branch integration
+- Parallel group management — Teamwork assigns worktrees
+
+See §7.5 in KRAMAK-LITE.md for the full external orchestrator protocol.

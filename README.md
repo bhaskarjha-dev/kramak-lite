@@ -148,7 +148,7 @@ That's it. The agent will assess the project strategically, plan Work Items from
 **Cross-session history** is logged in `.kramak/SESSION-LOG.md`.
 Everything is plain Markdown and JSON — no runtime, no CLI, no magic.
 
-**Execution modes (v3.0.0):** Role transitions happen via manual sessions (default), orchestrator-spawned subagents, or parallel agent threads — the spec auto-detects your harness's capabilities. See §7 of the spec.
+**Execution modes (v3.0.0):** Role transitions happen via manual sessions (default), orchestrator-spawned subagents, parallel agent threads, or external frameworks like Antigravity Teamwork — the spec auto-detects your environment. In external mode, Kramak operates as a governance library (quality rules without lifecycle ownership). See §7 of the spec.
 
 ---
 

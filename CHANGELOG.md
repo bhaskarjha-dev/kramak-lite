@@ -19,6 +19,7 @@ This release evolves Kramak Lite from a session-level playbook into a governance
 - **Work Item Schema** — Added `parallel_group` field.
 - **All 4 Adapters** — Added Orchestration hints section with subagent spawning instructions.
 - **Batch Plan Template** — Added Execution Mode and Parallel Groups sections.
+- **External Orchestrator Integration (§7.5)** — New `external` execution mode for frameworks like Antigravity Teamwork that own lifecycle and dispatch. In this mode, Kramak operates as a governance library: agents apply quality rules (scope enforcement, verification, circuit breaker, strategic intelligence) but do NOT own phase transitions. Framework → Library duality.
 
 ### Changed
 - **§2 Core Invariant** — "One role per session" → "One role per agent" — role separation is now enforced by context isolation (manual sessions OR subagent spawning), not just session boundaries.

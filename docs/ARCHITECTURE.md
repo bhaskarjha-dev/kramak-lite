@@ -210,7 +210,7 @@ Before the research-driven overhaul (commit `9c6b205`), Kramak worked as a simpl
 ## 6. Governance Protocol Layer (v3.0.0)
 
 ### The Decision
-Kramak Lite evolves from a "session-level playbook" to a "governance protocol that orchestrators consume." The spec now supports three execution modes (`manual`, `orchestrated`, `parallel`) while remaining a pure Markdown + JSON schema specification with zero runtime dependencies.
+Kramak Lite evolves from a "session-level playbook" to a "governance protocol that orchestrators consume." The spec now supports four execution modes (`manual`, `orchestrated`, `parallel`, `external`) while remaining a pure Markdown + JSON schema specification with zero runtime dependencies.
 
 ### The Reasoning
 
@@ -238,6 +238,18 @@ Kramak Lite was trying to own both layers in v2.x (via manual session instructio
 5. **One batch per "Start".** In orchestrated mode, the Planner orchestrates one complete batch cycle (plan → spawn executors → spawn auditor → done), then stops. The user says "Start" for the next batch. This preserves the human checkpoint between batches.
 
 ### What This Enables
-- A single Kramak Lite spec works in: manual terminal sessions, Antigravity IDE (subagents), Claude Code (Task tool), Cursor (background agents), and custom harnesses
+- A single Kramak Lite spec works in: manual terminal sessions, Antigravity IDE (subagents), Antigravity Teamwork (external orchestrator), Claude Code (Task tool), Cursor (background agents), and custom harnesses
 - Harness authors read §7 to implement dispatch; they don't need to understand the full spec
+- External orchestrators read §7.5 to understand what governance rules to apply without fighting Kramak's lifecycle
 - The governance model (roles, state machine, scope enforcement) is validated once and consumed everywhere
+
+### The Framework / Library Duality
+
+Kramak Lite can operate in two postures depending on the environment:
+
+| Posture | When | How |
+|---|---|---|
+| **Framework** | `manual`, `orchestrated`, `parallel` | Kramak owns the lifecycle. Agents follow Plan→Execute→Audit, phase transitions are Kramak-driven (via user sessions or subagent spawning). |
+| **Library** | `external` | An external orchestrator (e.g. Antigravity Teamwork) owns the lifecycle. Kramak provides governance rules (scope enforcement, verification, circuit breaker, strategic intelligence) that agents apply within whatever lifecycle the orchestrator defines. |
+
+This duality means Kramak Lite doesn't need to compete with every new orchestration framework. It provides the quality governance that most frameworks lack, and lets them handle dispatch, merging, and lifecycle management natively.

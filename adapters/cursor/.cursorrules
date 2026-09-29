@@ -46,3 +46,5 @@ If your harness supports subagent spawning:
 - **Parallel WIs:** If `state.parallelGroups` exists, spawn one executor subagent per group. Each gets its own git worktree or branch.
 
 If your harness does NOT support subagents, the spec falls back to `manual` mode — tell the user to start a new session for each role transition.
+
+If you are running inside an external orchestrator (e.g., a multi-agent framework that owns task decomposition and dispatch), set `executionMode: "external"`. In this mode, Kramak provides quality governance rules (scope enforcement, verification, circuit breaker) but does NOT own phase transitions. See §7.5 in KRAMAK-LITE.md.
