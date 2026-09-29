@@ -14,7 +14,7 @@ The decision needed: what version to stamp on the first public release?
 ## Options Considered
 
 ### v0.0.1
-- **Verdict:** REJECTED. Too tentative. The spec is comprehensive (55KB, 173/173 rules, 4 adapters, strategic intelligence engine). Starting at 0.0.1 undersells the work.
+- **Verdict:** REJECTED. Too tentative. The spec is comprehensive (55KB, 175/175 enforceable rules, 2 adapters, strategic intelligence engine). Starting at 0.0.1 undersells the work. [Note: Adapter count was 4 at time of writing; consolidated to 2 during subsequent refactoring.]
 
 ### v0.1.0 ✅ (Chosen)
 - **Verdict:** ACCEPTED. The right signal: "Feature-complete initial release, expect changes based on real-world feedback. No stability guarantees yet."

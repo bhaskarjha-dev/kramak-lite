@@ -108,6 +108,6 @@ Four execution modes introduced:
 ## Consequences
 
 - The spec grew from ~45KB to ~56KB (v2.3.0 → v3.0.0 with external mode). Still <5% of modern context windows.
-- 4 adapters each grew by ~10-25 lines for orchestration hints.
+- 4 adapters each grew by ~10-25 lines for orchestration hints. [Note: Subsequently consolidated to 2 adapters (universal AGENTS.md + optional Cursor .mdc).]
 - New §7 section expanded from 5 vestigial lines to a full protocol with safety invariants, dispatch protocol, merge/verify, and subagent role prompts.
 - New §7.5 section defines the `external` mode governance library interface.

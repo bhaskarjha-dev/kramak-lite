@@ -93,6 +93,17 @@ In `external` mode, an external framework (like Antigravity Teamwork, or any mul
 
 Create `state.json` by copying `.kramak/templates/state.template.json` and populating it with the detected toolchain and discovered project structure paths.
 
+### Runtime Artifact Bootstrap
+
+After creating `state.json`, ensure these cross-session files exist (create from their templates if missing):
+
+| File | Template | Purpose |
+|---|---|---|
+| `.kramak/SESSION-LOG.md` | `.kramak/templates/session-log.md` | Cross-session history — all roles append here |
+| `.kramak/HUMAN-TASKS.md` | `.kramak/templates/human-tasks.md` | Async human blockers — checked during Orient |
+
+These files are critical for cross-session continuity. Do not defer their creation to later phases.
+
 > **`nextAction`** is the most important cross-session field. It tells the next model exactly what to do. Update it at the end of EVERY session.
 
 ---

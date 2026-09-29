@@ -120,11 +120,11 @@
           "description": "Human-readable summary of what was accomplished. Enables cross-session continuity without reading conversation history."
         },
         "model": {
-          "type": "string",
-          "description": "Which model ran the last session (e.g. 'Claude Opus 4.6', 'Gemini Flash')."
+          "type": ["string", "null"],
+          "description": "Which model ran the last session (e.g. 'Claude Opus 4.6', 'Gemini Flash'). Null before first session."
         },
         "batchNumber": { "type": "integer" },
-        "timestamp": { "type": "string", "format": "date-time" }
+        "timestamp": { "type": ["string", "null"], "format": "date-time" }
       },
       "description": "Context from the most recent session for continuity."
     },
@@ -194,6 +194,18 @@
     "currentBranch": {
       "type": ["string", "null"],
       "description": "Current git branch for the active batch."
+    }
+  },
+  "if": {
+    "properties": { "phase": { "const": "escalated" } },
+    "required": ["phase"]
+  },
+  "then": {
+    "required": ["phase", "escalation"],
+    "properties": {
+      "escalation": {
+        "required": ["reason"]
+      }
     }
   }
 }

@@ -50,7 +50,7 @@ cp /path/to/kramak-lite/adapters/AGENTS.md ./AGENTS.md
 > echo "" >> ./AGENTS.md
 > cat /path/to/kramak-lite/adapters/AGENTS.md >> ./AGENTS.md
 > ```
-> Kramak's adapter is ~65 lines that cooperate with your existing rules.
+> Kramak's adapter is ~70 lines that cooperate with your existing rules.
 
 #### Cursor Users (Optional Enhancement)
 

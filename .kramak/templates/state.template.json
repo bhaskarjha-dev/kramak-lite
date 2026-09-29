@@ -31,8 +31,9 @@
   "lastSession": {
     "perspective": null,
     "summary": "Workflow initialized.",
-    "model": "",
-    "timestamp": ""
+    "model": null,
+    "batchNumber": 0,
+    "timestamp": null
   },
   "currentBranch": null,
   "parallelGroups": {},

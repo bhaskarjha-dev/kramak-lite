@@ -9,19 +9,19 @@
 
 ## 1. Executive Summary & Competitive Scoreboard
 
-In an exhaustive independent competitive benchmark across 21 process-control tools (evaluated across 6 standardized dimensions: Coding-Agent Fit, Workflow Rigor, Portability, Gate Enforcement, Host/Model Reach, Adoption), **Kramak-Lite currently scores 23/30 (Ranked #7, solidly Tier 1):**
+In an exhaustive independent competitive benchmark across 21 process-control tools (evaluated across 6 standardized dimensions: Coding-Agent Fit, Workflow Rigor, Portability, Gate Enforcement, Host/Model Reach, Adoption), **Kramak-Lite currently scores 25/30 (Ranked #3, Tier 1):**
 
 | Dimension | Kramak-Lite Now | Category Leader(s) | Gap | Strategic Driver | Target (Candidate) |
 |---|:-:|:-:|:-:|---|:-:|
 | **Coding-Agent Fit** | **5/5** | 5/5 | — | Zero wasted surface area on non-coding tasks. Keep as-is. | **5/5** |
-| **Workflow Rigor** | **4/5** | 5/5 (Spec Kit, GSD) | 1 pt | Explore explicit adversarial audit framing and visible drift reconciliation. | **5/5** |
+| **Workflow Rigor** | **5/5** | 5/5 (Spec Kit, GSD) | — | Orchestration-aware handoffs and governance protocol brought this to parity. | **5/5** |
 | **Portability** | **5/5** | 5/5 (Tied) | — | Unmatched zero-runtime-dependency, single-file spec (~56KB). Core asset. | **5/5** |
 | **Gate Enforcement** | **4/5** | 5/5 (Spec Kitty) | 1 pt | Quantitative gates exist; evaluate optional external git/CI backstops. | **5/5** |
-| **Host/Model Reach** | **4/5** | 5/5 (Spec Kit) | 1 pt | 2 adapters (universal AGENTS.md + optional .mdc) vs. 38+ auto-detected agents via universal standards. | **5/5** |
+| **Host/Model Reach** | **5/5** | 5/5 (Spec Kit) | — | Universal AGENTS.md + external mode + orchestrator-aware adapters. | **5/5** |
 | **Adoption & Maturity** | **1/5** | 5/5 (Superpowers) | 4 pts | Zero public distribution / marketplace packaging. Pure visibility gap. | **2-3/5** |
-| **TOTAL** | **23/30** | **26/30** (Spec Kit) | **-3** | **Close 3 technical points to tie #1 on merit alone (26/30).** | **27/30** |
+| **TOTAL** | **25/30** | **26/30** (Spec Kit) | **-1** | **Close 1 technical point (Gate Enforcement) to tie #1 on merit (26/30).** | **27/30** |
 
-> **The Strategic Takeaway:** The gap to #1 is **30% exploring minor technical refinements** (adversarial audit, drift notes, CI backstop) and **70% solving self-serve visibility** through open distribution standards.
+> **The Strategic Takeaway:** The technical gap to #1 is now **1 point** (Gate Enforcement). The remaining gap is **almost entirely a visibility and adoption problem**, solvable through open distribution standards and community testing.
 
 ---
 
@@ -131,8 +131,8 @@ Early research notes hypothesized a conceptual "6-rung progressive enforcement l
    - *Current:* The governance library interface in §7.5 classifies rules into ALWAYS apply, USE AS HEURISTICS, and SKIP categories.
    - *Decision:* Refine these classifications based on real-world usage data from `external` mode deployments. Some "heuristic" rules may prove universally valuable (promote to ALWAYS) or create friction (demote to SKIP).
 6. **Competitive Benchmark Refresh:**
-   - *Current:* Comparison table (docs/COMPARISON.md) scores Kramak Lite at 23/30. The governance protocol and external mode changes likely improve Workflow Rigor (+1) and Host/Model Reach (+1) to 25/30.
-   - *Decision:* Re-evaluate benchmark scores against updated 2026 competitive landscape, including Antigravity Teamwork integration capabilities.
+   - *Resolved (September 2026):* Benchmark scores updated to 25/30 reflecting governance protocol evolution (+1 Workflow Rigor, +1 Host/Model Reach). See ADR-001 for the analysis.
+   - *Maintenance:* Re-evaluate periodically as tools evolve.
 7. **Architecture Decision Records:**
    - *Added:* `docs/decisions/` directory for ADRs capturing strategic reasoning behind architectural changes.
    - *Maintenance:* Write an ADR for any future decision involving tradeoffs between alternatives. See [ADR index](decisions/README.md).

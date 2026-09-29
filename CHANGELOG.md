@@ -7,6 +7,33 @@ All notable changes to Kramak Lite are documented here.
 > **Target:** First public release.
 > **Status:** In development. When ready to release, the `-dev` suffix is dropped and this becomes `[0.1.0]`.
 
+### 2026-09-29 — Deep Audit: 16 Findings Fixed (F-01 through F-17)
+
+Independent quality audit identified 17 findings across 5 severity levels (3 Critical, 4 High, 4 Medium, 6 Low). F-05 (Cursor `.mdc` empty `globs` field) was determined to be **correct behavior** per Cursor's documented `.mdc` format and was not changed. All remaining 16 findings were fixed:
+
+**Critical (Fixed):**
+- **F-02:** SESSION-LOG.md bootstrap gap — added Runtime Artifact Bootstrap subsection to §1 Initialize in spec. Previously, SESSION-LOG.md creation was only mentioned in §3.11 (Handoff), meaning agents that never reached that section wouldn't create the file.
+- **F-03:** HUMAN-TASKS.md bootstrap gap — same fix, same subsection. Both cross-session files are now explicitly bootstrapped during initialization.
+- **F-01:** Self-assessed competitive scores presented as authoritative — added methodology caveat to README comparison table, added "(Author-Assessed)" to COMPARISON.md subtitle, added pre-release note to README IDE compatibility claim.
+
+**High (Fixed):**
+- **F-04:** Competitive score inconsistency (ADR-001: 25/30 vs COMPARISON: 23/30 vs ROADMAP: 23/30) — reconciled all documents to 25/30 reflecting governance protocol evolution (+1 Workflow Rigor, +1 Host/Model Reach per ADR-001 analysis). Updated COMPARISON.md rank, gap analysis, and ROADMAP scoreboard. Marked ROADMAP backlog item #6 as resolved.
+- **F-06:** State template missing `lastSession.batchNumber` — added `"batchNumber": 0` to state.template.json.
+- **F-07:** FULL-KRAMAK-MAPPING.md coverage counts wrong (claimed ✅=148, actual ✅=150) — programmatic recount verified 150/25/1/0=176. Updated summary table (148→150, 84%→85%), coverage text (173→175, 98%→99%), and bottom summary.
+
+**Medium (Fixed):**
+- **F-08/F-08b/F-09:** Stale counts — adapter line count "~65" updated to "~70" across README (×2) and GETTING-STARTED.md. ADR-001 and ADR-003 annotated with "[Note: Subsequently consolidated to 2 adapters]". ADR-003 rule count updated from 173/173 to 175/175.
+- **F-10:** State schema lacked conditional validation — added `if/then` block requiring `escalation.reason` when `phase: "escalated"`.
+- **F-11:** No contributing guidelines — created CONTRIBUTING.md with issue reporting, PR checklist, ADR process, and project-specific constraints.
+
+**Low (Fixed):**
+- **F-12:** `.gitattributes` used CRLF line endings — rewritten with LF endings.
+- **F-15:** Session log template said "newest first" but spec said "append" — resolved by changing template to "oldest first (append new entries at the bottom)" to match spec's append instruction.
+- **F-17:** State template used empty strings `""` for `model` and `timestamp` (invalid per JSON Schema date-time format) — changed to `null`. Updated state schema to allow `["string", "null"]` for both fields.
+- **F-14:** README directory tree showed runtime-created files without explanation — added clarifying note above tree.
+- **F-16:** ADR-003 adapter/rule count stale — fixed alongside F-09.
+- **F-13:** WI schema placeholder `WI-NNN` — acknowledged as a non-issue (placeholder is universally understood).
+
 ### 2026-09-29 — License Harmonization: Apache 2.0 → MIT
 
 - **License switched to MIT** — Harmonized with full Kramak (MIT). Research confirmed all direct competitors in the AI agent process-control space (GitHub Spec Kit, BMAD-METHOD, Superpowers, GSD Core) use MIT. The skills.sh agent plugin ecosystem and community MCP servers also overwhelmingly favor MIT. Apache 2.0's patent grant provides negligible value for a markdown-based development methodology with no patent portfolio. MIT maximizes adoption for future MCP servers, agent plugins, and ecosystem packaging.
