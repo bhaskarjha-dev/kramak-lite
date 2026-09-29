@@ -5,215 +5,78 @@ All notable changes to Kramak Lite are documented here.
 ## [0.1.0-dev] — In Development
 
 > **Target:** First public release.
-> **Status:** In development. This version includes all features built during pre-release iterations, plus any new work (MCP server, plugins, etc.) being developed before the v0.1.0 public launch.
+> **Status:** In development. When ready to release, the `-dev` suffix is dropped and this becomes `[0.1.0]`.
 
-When ready to release, the `-dev` suffix is dropped and this becomes `[0.1.0]`.
+### 2026-09-29 — Universal Adapter Architecture & Track-by-Default Philosophy
+
+Two commits that fundamentally improved the project's distribution model, terminology, and .gitignore philosophy.
+
+#### Adapter Consolidation
+- **Universal `AGENTS.md` adapter** — Replaced 4 near-identical per-IDE adapters (Antigravity SKILL.md, Claude Code CLAUDE.md, Cursor .cursorrules, generic AGENTS.md) with one universal adapter. `AGENTS.md` is the industry standard — works natively with all 18+ AI coding harnesses (Claude Code, Cursor, Antigravity, Windsurf, Codex, Cline, Roo Code, Devin, GitHub Copilot, Zed, Amp, Warp, and more).
+- **Cursor `.mdc` adapter** — Optional `kramak.mdc` with YAML frontmatter for Cursor-specific priority. Replaces the deprecated `.cursorrules` format.
+- **External Orchestrator Integration generalized** — Previously exclusive to the Antigravity adapter, now available universally for any multi-agent framework (Teamwork, Claude Code Agent Teams, Cursor parallel agents, Warp supervisor/worker, Devin parallel instances).
+
+#### .gitignore Philosophy: Track by Default
+- **Only `state.json.tmp` is universally ignored** — The WAL crash-recovery temp file is the only truly ephemeral artifact. Everything else in `.kramak/` (state, work items, plans, session logs, audit reports, ledger) is the development process record.
+- **Development archaeology** — Tracking Kramak artifacts enables: clone-and-resume on any machine, team visibility into strategic decisions, code review context, crash/machine-death recovery.
+- **Distribution repo vs user projects** — This repo ignores dogfooding artifacts; user projects track everything by default. `GETTING-STARTED.md` provides optional lighter-footprint patterns.
+- **Spec bootstrap updated** — Git Initialization (§1) now tells the agent to include `.kramak/state.json.tmp` in generated `.gitignore`.
+
+#### Terminology: "Pipeline" → "Workflow"
+- Replaced all 13 instances of "pipeline" across spec, templates, INBOX.md, state template, and rule mapping doc.
+- Eliminates CI/CD namespace confusion — the same rationale that drove the branch prefix rename from `pipeline/batch-NN` to `kramak/batch-NN`.
+- "Specification drift" replaces "pipeline drift" in governance section (more precise).
+
+#### Template & Naming Fixes
+- **`AGENTS.template.md` → `conventions.template.md`** — Eliminates naming confusion with `adapters/AGENTS.md`. The template is about project conventions (tech stack, directory structure, code patterns), not about the Kramak adapter.
+- **Branch naming: `pipeline/` → `kramak/`** — Self-documenting prefix in `git branch` output. Updated in spec (§3.8, §7.1) and mapping doc.
+
+#### Spec & Schema Fixes
+- **Audit verdict enum** — Added `"fail"` to `state.schema.json` verdict enum (was `["pass", "pass-with-fixes"]`). Closes state machine gap.
+- **Failure Diagnosis** — Added to Directed and Outcome WI templates (previously only in Guided). All 3 tiers now have consistent failure documentation.
+- **Cross-reference fix** — Grounded Verification reference corrected from `§4.2` to `§3.7`.
+- **Size standardization** — All documentation references updated from stale `~52KB / ~12,000 tokens` to measured `~56KB / ~14,000 tokens`.
+- **Badge fix** — `Dependencies: Zero` → `Runtime Dependencies: Zero` (Git is a tool dependency, not a runtime dependency).
+- **`.gitattributes`** — Updated `.cursorrules` line-ending rule to `*.mdc`.
+- **Inbox template deduplication** — Removed `templates/inbox.md` (19-byte diff from actual `inbox/INBOX.md`). `INBOX.md` is its own format reference.
+- **Spec inbox reference** — Updated bootstrap to reference `inbox/INBOX.md` directly instead of deleted template.
+
+#### Documentation Updates
+- **README** — Rewrote Quick Start with universal `AGENTS.md` approach, updated directory tree, comparison table, multi-IDE FAQ.
+- **GETTING-STARTED.md** — New Step 3 (`.gitignore` guidance), rewrote Step 2 (adapter installation), updated orchestrator section, renumbered steps.
+- **ARCHITECTURE.md** — Updated Adapter Design Pattern section, corrected size/token references (10 locations), updated template count.
+- **ROADMAP.md** — Updated adapter reference from SKILL.md to AGENTS.md.
 
 ---
 
 ## Pre-Release Development History
 
-> The following versions were internal development iterations before the first public release. They are preserved here as a record of the spec's evolution but do not correspond to any published releases. Version numbers were internal milestone markers tracking the spec's maturity.
+> The following versions were internal development iterations. They are preserved as a condensed record of the spec's evolution. Version numbers were internal milestone markers.
 
 ### Internal 3.0.0 — 2026-09-29 — Governance Protocol Evolution
 
-### Added — Governance Protocol Evolution (Manual / Orchestrated / Parallel)
-
-This release evolves Kramak Lite from a session-level playbook into a governance protocol that both humans and orchestrators consume. All changes are backward-compatible — default mode is `manual`, identical to v2.x behavior. Zero runtime dependencies added.
-
-- **Execution Mode Detection (§1)** — New `state.executionMode` field (`manual` | `orchestrated` | `parallel`). The spec auto-detects harness capabilities and records how role transitions will be managed.
-- **Mode-Aware Role Transitions (§3.11, §4.7, §5)** — Every handoff point (Plan → Execute → Audit → next batch) now branches by execution mode. In `manual` mode, the user starts new sessions. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context.
-- **Parallel Dispatch Protocol (§7)** — Expanded from 5 vestigial lines to a full protocol: safety invariants (file-independence, dependency checks), dispatch protocol, merge & verify, and compact subagent role prompts.
-- **Subagent Role Prompts (§7.4)** — Executor and Auditor subagent prompts with deliberate section exclusion for cognitive isolation.
-- **Parallel Groups in Planning (§3.8)** — Planner annotates WIs with `parallel_group` labels; WIs in different groups can run simultaneously.
-- **State Schema** — Added `executionMode`, `parallelGroups` fields. Updated `nextAction` description.
-- **Work Item Schema** — Added `parallel_group` field.
-- **All 4 Adapters** — Added Orchestration hints section with subagent spawning instructions.
-- **Batch Plan Template** — Added Execution Mode and Parallel Groups sections.
-- **External Orchestrator Integration (§7.5)** — New `external` execution mode for frameworks like Antigravity Teamwork that own lifecycle and dispatch. In this mode, Kramak operates as a governance library: agents apply quality rules (scope enforcement, verification, circuit breaker, strategic intelligence) but do NOT own phase transitions. Framework → Library duality.
-
-### Changed
-- **§2 Core Invariant** — "One role per session" → "One role per agent" — role separation is now enforced by context isolation (manual sessions OR subagent spawning), not just session boundaries.
-- **§7 Section Title** — "Multi-Agent Dispatch (Optional)" → "Orchestrated & Parallel Execution" — reflects the expanded scope and formalized protocol.
-
-### Design Decisions
-- **No runtime code.** The spec remains pure Markdown + JSON schemas. Zero dependencies. This is a governance protocol, not an orchestration framework.
-- **Backward-compatible default.** `executionMode: "manual"` is the default. Existing v2.x workflows are unchanged.
-- **"When in doubt, run sequentially."** Parallel execution is an optimization, not a requirement. The safety invariant (zero file overlap) is strict by design.
+Evolved Kramak Lite from a session-level playbook into a governance protocol consumable by both humans and orchestrators. Added `executionMode` detection (`manual` | `orchestrated` | `parallel` | `external`), mode-aware role transitions, full parallel dispatch protocol (§7) with safety invariants and merge verification, subagent role prompts (§7.4), and external orchestrator integration (§7.5) for frameworks like Antigravity Teamwork. Backward-compatible — default mode is `manual`. Zero runtime dependencies added.
 
 ### Internal 2.3.0 — 2026-08-29 — Unified Cross-Session Telemetry
 
-### Added — Unified Cross-Session Telemetry & Inbox Template
-- **Universal Session Log (`.kramak/templates/session-log.md`)** — Replaces single-purpose planning log with a unified cross-session log. All roles (Planner, Executor, Auditor) append entries, providing full narrative history in `.kramak/SESSION-LOG.md`.
-- **Structured Inbox Template (`.kramak/templates/inbox.md`)** — Standardized template with `Unprocessed` and `Processed` sections and explicit item types (`bug`, `direction`, `insight`, `data`, `credential`).
-- **Initial Inbox Tracking** — Pre-populated `.kramak/inbox/INBOX.md` and `.kramak/inbox/.gitkeep` in the repository for immediate out-of-the-box onboarding.
-- **100% Enforceable Rule Coverage** — Updated mapping to reflect that all 173 enforceable rules from full Kramak are covered (148 full, 25 condensed).
-
-### Changed
-- **Executor Handoff (§4.7)** — Added mandatory step 2 to log execution summary (completed/failed WIs, key issues, session gates triggered) to `.kramak/SESSION-LOG.md`.
-- **Auditor Handoff (§5)** — Added mandatory step 9 to log audit summary (verdict, fixes applied, strategic concerns, recommendations) to `.kramak/SESSION-LOG.md`.
-- **Spec Size** — ~45KB (625 lines), encapsulating the complete autonomous engine and telemetry.
-
----
+Added universal session log (all roles append to `SESSION-LOG.md`), structured inbox template with typed items (`bug`, `direction`, `insight`, `data`, `credential`), and executor/auditor handoff logging. Achieved 100% enforceable rule coverage (173 of 173 rules).
 
 ### Internal 2.2.0 — 2026-08-29 — Strategic Vision & Meta-Cognition
 
-### Added — Strategic Vision & Meta-Cognitive Perspective Selection
-- **5-Lens Strategic Vision System (§3.3)** — Conditional assessment (Quality Retrospective, User Journey Walk, Competitive & Market Scan, Innovation Brainstorm, Architecture Check) triggered at milestones, roadmap depletion, periodic intervals, or planner judgment.
-- **PERCEIVE → REASON → DECIDE Loop (§3.4)** — Deep meta-cognitive planning loop with 5 strategic questions and 25+ named perspective archetypes across 5 categories.
-- **Perspective History Tracking** — Rolling window of last 5 perspectives stored in `state.perspectiveHistory` with diversity check (3+ consecutive identical = nudge to switch).
-
----
+Added 5-Lens Strategic Vision System (§3.3), PERCEIVE → REASON → DECIDE meta-cognitive loop (§3.4), 25+ perspective archetypes across 5 categories, and perspective diversity tracking.
 
 ### Internal 2.1.0 — 2026-08-29 — Non-Negotiable Planning
 
-### Added — Rigorous Non-Negotiable Planning & Session Handoffs
-- **Non-Negotiable Planning Minimum (§3)** — 6 mandatory planning artifacts required before transitioning to execution (cannot skip for urgency or hackathons).
-- **Hard Limit: No Interactive Questions** — Bounded autonomy invariant: agent does not interrupt users with questions; writes to `.kramak/HUMAN-TASKS.md` instead.
-- **Cross-Session `nextAction` Invariant** — Every exit path (planner, executor, auditor, circuit breaker, waiting) writes an explicit `nextAction` string to `state.json`.
-- **Production Template Suite** — Added templates for batch plans, human tasks, audit reports, and retrospectives.
-
----
-
+Added 6 mandatory planning artifacts, hard limit on interactive questions (write to `HUMAN-TASKS.md` instead), cross-session `nextAction` invariant, and production template suite.
 
 ### Internal 2.0.0 — 2026-08-29 — Autonomous Engine Overhaul
 
-### Changed — Autonomous Engine Overhaul
+Transformed Kramak Lite from a structured checklist into a complete autonomous development engine. Added CTO empowerment framing, 5-lens strategic vision, PERCEIVE→REASON→DECIDE meta-cognition, product phase priority ladders (BUILD/SHIP/ITERATE), dynamic batch sizing, capability self-assessment, and branch management. Spec grew from 20.5KB to ~32KB with a 60/40 autonomy/guardrails ratio (v1.x was 10/90).
 
-v2.0.0 transforms Kramak Lite from a structured development checklist into a **complete autonomous development engine**. The v1.x series successfully solved IDE system prompt conflicts via constitutional framing but over-corrected — it preserved the skeleton (phases, WIs, state.json) while losing the soul (strategic intelligence, meta-cognition, autonomous decision-making).
+### Internal 1.0.0–1.3.0 — 2026-08-21 — Foundation & Coverage Sprint
 
-This release restores the full autonomous engine from the pre-research Kramak and the research-backed innovations, compressed into the single-file format.
-
-### Added — Strategic Intelligence Layer (~5KB)
-- **CTO Empowerment Framing** — opening mandate with bounded freedoms (strategic override, competitive research, strategic thinking budget, question everything) and hard limits (don't skip verification, don't skip reorientation). Constitutional framing preserved — no identity claims, no harness behavior prescriptions.
-- **Strategic Vision System (5-lens)** — conditional 5-lens strategic assessment triggered at milestones, roadmap depletion, periodic intervals, first session, or planner judgment. Lenses: Quality Retrospective, User Journey Walk, Competitive & Market Scan, Innovation Brainstorm, Architecture Check.
-- **PERCEIVE → REASON → DECIDE meta-cognition** — full meta-cognitive planning loop. PERCEIVE reads situational state. REASON asks 5 strategic questions (biggest risk, biggest opportunity, what's neglected, what hire to make, what users would complain about). DECIDE names the perspective and why.
-- **Perspective Archetype System** — 25+ named perspectives across 5 categories (Building, Product, Operational, Growth, Emergent) with diversity check (3+ consecutive same perspective = nudge to switch).
-- **Product Phase Priority Ladders** — explicit ordered priority stacks for BUILD (7 tiers), SHIP (6 tiers), ITERATE (8 tiers) with transition criteria and "never planned during BUILD" exclusions.
-- **Dynamic Batch Sizing** — replaced hard-coded "3-8 WIs" with "produce until your planning quality degrades." Typical healthy range 3-15, driven by context quality, not arbitrary caps.
-- **Batch Plan Document** — `.kramak/plans/PLAN-batch-NN.md` with strategic intent, chosen perspective, stories ordered by dependency, and risk assessment.
-- **Capability Self-Assessment** — model evaluates its fit for the current phase (planning/executing/auditing) with decision paths (proceed, warn and proceed, recommend model switch).
-- **Branch Management** — explicit branching strategy table (first batch, continuing, new feature, stable merge, experimental).
-- **Build Order Awareness** — schema → backend → frontend → integration → polish sequence guidance in executor.
-
-### Changed
-- **Preamble** — from "structured workflow" to "autonomous development engine" with full bounded autonomy framing
-- **§3 Plan** — expanded from 4-section checklist to 11-section strategic planning engine
-- **§5 Audit** — now includes batch plan review for strategic intent verification
-- **§4.2 Per Work Item** — executor reads batch plan first for strategic context
-- **Adapters** — all 4 adapters now include "Project Authority" section reinforcing strategic empowerment
-- **State schema** — added `productPhase`, `lastSession.perspective`, `lastVisionAssessment`, `currentBranch`, `deploymentBlocked`, expanded `lastAudit`
-
-### Added — Structural
-- `.kramak/plans/` directory for batch plan documents
-
-### Size
-- Spec size: 20.5 KB → ~32 KB (~7,500 tokens)
-- Still smaller than pre-research per-session context (31-56 KB)
-- Still under 6% of 128K context window — deep in the high-attention primacy zone
-- Ratio: 60% autonomy engine / 40% guardrails (v1.x was 10% autonomy / 90% guardrails)
-
----
-
-### Internal 1.3.0 — 2026-08-21
-
-### Added — 13 additions to reach ~95% rule coverage
-- **Strategic Override protocol** — planner can change `productPhase` with documented evidence (prevents stuck phases)
-- **Blocked Fallback** — if deployment is blocked by human tasks, switch to BUILD phase and keep working
-- **Anti-anchoring reading order** — read roadmap BEFORE `state.json` so planner forms independent assessment
-- **Credential inbox type** — handle `credential` type in inbox to unblock dependent work
-- **Planner blacklist** — planner must NOT directly edit source code, schemas, or package dependencies
-- **Collapse ambiguity principle** — "spend tokens on WHAT and WHY, not code"
-- **3-alternative evaluation** — for architectural decisions, evaluate 3 approaches instead of 2
-- **Confidence calibration** — rate confidence per WI: High (proceed), Medium (verify first), Low (research + flag)
-- **Decision audit trail** — document why approach chosen over alternatives in WI Intent
-- **Progressive enhancement** — implement graceful degradation for missing data, not crashes
-- **Recovery shortcuts by category** — actionable per-category recovery: code-drift re-scan, scope-exceeded ad-hoc WI, dependency reorder
-- **Breaker reset rule** — only reset circuit breaker after fundamentally different strategy
-- **Session weight assessment** — light/medium/heavy decision matrix for continue vs fresh session
-- **INBOX template** — `.kramak/inbox/INBOX.md` with format examples for user onboarding
-
-### Coverage
-- Rule coverage: ~87% → ~92% (162 of 176 total rules; ~95% of enforceable non-CLI rules)
-- Spec size: 17.6 KB → 20.5 KB (386 lines, ~5,252 tokens)
-
----
-
-### Internal 1.2.0 — 2026-08-21
-
-### Added — 8 additions from exhaustive cross-file audit
-- **Constitutional framing** — reframed spec from "follow this process" to "this helps you produce better work" (the #1 IDE compatibility fix)
-- **Git initialization** — if `.git` missing, run `git init` and create `.gitignore` for detected stack
-- **Pre-execution scope intercept** — check file path BEFORE editing, not just after (preventive vs detective control)
-- **Neighborhood cleanup** — fix obvious bugs in touched lines within scope, don't open unlisted files
-- **Hard stop gates** — replaced vague "behavioral metrics" with concrete thresholds (6 WIs, 20 files, 4 errors, 1 failure)
-- **Failure diagnosis format** — structured error trajectory (attempt-by-attempt) gives planner actionable debugging data
-- **Tier elevation on retry** — when same area fails, auto-elevate Outcome→Directed→Guided
-- **Audit quality gate** — auditor must be at least as capable as executor; execution-grounded, not subjective
-
-### Changed
-- All 4 adapters rewritten with constitutional framing + mojibake fixes
-- README updated with correct spec sizes and feature comparison
-- WI template updated with failure diagnosis section
-- Getting Started doc updated for v1.2 features
-
-### Coverage
-- Rule coverage: ~80% → ~87%
-- Spec size: 15.9 KB → 17.6 KB (357 lines)
-
----
-
-### Internal 1.1.0 — 2026-08-21
-
-### Added — 12 strategic intelligence gaps closed
-- **Strategic Reorientation Check** — 4-question guard against blindly following stale state
-- **Product lifecycle awareness** (`productPhase`) — BUILD/SHIP/ITERATE priority guidance
-- **Anti-anchoring reading order** — read project docs before state to prevent confirmation bias
-- **INBOX processing protocol** — classify by type (bug/direction/insight/data), route appropriately
-- **Polish Ceiling Rule** — stop polishing when build passes and linter has 0 errors
-- **Pre-dispatch self-audit checklist** — 5-point verification before committing plan to execution
-- **Research protocol** — search web for APIs/libraries, read docs, verify current versions
-- **Failed batch re-entry** — check for 3+ repeat failures before retrying same strategy
-- **Common planning situations** — quick-reference for docs-wrong, need-dependency, schema-change, design-decision
-- **Grounded Verification Protocol** — 5-step LOCATE→QUOTE→VERIFY→DESIGN→CROSS-CHECK for Guided WIs
-- **Model-type consideration** — recommend fast model for execution if planning with expensive reasoning model
-- **Strategic thinking budget** — spend up to half session on analysis, but MUST produce actionable WIs
-
-### Changed
-- State schema updated: added `productPhase` enum and `projectStructure` object
-
-### Coverage
-- Rule coverage: ~37% → ~80%
-- Spec size: 11.2 KB → 15.9 KB (333 lines)
-
----
-
-### Internal 1.0.0 — 2026-08-21 — Initial Specification
-
-### Added — Initial release
-- Single-file spec: `KRAMAK-LITE.md` (264 lines, 11.2 KB)
-- 6-phase state machine: planning → executing → auditing → waiting → escalated → complete
-- Goldilocks Rule (Guided/Directed/Outcome detail scaling)
-- Circuit breaker (3 consecutive failures = escalate)
-- 6-category failure taxonomy
-- Scope enforcement via `files_targeted` + git diff check
-- Toolchain auto-detection (Node, Python, Rust, Go)
-- Work Item template with YAML frontmatter
-- State and Work Item JSON schemas
-- 4 IDE adapters: Antigravity, Claude Code, Cursor, Generic
-- Getting Started guide
-- README with comparison table
-
-### Coverage
-- Rule coverage: ~37% of full Kramak's 176 rules
-- Spec size: 11.2 KB (264 lines)
-
-### Design Decisions
-- **Single file over multi-file** — see `docs/ARCHITECTURE.md` for rationale
-- **No runtime dependencies** — pure Markdown + JSON schemas
-- **Constitutional framing** — avoid identity claims that conflict with IDE system prompts
+Initial spec (264 lines, 11.2KB) with 6-phase state machine, Goldilocks Rule, circuit breaker, scope enforcement, and 4 IDE adapters. Iterative additions brought rule coverage from ~37% to ~95% through: constitutional framing for IDE compatibility, strategic reorientation, product lifecycle awareness, grounded verification protocol, hard stop gates, failure diagnosis, and pre-dispatch self-audit.
 
 ---
 
 <!-- No public release comparison links yet — all versions above are pre-release internal milestones -->
-
