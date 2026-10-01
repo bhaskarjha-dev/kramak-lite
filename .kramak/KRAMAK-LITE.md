@@ -60,10 +60,12 @@ Scan the workspace root to populate `state.toolchain`. Identify the ecosystem fr
 
 > **Verification quality rule:** `checkCommands` must verify what the user will actually experience, not just what the compiler accepts. Static analysis (syntax checks, linters, type checks) is a necessary floor, not a sufficient ceiling.
 >
-> - For **user-facing web applications:** verification must confirm the application boots in its target environment and renders/responds without errors. For vanilla browser projects (no bundler), this means simulating sequential script loading in a shared global scope — isolated per-file syntax checks (e.g. `node --check`) cannot detect global scope collisions, script order dependencies, or DOM initialization races.
+> - For **user-facing applications** (web, mobile, desktop): verification must confirm the application boots in its target environment and renders/responds without errors. For vanilla browser projects (no bundler), isolated per-file syntax checks (e.g. `node --check`) cannot detect global scope collisions or script order dependencies. For compiled GUI apps, verify the binary launches.
 > - For **APIs and services:** verification must confirm endpoints respond to requests.
 > - For **CLI tools:** verification must confirm commands execute and produce expected output.
-> - For **libraries:** verification must confirm public API contracts via test suite.
+> - For **libraries and SDKs:** verification must confirm public API contracts via test suite.
+> - For **data pipelines and ML training:** verification must confirm the pipeline runs on sample data without errors.
+> - For **infrastructure-as-code:** verification must confirm plan/validate passes (e.g. `terraform plan`, `pulumi preview`).
 >
 > If `checkCommands` consists only of static analysis tools, add a functional verification step. A verification suite that cannot detect whether the application actually works is a liability — it creates false confidence that propagates through execution and audit.
 
@@ -309,7 +311,7 @@ Determine where the project is in its lifecycle and prioritize accordingly:
 ### 3.6 Formulate Work Items
 
 **Architecture-first planning:** Before decomposing into Work Items, design the integration architecture for the batch. Identify:
-1. **Entry points and orchestrators** — which files own the application lifecycle (e.g., `main.js`, `App.tsx`, `server.ts`, `index.html`)
+1. **Entry points and orchestrators** — which files own the application lifecycle (e.g., `main.py`, `main.go`, `Main.java`, `Program.cs`, `main.rs`, `main.js`, `App.tsx`, `index.html`, or equivalent)
 2. **Module interfaces** — how components will communicate (direct imports, dependency injection, event bus, shared state, etc.)
 3. **Initialization order** — what depends on what, and who instantiates whom
 4. **Integration contracts** — explicit rules for how new subsystems connect to orchestrators
@@ -467,11 +469,11 @@ Before executing, reconcile state with filesystem:
 
 1. **Verify before editing.** Read the actual file. Never code against memory or assumptions.
 2. **Stay in scope.** Only modify files listed in the Work Item's `files_targeted`, with two exceptions:
-   - **Test co-evolution:** Files in `test/`, `spec/`, `__tests__/`, or matching `*.test.*` / `*.spec.*` may be created or updated to add/maintain test coverage for the features being implemented. Tests must evolve alongside the code they verify.
-   - **Minimal orchestrator wiring:** When a WI creates a new subsystem that must be imported or instantiated by an application entry point (e.g., `main.js`, `App.tsx`, `index.html`, `server.ts`), the executor may add the necessary import statement, instantiation call, or route registration to the entry point. This is limited to the minimum lines needed to wire the new component — do NOT refactor or restructure the entry point beyond this.
+   - **Test co-evolution:** Test files (e.g., `test/`, `tests/`, `spec/`, `__tests__/`, `src/test/`, `*_test.go`, `*.test.*`, `*.spec.*`, or the project’s equivalent test directory/pattern) may be created or updated to add/maintain test coverage for the features being implemented. Tests must evolve alongside the code they verify.
+   - **Minimal orchestrator wiring:** When a WI creates a new subsystem that must be imported or instantiated by an application entry point (e.g., `main.py`, `main.go`, `Main.java`, `main.rs`, `main.js`, `App.tsx`, `index.html`, `server.ts`, or equivalent), the executor may add the necessary import statement, instantiation call, or route/plugin registration to the entry point. This is limited to the minimum lines needed to wire the new component — do NOT refactor or restructure the entry point beyond this.
 
    If broader changes to an unlisted file are needed, note it for the next planning batch.
-3. **Run verification after changes.** Execute the project's `toolchain.checkCommands`. Code that "looks right" but has not been tested does not count. **If `checkCommands` passes but the application visibly does not work (blank screen, crash on boot, missing core functionality), the verification suite is broken — fix the verification before trusting it.** Never trust a green checkmark over observable reality.
+3. **Run verification after changes.** Execute the project's `toolchain.checkCommands`. Code that "looks right" but has not been tested does not count. **If `checkCommands` passes but the application visibly does not work (fails to start, crashes on boot, produces no output, missing core functionality), the verification suite is broken — fix the verification before trusting it.** Never trust a green checkmark over observable reality.
 4. **Do not add unplanned features.** If you discover something needed, write a new WI for the next batch.
 5. **Do not ask the user questions.** The WI specification contains everything you need. Resolve decisions from the spec and codebase patterns. If the WI is unclear, fail it with category `ambiguous-spec` and route back to the planner.
 6. **Research when uncertain.** If unsure about an API, library version, or approach, search the web or read documentation. Uncertainty is a signal to research, not to guess. Account for training data cutoff — verify current versions.
@@ -603,7 +605,7 @@ Additional behavioral signals to watch: verification retries increasing across W
 
 When the queue is empty (all WIs completed or failed):
 
-**Batch integration check:** Before declaring execution complete, verify that the components built in this batch work together as an integrated system. Run the full `checkCommands` suite one final time against the fully assembled codebase. If the batch produced user-facing features, perform a quick functional sanity check (does the app boot? does it render? do core interactions work?). Individual WIs passing verification does not guarantee the integrated system works — verify the whole, not just the parts.
+**Batch integration check:** Before declaring execution complete, verify that the components built in this batch work together as an integrated system. Run the full `checkCommands` suite one final time against the fully assembled codebase. If the batch produced user-facing features, perform a quick functional sanity check (does the app start? do core operations work? do subsystems communicate correctly?). Individual WIs passing verification does not guarantee the integrated system works — verify the whole, not just the parts.
 
 1. Update `state.json`:
    - Set `phase: "auditing"`
@@ -642,9 +644,11 @@ Best done in a fresh session for unbiased review.
 1. **Read batch plan:** Review `plans/PLAN-batch-NN.md` to understand strategic intent
 2. **Run full verification:** All `toolchain.checkCommands` must pass
 3. **Functional acceptance test:** Go beyond `checkCommands`. Verify the application works as a real user would experience it:
-   - For **web applications:** verify it renders visible content and responds to basic interaction (click, navigation). If headless browser tooling is unavailable, run any available smoke test or DOM simulation.
-   - For **APIs:** send test requests to core endpoints. Verify responses.
+   - For **user-facing applications** (web, mobile, desktop): verify it starts, displays content, and responds to basic interaction. If headless/automated tooling is unavailable, run any available smoke test.
+   - For **APIs and services:** send test requests to core endpoints. Verify responses.
    - For **CLI tools:** run the main command with typical arguments. Verify output.
+   - For **libraries and SDKs:** run the test suite and verify public API contracts work as documented.
+   - For **data pipelines:** run on sample data and verify output correctness.
    - If the application fails this functional test but `checkCommands` passed, the verification suite is inadequate — note this in the audit report and add a verification improvement item to `INBOX.md`.
 4. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
 5. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
