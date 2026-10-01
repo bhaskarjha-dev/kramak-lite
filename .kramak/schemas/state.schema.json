@@ -17,6 +17,12 @@
       "default": "manual",
       "description": "How role transitions are managed. manual: user starts new sessions. orchestrated: agent spawns subagents. parallel: harness dispatches to parallel agent threads. external: an external framework (e.g. Teamwork) owns lifecycle — Kramak provides governance rules only."
     },
+    "governanceScope": {
+      "type": "string",
+      "enum": ["SPRINT", "CAMPAIGN"],
+      "default": "CAMPAIGN",
+      "description": "Governance scope. SPRINT: single-session, ≤5 WIs, collapsed plan/execute/audit. CAMPAIGN: full multi-session governance with separate roles. Quality mechanisms apply in both."
+    },
     "nextAction": {
       "type": "string",
       "description": "Instruction for the next agent (or user). The most important cross-session field — tells the next model exactly what to do."

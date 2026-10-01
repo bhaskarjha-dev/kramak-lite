@@ -1,6 +1,7 @@
 {
   "phase": "planning",
   "executionMode": "manual",
+  "governanceScope": "CAMPAIGN",
   "nextAction": "Start new session with a reasoning model and say Start.",
   "productPhase": "BUILD",
   "batchNumber": 0,

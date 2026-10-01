@@ -24,7 +24,14 @@ You have **full strategic authority** over this project's development. You can r
 - Do NOT ask interactive questions. You are autonomous. If you need human input, write to `.kramak/HUMAN-TASKS.md` (template: `.kramak/templates/human-tasks.md`), proceed with your best judgment, and the user will resolve it asynchronously.
 - Do NOT write planning output (architecture, analysis, strategy) to conversation artifacts. All output MUST be project files in `.kramak/` or `docs/`. The next session cannot read your conversation — only the project repo.
 
-**This workflow prevents the 5 most common autonomous coding failures:**
+**This workflow produces results that exceed what unstructured development can achieve:**
+1. **Superior architecture** — strategic planning designs the system before building it, considering integration, patterns, and edge cases upfront
+2. **Comprehensive completeness** — every requirement gets explicit acceptance criteria; nothing falls through the cracks
+3. **Proven reliability** — mandatory functional verification catches runtime failures, not just syntax errors
+4. **Adversarial polish** — fresh-eyes audit catches quality issues the builder missed and verifies the real user experience
+5. **Sustained quality at scale** — cross-session state and hard stop gates maintain quality across long, complex projects
+
+**It also prevents the 5 most common autonomous coding failures:**
 1. **Scope drift** — editing files outside the task boundary
 2. **Hallucinated references** — coding against imagined file contents instead of real ones
 3. **Context fatigue** — quality degrading silently as sessions grow longer
@@ -50,6 +57,15 @@ Read `.kramak/state.json`. Handle each case:
 
 ### Toolchain Detection
 Scan the workspace root to populate `state.toolchain`. Identify the ecosystem from manifest files (`package.json`, `Cargo.toml`, `pyproject.toml`, `go.mod`, etc.), detect the correct package manager from lockfiles (e.g. `pnpm-lock.yaml` → pnpm, `bun.lock` → Bun), and populate `checkCommands` with the project's build, test, and lint commands. For monorepos, detect the orchestrator (`turbo.json`, `pnpm-workspace.yaml`, `nx.json`) and configure workspace-scoped commands. Use your knowledge of each ecosystem's conventions — the goal is accurate detection, not following a rigid checklist.
+
+> **Verification quality rule:** `checkCommands` must verify what the user will actually experience, not just what the compiler accepts. Static analysis (syntax checks, linters, type checks) is a necessary floor, not a sufficient ceiling.
+>
+> - For **user-facing web applications:** verification must confirm the application boots in its target environment and renders/responds without errors. For vanilla browser projects (no bundler), this means simulating sequential script loading in a shared global scope — isolated per-file syntax checks (e.g. `node --check`) cannot detect global scope collisions, script order dependencies, or DOM initialization races.
+> - For **APIs and services:** verification must confirm endpoints respond to requests.
+> - For **CLI tools:** verification must confirm commands execute and produce expected output.
+> - For **libraries:** verification must confirm public API contracts via test suite.
+>
+> If `checkCommands` consists only of static analysis tools, add a functional verification step. A verification suite that cannot detect whether the application actually works is a liability — it creates false confidence that propagates through execution and audit.
 
 ### Git Initialization
 If `.git` directory is missing: run `git init`, create `.gitignore` tailored to the detected stack (include `.kramak/state.json.tmp` — the WAL recovery file is always ephemeral), and make an initial commit (`chore: initial commit`) before proceeding.
@@ -91,6 +107,27 @@ In `orchestrated` or `parallel` mode, role transitions happen via subagent spawn
 
 In `external` mode, an external framework (like Antigravity Teamwork, or any multi-agent harness with its own planning/dispatch) owns the lifecycle. Kramak operates as a **governance library**: agents read the relevant section for their assigned role and apply quality rules (scope enforcement, verification, circuit breaker), but do NOT own phase transitions or subagent spawning. See §7.5.
 
+### Governance Scope Assessment
+
+After project discovery, assess the governance scope based on the project goal's complexity:
+
+| Scope | When | What It Means |
+|---|---|---|
+| **SPRINT** | Entire project goal is achievable in one session with ≤5 WIs | Single-session execution. Planner designs architecture, writes WIs, then proceeds directly to execution in the same session. Self-review replaces separate audit session. Batch plan is a section in the session log rather than a standalone file. |
+| **CAMPAIGN** | Project requires multiple batches, sessions, or agents | Full multi-session governance. Separate planning, execution, and audit sessions. Formal batch plans, audit reports, and retrospectives. |
+
+Record in `state.governanceScope`. Default is CAMPAIGN.
+
+**Critical: Kramak's quality advantages apply in BOTH scopes.** SPRINT is not "skip Kramak" — it is "same quality standards, lighter process overhead." The mechanisms that make Kramak-built software *better* than ad-hoc development are non-negotiable regardless of scope:
+- ✅ Architecture-first planning — always (designs the system before building it)
+- ✅ Functional verification — always (proves the app works, not just compiles)
+- ✅ Critical self-review / separate audit — always (catches what the builder missed)
+- ✅ Scope enforcement — always (prevents spaghetti)
+- ✅ Integration coherence — always (prevents disconnected islands)
+- 📋 Separate sessions per role — CAMPAIGN only
+- 📋 Standalone batch plan document — CAMPAIGN only (session log note for SPRINT)
+- 📋 Formal audit report + retrospective — CAMPAIGN only (inline self-review for SPRINT)
+
 Create `state.json` by copying `.kramak/templates/state.template.json` and populating it with the detected toolchain and discovered project structure paths.
 
 ### Runtime Artifact Bootstrap
@@ -119,7 +156,7 @@ These files are critical for cross-session continuity. Do not defer their creati
 | `escalated` | 3+ consecutive failures. Show diagnosis. STOP. | — |
 | `complete` | Check `inbox/` for new goals. If empty, confirm completion. STOP. | — |
 
-> **One role per agent.** Each agent instance is ONE role: **Planner**, **Executor**, or **Auditor**. Read only your phase’s section. In `manual` mode, each role runs in a separate human-initiated session. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context. In `external` mode, the external framework assigns your role — read the matching section and apply its quality rules. Either way: one agent = one role = clean context.
+> **One role per agent.** Each agent instance is ONE role: **Planner**, **Executor**, or **Auditor**. Read only your phase’s section. In `manual` mode, each role runs in a separate human-initiated session. In `orchestrated` mode, the current role spawns the next role as a subagent with fresh context. In `external` mode, the external framework assigns your role — read the matching section and apply its quality rules. Either way: one agent = one role = clean context. **Exception:** In SPRINT governance scope (§1), a single agent performs all three roles sequentially in one session — the quality mechanisms (architecture-first planning, functional verification, critical review) still apply, but the session break is removed.
 >
 > **Model guidance:** Planning needs a strong reasoning model. Execution needs a fast, precise model. Auditing needs at least the execution model’s capability. Communicate model requirements at every role transition — whether to the user (`manual`), via model selection in the subagent spawn (`orchestrated`/`parallel`), or as metadata to the external framework (`external`).
 
@@ -133,7 +170,7 @@ Regardless of urgency, time pressure, or project type, every planning session MU
 1. ✅ `state.json` created/updated (before any other work)
 2. ✅ `productPhase` determined (BUILD/SHIP/ITERATE)
 3. ✅ At least 1 Work Item file in `.kramak/work-items/`
-4. ✅ Batch plan in `.kramak/plans/PLAN-batch-NN.md`
+4. ✅ Batch plan in `.kramak/plans/PLAN-batch-NN.md` (CAMPAIGN scope) or batch plan section in session log entry (SPRINT scope)
 5. ✅ Inbox processed (items moved to "Processed")
 6. ✅ Session Log entry appended to `.kramak/SESSION-LOG.md`
 
@@ -271,6 +308,14 @@ Determine where the project is in its lifecycle and prioritize accordingly:
 
 ### 3.6 Formulate Work Items
 
+**Architecture-first planning:** Before decomposing into Work Items, design the integration architecture for the batch. Identify:
+1. **Entry points and orchestrators** — which files own the application lifecycle (e.g., `main.js`, `App.tsx`, `server.ts`, `index.html`)
+2. **Module interfaces** — how components will communicate (direct imports, dependency injection, event bus, shared state, etc.)
+3. **Initialization order** — what depends on what, and who instantiates whom
+4. **Integration contracts** — explicit rules for how new subsystems connect to orchestrators
+
+Record this design in the batch plan. This is the planner's primary value-add — a well-designed architecture makes decomposition straightforward and execution reliable. Decomposing without a design produces disconnected islands.
+
 Write Work Items to `.kramak/work-items/WI-NNN.md` using the tier-specific template:
 
 | Tier | Template | When |
@@ -286,6 +331,8 @@ The generic template at `.kramak/templates/WORK-ITEM.template.md` serves as a re
 > **HARD LIMIT — Planner MUST NOT write source code.** You may directly edit `.kramak/` files, docs, roadmaps, and project documentation. You MUST NOT directly edit source code, config files that require testing, database schemas, or package dependencies — write WIs for those. Not for urgency, not for hackathons, not for "just this once." If the planner writes code, the executor has nothing to do, the audit has nothing to verify, and the workflow collapses into unstructured vibe-coding.
 
 > **Collapse ambiguity:** Your job as planner is to collapse ambiguity, not write code. Once ambiguity is collapsed into a clear spec, even a less capable model can execute it. Spend your tokens on WHAT and WHY.
+
+> **Integration coherence rule:** If a WI's acceptance criteria or integration points reference a file, that file MUST appear in its `files_targeted`. Do not create WIs with impossible contracts — specs that demand the executor wire into files the executor cannot touch. If an orchestrator file cannot be included in a WI due to parallel group conflicts, schedule a dedicated integration WI as the final sequential item in the batch.
 
 ### 3.7 Detail Scaling — The Goldilocks Rule
 
@@ -316,6 +363,7 @@ Match specification detail to risk. Over-specifying degrades model performance. 
 - **One concern per WI:** Each WI addresses a single coherent concern. Multiple files (3-8) are fine if they all serve one purpose.
 - **Order by dependency:** Independent WIs first, dependent WIs after their prerequisites
 - **Build order within a story:** Schema/data model (Guided) → backend logic (Directed) → frontend UI (Directed/Outcome) → integration wiring (Directed) → polish (Outcome)
+- **Integration ownership:** Every batch must end with a functioning, integrated system — not a collection of unconnected modules. The last WI in a batch should either include the orchestrator/entry point in its `files_targeted` for final wiring, or be a dedicated integration WI that connects all subsystems built in the batch.
 - **Consider alternatives:** For medium/high-risk work, evaluate at least 2 approaches and document the chosen one with rationale in the WI Intent. For architectural decisions, consider 3.
 - **Confidence calibration:** Rate your confidence per WI: High (proceed), Medium (verify assumptions first), Low (research and flag risk explicitly)
 - **Parallel groups** (when `executionMode` is `orchestrated` or `parallel`): Assign each WI a `parallel_group` label (e.g., `"A"`, `"B"`). WIs in different groups have non-overlapping `files_targeted` and no mutual `depends_on` — they can run simultaneously. WIs in the same group share files or dependencies and must run sequentially within the group. Record groups in the batch plan and in each WI's YAML frontmatter.
@@ -332,6 +380,8 @@ Before transitioning to execution, verify:
 - [ ] All Guided WIs have grep-verified BEFORE patterns with unique matches
 - [ ] All WIs have specific verification commands and observable acceptance criteria
 - [ ] Dependency ordering is correct (schema before backend before frontend)
+- [ ] **Integration coherence:** Every file referenced in WI acceptance criteria or integration points appears in that WI's `files_targeted`, OR a dedicated integration WI covers the wiring
+- [ ] **Verification adequacy:** `checkCommands` includes functional verification that proves the application works in its target environment, not just static analysis
 
 > **Common planning situations:**
 > - Project docs are wrong -> fix them directly (they are planning artifacts)
@@ -377,7 +427,9 @@ Before transitioning to execution, verify:
    - Return your planning results (batch plan, WI list, parallel groups, model recommendations) to the external framework. The framework handles execution dispatch.
    - **STOP.** Your role as planner is complete. The external framework decides what happens next.
 
-> **Exception (manual mode only):** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY. In `orchestrated`/`parallel` mode, always use subagents — context isolation is the mechanism that preserves role separation. In `external` mode, always return to the framework.
+> **SPRINT governance scope (manual mode):** If `state.governanceScope` is SPRINT, the planner proceeds directly to §4 after completing steps 1–5 above. No session break is needed. After execution completes, perform a self-review: run all `checkCommands`, perform the functional acceptance test (§5 Step 2b), review your own code for quality issues, and commit. This is not a shortcut — it is the appropriate governance level for work that fits in a single context window while still delivering Kramak's quality advantages: designed architecture, proven verification, and critical review.
+
+> **Exception (manual mode, CAMPAIGN scope):** You may continue to §4 IN THE SAME SESSION if your planning was very light (≤3 WIs, no research, no strategic vision) AND you are equally capable at execution. But steps 1–5 above are STILL MANDATORY. In `orchestrated`/`parallel` mode, always use subagents — context isolation is the mechanism that preserves role separation. In `external` mode, always return to the framework.
 
 ### Branch Management
 
@@ -414,8 +466,12 @@ Before executing, reconcile state with filesystem:
 ### 4.2 Core Rules
 
 1. **Verify before editing.** Read the actual file. Never code against memory or assumptions.
-2. **Stay in scope.** Only modify files listed in the Work Item's `files_targeted`. If you must touch another file, note it for the next planning batch instead.
-3. **Run verification after changes.** Execute the project's `toolchain.checkCommands`. Code that "looks right" but has not been tested does not count.
+2. **Stay in scope.** Only modify files listed in the Work Item's `files_targeted`, with two exceptions:
+   - **Test co-evolution:** Files in `test/`, `spec/`, `__tests__/`, or matching `*.test.*` / `*.spec.*` may be created or updated to add/maintain test coverage for the features being implemented. Tests must evolve alongside the code they verify.
+   - **Minimal orchestrator wiring:** When a WI creates a new subsystem that must be imported or instantiated by an application entry point (e.g., `main.js`, `App.tsx`, `index.html`, `server.ts`), the executor may add the necessary import statement, instantiation call, or route registration to the entry point. This is limited to the minimum lines needed to wire the new component — do NOT refactor or restructure the entry point beyond this.
+
+   If broader changes to an unlisted file are needed, note it for the next planning batch.
+3. **Run verification after changes.** Execute the project's `toolchain.checkCommands`. Code that "looks right" but has not been tested does not count. **If `checkCommands` passes but the application visibly does not work (blank screen, crash on boot, missing core functionality), the verification suite is broken — fix the verification before trusting it.** Never trust a green checkmark over observable reality.
 4. **Do not add unplanned features.** If you discover something needed, write a new WI for the next batch.
 5. **Do not ask the user questions.** The WI specification contains everything you need. Resolve decisions from the spec and codebase patterns. If the WI is unclear, fail it with category `ambiguous-spec` and route back to the planner.
 6. **Research when uncertain.** If unsure about an API, library version, or approach, search the web or read documentation. Uncertainty is a signal to research, not to guess. Account for training data cutoff — verify current versions.
@@ -446,7 +502,7 @@ Before executing, reconcile state with filesystem:
    Directed -> Follow intent and constraints, you own the HOW
    Outcome  -> Follow acceptance criteria, you own the design
 6. Re-ground periodically (every 3 tool calls: re-read WI, check scope)
-7. Run verification (checkCommands + WI-specific tests)
+7. Run verification (checkCommands + WI-specific tests). If all checks pass but the change is visually or functionally broken, do NOT proceed — fix the issue or update checkCommands to catch the problem.
 8. Scope check (detective backup for the intercept above — both required):
    git diff --name-only must match files_targeted
    -> If unlisted file touched: revert it with git checkout
@@ -547,6 +603,8 @@ Additional behavioral signals to watch: verification retries increasing across W
 
 When the queue is empty (all WIs completed or failed):
 
+**Batch integration check:** Before declaring execution complete, verify that the components built in this batch work together as an integrated system. Run the full `checkCommands` suite one final time against the fully assembled codebase. If the batch produced user-facing features, perform a quick functional sanity check (does the app boot? does it render? do core interactions work?). Individual WIs passing verification does not guarantee the integrated system works — verify the whole, not just the parts.
+
 1. Update `state.json`:
    - Set `phase: "auditing"`
    - Set `nextAction` (see mode-specific step 4 below)
@@ -583,22 +641,28 @@ Best done in a fresh session for unbiased review.
 
 1. **Read batch plan:** Review `plans/PLAN-batch-NN.md` to understand strategic intent
 2. **Run full verification:** All `toolchain.checkCommands` must pass
-3. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
-4. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
-5. **Fix issues directly:** Commit with `fix(audit): description` prefix
-6. **Strategic concerns:** If you notice architectural drift, missing features, or strategic concerns, write them to `.kramak/inbox/INBOX.md` (Unprocessed section) for the next planning cycle.
-7. **Write audit report:** Create `.kramak/plans/AUDIT-batch-NN.md` using the template at `.kramak/templates/audit-report.md`.
-8. **Write retrospective:** Create `.kramak/plans/RETRO-batch-NN.md` using the template at `.kramak/templates/retrospective.md`. Focus on what the NEXT planner should learn from this batch.
-9. **Append to Session Log:** Add an audit entry to `.kramak/SESSION-LOG.md` recording: batch number, model, verdict, fixes applied, strategic concerns, and recommendations for next planner.
-10. **Update state:**
+3. **Functional acceptance test:** Go beyond `checkCommands`. Verify the application works as a real user would experience it:
+   - For **web applications:** verify it renders visible content and responds to basic interaction (click, navigation). If headless browser tooling is unavailable, run any available smoke test or DOM simulation.
+   - For **APIs:** send test requests to core endpoints. Verify responses.
+   - For **CLI tools:** run the main command with typical arguments. Verify output.
+   - If the application fails this functional test but `checkCommands` passed, the verification suite is inadequate — note this in the audit report and add a verification improvement item to `INBOX.md`.
+4. **Review completed WIs:** Read the actual code changes. Does each one match its WI intent?
+5. **Scope verification:** `git diff --name-only` against the union of all WIs' `files_targeted`
+6. **Fix issues directly:** Commit with `fix(audit): description` prefix. **After any audit fix, re-run `checkCommands` and the functional acceptance test (Step 3) before proceeding.** If an audit fix introduces new failures, revert it and record the issue in `INBOX.md` for the next planning cycle — do not ship unverified code from the audit phase. The auditor is the last gate; its code must meet the same verification standard as executor code.
+7. **Strategic concerns:** If you notice architectural drift, missing features, or strategic concerns, write them to `.kramak/inbox/INBOX.md` (Unprocessed section) for the next planning cycle.
+8. **Write audit report:** Create `.kramak/plans/AUDIT-batch-NN.md` using the template at `.kramak/templates/audit-report.md`.
+9. **Write retrospective:** Create `.kramak/plans/RETRO-batch-NN.md` using the template at `.kramak/templates/retrospective.md`. Focus on what the NEXT planner should learn from this batch.
+10. **Append to Session Log:** Add an audit entry to `.kramak/SESSION-LOG.md` recording: batch number, model, verdict, fixes applied, strategic concerns, and recommendations for next planner.
+11. **Update state:**
     - Set `state.lastAudit` with `batchNumber`, `verdict` (pass / pass-with-fixes / fail), `timestamp`, `fixesApplied`, `strategicConcerns`
     - **Verdict guide:** `pass` = all WIs verified, no fixes needed. `pass-with-fixes` = issues found and fixed inline. `fail` = fundamental misimplementation, all WIs failed, or architectural regression that cannot be fixed inline — the batch must be re-planned.
     - If verdict is `fail`: transition to `planning`. Set `nextAction` to `"Batch NN failed audit. Start new session with reasoning model to re-plan and say Start."`. Write the failure rationale to `.kramak/inbox/INBOX.md`.
     - If verdict is `pass` or `pass-with-fixes`: transition to `planning` (next batch) or `complete` (all goals met)
+    - **Completion acceptance gate:** Before setting `phase: "complete"`, the application must pass both `checkCommands` AND the functional acceptance test (Step 3). "All WIs completed" is necessary but not sufficient — the integrated system must demonstrably function. If it does not, verdict is `fail` regardless of individual WI status.
     - Set `nextAction` to either `"Start new session with reasoning model for next planning batch and say Start."` or `"All goals met. Add new goals to inbox to continue."`
     - Set `lastSession.summary`, `lastSession.model`, `lastSession.timestamp`
-11. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
-12. **Transition by mode:**
+12. Commit: `git add .kramak/; git commit -m "audit(batch-NN): [verdict]"`
+13. **Transition by mode:**
 
     **`manual` mode:**
     - If next phase is `planning`:
